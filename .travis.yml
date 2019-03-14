@@ -1,0 +1,36 @@
+language: go
+
+go:
+  - 1.x
+
+os:
+  - linux
+
+dist: xenial
+
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/gopath/pkg/mod
+
+sudo: false
+
+addons:
+  apt:
+    update: true
+
+env:
+ global:
+   - GO111MODULE=on
+
+script:
+  - ./ci/travis.gofmt.sh
+  - ./ci/travis.govet.sh
+  - ./ci/travis.codecov.sh
+  - make clean build
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+
+notifications:
+  email: false
