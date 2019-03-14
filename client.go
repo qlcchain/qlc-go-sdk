@@ -3,7 +3,7 @@ package qlcchain
 import (
 	"fmt"
 	"github.com/qlcchain/go-qlc/rpc"
-	"github.com/qlcchain/qlc.go/module"
+	"github.com/qlcchain/qlc-go-sdk/module"
 )
 
 type QLCClient struct {

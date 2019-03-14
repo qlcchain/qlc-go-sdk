@@ -1,4 +1,4 @@
-module github.com/qlcchain/qlc.go
+module github.com/qlcchain/qlc-go-sdk
 
 go 1.12
 
