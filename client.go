@@ -2,6 +2,7 @@ package qlcchain
 
 import (
 	"fmt"
+
 	"github.com/qlcchain/go-qlc/rpc"
 	"github.com/qlcchain/qlc-go-sdk/module"
 )
@@ -13,7 +14,7 @@ type QLCClient struct {
 	Ledger   *module.LedgerApi
 	Mintage  *module.MintageApi
 	Network  *module.NetApi
-	SMS      *module.SmsApi
+	SMS      *module.SMSApi
 	Wallet   *module.WalletApi
 	Util     *module.UtilApi
 }
@@ -23,7 +24,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &QLCClient{client: client}, nil
+	return &QLCClient{client: client, Account: module.NewAccountApi(client)}, nil
 }
 
 func (c *QLCClient) Version() string {
