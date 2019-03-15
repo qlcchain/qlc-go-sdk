@@ -103,6 +103,9 @@ func main() {
 
 func getAmount() int {
 	i, _ := random.Intn(maxAmount)
+	if i == 0 {
+		return getAmount()
+	}
 	return i
 }
 
@@ -113,4 +116,10 @@ func randomAccount(a *types.Account, account []*types.Account) *types.Account {
 		return randomAccount(a, account)
 	}
 	return tmp
+}
+
+func hash(msg string) types.Hash {
+	m := fmt.Sprintf("%s powered by qlcchain", msg)
+	h, _ := types.HashBytes([]byte(m))
+	return h
 }

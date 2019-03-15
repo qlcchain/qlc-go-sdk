@@ -2,6 +2,7 @@ package message
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/qlcchain/go-qlc/crypto/random"
 )
 
@@ -3479,4 +3480,10 @@ func RandomPoem() (int, *Poem) {
 func (p *Poem) String() string {
 	bytes, _ := json.Marshal(p)
 	return string(bytes)
+}
+
+func (p *Poem) Message() string {
+	l := len(p.Content)
+	i, _ := random.Intn(l)
+	return fmt.Sprintf("%s——%s.%s.%s", p.Content[i], p.Title, p.Chapter, p.Section)
 }
