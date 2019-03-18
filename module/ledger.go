@@ -189,6 +189,10 @@ func (l *LedgerApi) pending(address types.Address, hash types.Hash) (*api.APIPen
 	return nil, errors.New("pending not found")
 }
 
+func (l *LedgerApi) GenerateReceiveBlockByHash(txHash *types.Hash, sign Signature) (*types.StateBlock, error) {
+	return &types.StateBlock{}, nil
+}
+
 func (l *LedgerApi) GenerateReceiveBlock(sendBlock *types.StateBlock, sign Signature) (*types.StateBlock, error) {
 	sendHash := sendBlock.GetHash()
 	if !sendBlock.GetType().Equal(types.Send) {

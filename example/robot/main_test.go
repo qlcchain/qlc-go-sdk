@@ -39,7 +39,7 @@ func Test_randomAccount(t *testing.T) {
 
 func Test_getAmount(t *testing.T) {
 	for i := 0; i < 1000000; i++ {
-		amount := getAmount()
+		amount := randomAmount()
 		if amount <= 0 {
 			t.Fatal("err")
 		}
@@ -59,4 +59,11 @@ func Test_hash(t *testing.T) {
 		t.Fatal("failed to hash message")
 	}
 	t.Log(m, h.String())
+}
+
+func Test_randomPhone(t *testing.T) {
+	for i := 0; i < 1000; i++ {
+		_ = randomPhone()
+		//t.Log(phone)
+	}
 }
