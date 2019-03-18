@@ -24,7 +24,10 @@ func NewQLCClient(url string) (*QLCClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &QLCClient{client: client, Account: module.NewAccountApi(client)}, nil
+	return &QLCClient{client: client, Account: module.NewAccountApi(client),
+		Ledger: module.NewLedgerApi(client),
+		SMS:    module.NewSMSApi(client),
+	}, nil
 }
 
 func (c *QLCClient) Version() string {
