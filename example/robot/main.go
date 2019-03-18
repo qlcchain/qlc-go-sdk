@@ -4,13 +4,6 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"github.com/qlcchain/go-qlc/common/types"
-	"github.com/qlcchain/go-qlc/common/util"
-	"github.com/qlcchain/go-qlc/crypto/random"
-	"github.com/qlcchain/go-qlc/log"
-	"github.com/qlcchain/go-qlc/rpc/api"
-	"github.com/qlcchain/qlc-go-sdk"
-	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 	"math/big"
 	"os"
 	"os/signal"
@@ -18,6 +11,14 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/qlcchain/go-qlc/common/types"
+	"github.com/qlcchain/go-qlc/common/util"
+	"github.com/qlcchain/go-qlc/crypto/random"
+	"github.com/qlcchain/go-qlc/log"
+	"github.com/qlcchain/go-qlc/rpc/api"
+	"github.com/qlcchain/qlc-go-sdk"
+	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 
 type arrayFlags []string
@@ -171,7 +172,7 @@ func main() {
 
 				for addr, v := range pendings {
 					for _, pending := range v {
-						rxBlock, err := client.Ledger.GenerateReceiveBlockByHash(&pending.Hash, func(hash types.Hash) (types.Signature, error) {
+						rxBlock, err := client.Ledger.GenerateReceiveBlockByHash(pending.Hash, func(hash types.Hash) (types.Signature, error) {
 							if a, ok := cache[addr]; ok {
 								return a.Sign(hash), nil
 							} else {

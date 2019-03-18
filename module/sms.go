@@ -14,12 +14,22 @@ func NewSMSApi(c *rpc.Client) *SMSApi {
 	return &SMSApi{client: c}
 }
 
-func (s *SMSApi) PhoneBlocks(sender string) (map[string][]*api.APIBlock, error) {
-	return nil, nil
+func (s *SMSApi) PhoneBlocks(phone string) (map[string][]*api.APIBlock, error) {
+	var r map[string][]*api.APIBlock
+	err := s.client.Call(&r, "sms_phoneBlocks", phone)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 func (s *SMSApi) MessageBlock(hash types.Hash) (*api.APIBlock, error) {
-	return nil, nil
+	var ab api.APIBlock
+	err := s.client.Call(&ab, "sms_messageBlock", hash)
+	if err != nil {
+		return nil, err
+	}
+	return &ab, nil
 }
 
 func (s *SMSApi) MessageHash(message string) (types.Hash, error) {
