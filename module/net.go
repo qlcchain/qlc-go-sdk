@@ -13,6 +13,11 @@ func NewNetApi(c *rpc.Client) *NetApi {
 	return &NetApi{client: c}
 }
 
-func (q *NetApi) OnlineRepresentatives() []types.Address {
-	return nil
+func (q *NetApi) OnlineRepresentatives() ([]types.Address, error) {
+	var addrs []types.Address
+	err := q.client.Call(&addrs, "net_onlineRepresentatives")
+	if err != nil {
+		return nil, err
+	}
+	return addrs, nil
 }
