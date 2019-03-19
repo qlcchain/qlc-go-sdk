@@ -33,13 +33,28 @@ func (s *SMSApi) MessageBlock(hash types.Hash) (*api.APIBlock, error) {
 }
 
 func (s *SMSApi) MessageHash(message string) (types.Hash, error) {
-	return types.ZeroHash, nil
+	var h types.Hash
+	err := s.client.Call(&h, "sms_messageHash", message)
+	if err != nil {
+		return types.ZeroHash, err
+	}
+	return h, nil
 }
 
 func (s *SMSApi) MessageStore(message string) (types.Hash, error) {
-	return types.ZeroHash, nil
+	var h types.Hash
+	err := s.client.Call(&h, "sms_messageStore", message)
+	if err != nil {
+		return types.ZeroHash, err
+	}
+	return h, nil
 }
 
 func (s *SMSApi) MessageInfo(mHash types.Hash) (string, error) {
-	return "", nil
+	var str string
+	err := s.client.Call(&str, "sms_messageInfo", mHash)
+	if err != nil {
+		return "", err
+	}
+	return str, nil
 }
