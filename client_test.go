@@ -81,7 +81,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if b.GetHash() != sendBlock.GetHash() {
+	if b[0].GetHash() != sendBlock.GetHash() {
 		t.Fatal()
 	}
 }
