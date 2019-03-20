@@ -51,7 +51,7 @@ var (
 )
 
 func main() {
-	flag.StringVar(&endPoint, "endpoint", "ws://127.0.0.1:9736", "RPC Server endpoint")
+	flag.StringVar(&endPoint, "endpoint", "ws://127.0.0.1:19736", "RPC Server endpoint")
 	flag.Var(&accounts, "account", "account private key")
 	flag.Parse()
 
@@ -93,13 +93,20 @@ func main() {
 		return
 	}
 
-	logger.Infof("%d Account will send Tx every %d second(s)\n", txAccountSize, *txInterval)
+	// make sure all accounts already open
+	err = generateReceives(client)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	logger.Infof("%d Account will send Tx every %d second(s)", txAccountSize, *txInterval)
 
 	txDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *txInterval))
 	txTicker := time.NewTicker(txDuration)
 	defer txTicker.Stop()
 
-	rxDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", rxInterval))
+	rxDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *rxInterval))
 	rxTicker := time.NewTicker(rxDuration)
 	defer rxTicker.Stop()
 
@@ -115,6 +122,8 @@ func main() {
 			logger.Info("produce send @ ", txTime)
 			go func() {
 				txAccount := randomAccount(nil, txAccounts)
+				setAccount(txAccount)
+				defer setAccount(nil)
 				rxAccount := randomAccount(txAccount, txAccounts)
 				amount := randomAmount()
 				_, p := message.RandomPoem()
@@ -151,46 +160,54 @@ func main() {
 		case rxTime := <-rxTicker.C:
 			logger.Info("generate receive @ ", rxTime)
 			go func() {
-				//generate receive block
-				cache := make(map[types.Address]*types.Account, 0)
-				var addresses []types.Address
-				account := getAccount()
-				for _, a := range txAccounts {
-					addr := a.Address()
-					if addr == account.Address() {
-						continue
-					}
-					addresses = append(addresses, addr)
-					cache[addr] = a
-				}
-
-				pendings, err := client.Ledger.AccountsPending(addresses, -1)
+				err := generateReceives(client)
 				if err != nil {
 					logger.Error(err)
-					return
-				}
-
-				for addr, v := range pendings {
-					for _, pending := range v {
-						rxBlock, err := client.Ledger.GenerateReceiveBlockByHash(pending.Hash, func(hash types.Hash) (types.Signature, error) {
-							if a, ok := cache[addr]; ok {
-								return a.Sign(hash), nil
-							} else {
-								return types.Signature{}, fmt.Errorf("can not find addr[%s]private key", addr.String())
-							}
-						})
-						if err != nil {
-							logger.Error(err)
-							continue
-						}
-						if h, err := client.Ledger.Process(rxBlock); err == nil {
-							logger.Infof("generate receive %s from %s", pending.Hash.String(), h.String())
-						}
-					}
 				}
 			}()
 		}
 	}
+}
+
+func generateReceives(client *qlcchain.QLCClient) error {
+	//generate receive block
+	cache := make(map[types.Address]*types.Account, 0)
+	var addresses []types.Address
+	account := getAccount()
+	for _, a := range txAccounts {
+		addr := a.Address()
+		if account != nil && addr == account.Address() {
+			continue
+		}
+		addresses = append(addresses, addr)
+		cache[addr] = a
+	}
+
+	pendings, err := client.Ledger.AccountsPending(addresses, -1)
+	if err != nil {
+		return err
+	}
+
+	for addr, v := range pendings {
+		for _, pending := range v {
+			rxBlock, err := client.Ledger.GenerateReceiveBlockByHash(pending.Hash, func(hash types.Hash) (types.Signature, error) {
+				if a, ok := cache[addr]; ok {
+					return a.Sign(hash), nil
+				} else {
+					return types.Signature{}, fmt.Errorf("can not find addr[%s]private key", addr.String())
+				}
+			})
+			if err != nil {
+				logger.Error(err)
+				continue
+			}
+			if h, err := client.Ledger.Process(rxBlock); err == nil {
+				logger.Infof("generate receive %s from %s", pending.Hash.String(), h.String())
+			}
+		}
+	}
+
+	return nil
 }
 
 func randomAmount() int {
