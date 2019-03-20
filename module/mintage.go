@@ -15,17 +15,37 @@ func NewMintageApi(c *rpc.Client) *MintageApi {
 }
 
 func (m *MintageApi) GetMintageData(param *api.MintageParams) ([]byte, error) {
-	return nil, nil
+	var r []byte
+	err := m.client.Call(&r, "mintage_getMintageData", param)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 func (m *MintageApi) GetMintageBlock(param *api.MintageParams) (*types.StateBlock, error) {
-	return nil, nil
+	var sb types.StateBlock
+	err := m.client.Call(&sb, "mintage_getMintageBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	return &sb, nil
 }
 
 func (m *MintageApi) GetRewardBlock(input *types.StateBlock) (*types.StateBlock, error) {
-	return nil, nil
+	var sb types.StateBlock
+	err := m.client.Call(&sb, "mintage_getRewardBlock", input)
+	if err != nil {
+		return nil, err
+	}
+	return &sb, nil
 }
 
 func (m *MintageApi) GetWithdrawMintageData(tokenId types.Hash) ([]byte, error) {
-	return nil, nil
+	var r []byte
+	err := m.client.Call(&r, "mintage_getWithdrawMintageData", tokenId)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
