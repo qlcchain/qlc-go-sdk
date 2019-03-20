@@ -32,8 +32,7 @@ func (l *LedgerApi) AccountBlocksCount(address types.Address) (int64, error) {
 
 // AccountHistoryTopn returns blocks list for a specific account of chain
 // count is number of blocks to return, and offset is index of block where to start
-// If offset not set ,default is 0
-func (l *LedgerApi) AccountHistoryTopn(address types.Address, count int, offset *int) ([]*api.APIBlock, error) {
+func (l *LedgerApi) AccountHistoryTopn(address types.Address, count int, offset int) ([]*api.APIBlock, error) {
 	var blocks []*api.APIBlock
 	err := l.client.Call(&blocks, "ledger_accountHistoryTopn", address, count, offset)
 	if err != nil {
@@ -119,8 +118,7 @@ func (l *LedgerApi) AccountsCount() (uint64, error) {
 
 // Accounts returns accounts list of chain
 // count is number of accounts to return, and offset is index of account where to start
-// If offset not set ,default is 0
-func (l *LedgerApi) Accounts(count int, offset *int) ([]*types.Address, error) {
+func (l *LedgerApi) Accounts(count int, offset int) ([]*types.Address, error) {
 	var r []*types.Address
 	err := l.client.Call(&r, "ledger_accounts", count, offset)
 	if err != nil {
@@ -164,6 +162,19 @@ func (l *LedgerApi) BlocksCountByType() (map[string]uint64, error) {
 	return r, nil
 }
 
+// BlockInfo accepts a block hash, and returns block info for the hash
+func (l *LedgerApi) BlockInfo(hash types.Hash) (*api.APIBlock, error) {
+	b, err := l.BlocksInfo([]types.Hash{hash})
+	if err != nil {
+		return nil, err
+	}
+	if len(b) < 1 {
+		return nil, errors.New("block not found")
+	}
+	return b[0], nil
+
+}
+
 // BlocksInfo accepts blocks hash list, and returns block info for each hash
 func (l *LedgerApi) BlocksInfo(hash []types.Hash) ([]*api.APIBlock, error) {
 	var ab []*api.APIBlock
@@ -176,8 +187,7 @@ func (l *LedgerApi) BlocksInfo(hash []types.Hash) ([]*api.APIBlock, error) {
 
 // Blocks returns blocks list of chain
 // count is number of blocks to return, and offset is index of block where to start
-// If offset not set ,default is 0
-func (l *LedgerApi) Blocks(count int, offset *int) ([]*api.APIBlock, error) {
+func (l *LedgerApi) Blocks(count int, offset int) ([]*api.APIBlock, error) {
 	var r []*api.APIBlock
 	err := l.client.Call(&r, "ledger_blocks", count, offset)
 	if err != nil {
@@ -243,7 +253,7 @@ func (l *LedgerApi) GenerateSendBlock(para *api.APISendBlockPara, sign Signature
 	if err != nil {
 		return nil, err
 	}
-	tm, err := l.token(info.TokenId, para.From)
+	tm, err := l.TokenMeta(info.TokenId, para.From)
 	if err != nil {
 		return nil, errors.New("token not found")
 	}
@@ -274,45 +284,6 @@ func (l *LedgerApi) GenerateSendBlock(para *api.APISendBlockPara, sign Signature
 	}
 }
 
-func (l *LedgerApi) token(hash types.Hash, address types.Address) (*api.APITokenMeta, error) {
-	am, err := l.AccountInfo(address)
-	if err != nil {
-		return nil, err
-	}
-	for _, t := range am.Tokens {
-		if t.Type == hash {
-			return t, nil
-		}
-	}
-	return nil, fmt.Errorf("account [%s] does not have the  token [%s]", address.String(), hash.String())
-}
-
-func (l *LedgerApi) blockInfo(hash types.Hash) (*api.APIBlock, error) {
-	b, err := l.BlocksInfo([]types.Hash{hash})
-	if err != nil {
-		return nil, err
-	}
-	if len(b) < 1 {
-		return nil, errors.New("block not found")
-	}
-	return b[0], nil
-
-}
-
-func (l *LedgerApi) pending(address types.Address, hash types.Hash) (*api.APIPending, error) {
-	pendings, err := l.AccountsPending([]types.Address{address}, -1)
-	if err != nil {
-		return nil, err
-	}
-	rxPendings := pendings[address]
-	for _, p := range rxPendings {
-		if p.Hash == hash {
-			return p, nil
-		}
-	}
-	return nil, errors.New("pending not found")
-}
-
 // GenerateReceiveBlock returns receive block by send block, sign is a function to sign the block
 func (l *LedgerApi) GenerateReceiveBlock(txBlock *types.StateBlock, sign Signature) (*types.StateBlock, error) {
 	if !txBlock.GetType().Equal(types.Send) {
@@ -323,17 +294,17 @@ func (l *LedgerApi) GenerateReceiveBlock(txBlock *types.StateBlock, sign Signatu
 
 // GenerateReceiveBlockByHash returns receive block by send block hash, sign is a function to sign the block
 func (l *LedgerApi) GenerateReceiveBlockByHash(txHash types.Hash, sign Signature) (*types.StateBlock, error) {
-	txBlock, err := l.blockInfo(txHash)
+	txBlock, err := l.BlockInfo(txHash)
 	if err != nil {
 		return nil, err
 	}
 
 	rcAddress := types.Address(txBlock.Link)
-	pending, err := l.pending(rcAddress, txHash)
+	pending, err := l.Pending(rcAddress, txHash)
 	if err != nil {
 		return nil, err
 	}
-	rcTm, _ := l.token(txBlock.GetToken(), rcAddress)
+	rcTm, _ := l.TokenMeta(txBlock.GetToken(), rcAddress)
 
 	var blk types.StateBlock
 	if rcTm != nil {
@@ -378,13 +349,13 @@ func (l *LedgerApi) GenerateChangeBlock(account types.Address, representative ty
 		return nil, fmt.Errorf("invalid representative[%s]", representative.String())
 	}
 
-	rcTm, err := l.token(common.QLCChainToken, account)
+	rcTm, err := l.TokenMeta(common.QLCChainToken, account)
 	if err != nil {
 		return nil, err
 	}
 
 	//get latest chain token block
-	block, err := l.blockInfo(rcTm.Header)
+	block, err := l.BlockInfo(rcTm.Header)
 	if err != nil {
 		return nil, err
 	}
@@ -430,6 +401,21 @@ func (l *LedgerApi) Performance() ([]*types.PerformanceTime, error) {
 	return r, nil
 }
 
+// Pending return pending info by account and token hash, if pending not found, return error
+func (l *LedgerApi) Pending(address types.Address, hash types.Hash) (*api.APIPending, error) {
+	pendings, err := l.AccountsPending([]types.Address{address}, -1)
+	if err != nil {
+		return nil, err
+	}
+	rxPendings := pendings[address]
+	for _, p := range rxPendings {
+		if p.Hash == hash {
+			return p, nil
+		}
+	}
+	return nil, errors.New("pending not found")
+}
+
 // Representatives returns pairs of representative and its voting weight of chain
 // if set sorting false , will return representatives randomly, if set true,
 // will sorting representative balance in descending order
@@ -440,6 +426,20 @@ func (l *LedgerApi) Representatives(sorting bool) (*api.APIAccountBalances, erro
 		return nil, err
 	}
 	return &r, nil
+}
+
+// TokenMeta return tokenmeta info by account and token hash
+func (l *LedgerApi) TokenMeta(hash types.Hash, address types.Address) (*api.APITokenMeta, error) {
+	am, err := l.AccountInfo(address)
+	if err != nil {
+		return nil, err
+	}
+	for _, t := range am.Tokens {
+		if t.Type == hash {
+			return t, nil
+		}
+	}
+	return nil, fmt.Errorf("account [%s] does not have the  token [%s]", address.String(), hash.String())
 }
 
 // Tokens return all token info of chain

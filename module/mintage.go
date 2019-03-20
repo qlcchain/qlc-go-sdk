@@ -14,6 +14,7 @@ func NewMintageApi(c *rpc.Client) *MintageApi {
 	return &MintageApi{client: c}
 }
 
+// GetMintageData returns mintage data by mintage parameters
 func (m *MintageApi) GetMintageData(param *api.MintageParams) ([]byte, error) {
 	var r []byte
 	err := m.client.Call(&r, "mintage_getMintageData", param)
@@ -23,6 +24,7 @@ func (m *MintageApi) GetMintageData(param *api.MintageParams) ([]byte, error) {
 	return r, nil
 }
 
+// GetMintageBlock returns mintage block by mintage parameters
 func (m *MintageApi) GetMintageBlock(param *api.MintageParams) (*types.StateBlock, error) {
 	var sb types.StateBlock
 	err := m.client.Call(&sb, "mintage_getMintageBlock", param)
@@ -32,6 +34,7 @@ func (m *MintageApi) GetMintageBlock(param *api.MintageParams) (*types.StateBloc
 	return &sb, nil
 }
 
+// GetRewardBlock returns reward block by mintage block
 func (m *MintageApi) GetRewardBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var sb types.StateBlock
 	err := m.client.Call(&sb, "mintage_getRewardBlock", input)
@@ -41,6 +44,7 @@ func (m *MintageApi) GetRewardBlock(input *types.StateBlock) (*types.StateBlock,
 	return &sb, nil
 }
 
+// GetWithdrawMintageData returns withdraw mintage data by token id
 func (m *MintageApi) GetWithdrawMintageData(tokenId types.Hash) ([]byte, error) {
 	var r []byte
 	err := m.client.Call(&r, "mintage_getWithdrawMintageData", tokenId)
