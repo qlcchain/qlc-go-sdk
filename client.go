@@ -15,7 +15,6 @@ type QLCClient struct {
 	Mintage  *module.MintageApi
 	Network  *module.NetApi
 	SMS      *module.SMSApi
-	Wallet   *module.WalletApi
 	Util     *module.UtilApi
 }
 

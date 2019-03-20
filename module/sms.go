@@ -14,6 +14,7 @@ func NewSMSApi(c *rpc.Client) *SMSApi {
 	return &SMSApi{client: c}
 }
 
+// PhoneBlocks accepts a phone number, and returns send blocks and receiver blocks that relevant to the number
 func (s *SMSApi) PhoneBlocks(phone string) (map[string][]*api.APIBlock, error) {
 	var r map[string][]*api.APIBlock
 	err := s.client.Call(&r, "sms_phoneBlocks", phone)
@@ -23,15 +24,17 @@ func (s *SMSApi) PhoneBlocks(phone string) (map[string][]*api.APIBlock, error) {
 	return r, nil
 }
 
-func (s *SMSApi) MessageBlock(hash types.Hash) (*api.APIBlock, error) {
-	var ab api.APIBlock
+// MessageBlock accepts a message hash, and returns blocks that relevant to the hash
+func (s *SMSApi) MessageBlock(hash types.Hash) ([]*api.APIBlock, error) {
+	var ab []*api.APIBlock
 	err := s.client.Call(&ab, "sms_messageBlock", hash)
 	if err != nil {
 		return nil, err
 	}
-	return &ab, nil
+	return ab, nil
 }
 
+// MessageHash returns hash of message
 func (s *SMSApi) MessageHash(message string) (types.Hash, error) {
 	var h types.Hash
 	err := s.client.Call(&h, "sms_messageHash", message)
@@ -41,6 +44,7 @@ func (s *SMSApi) MessageHash(message string) (types.Hash, error) {
 	return h, nil
 }
 
+// MessageStore stores message and returns message hash
 func (s *SMSApi) MessageStore(message string) (types.Hash, error) {
 	var h types.Hash
 	err := s.client.Call(&h, "sms_messageStore", message)
@@ -50,6 +54,7 @@ func (s *SMSApi) MessageStore(message string) (types.Hash, error) {
 	return h, nil
 }
 
+// MessageInfo returns message for message hash
 func (s *SMSApi) MessageInfo(mHash types.Hash) (string, error) {
 	var str string
 	err := s.client.Call(&str, "sms_messageInfo", mHash)
