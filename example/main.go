@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	client, err := qlcchain.NewQLCClient("")
+	client, err := qlcchain.NewQLCClient("ws://127.0.0.1:9736")
 	if err != nil {
 		fmt.Println(err)
 	}
