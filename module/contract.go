@@ -8,6 +8,7 @@ type ContractApi struct {
 	client *rpc.Client
 }
 
+// NewContractApi creates contract module for client
 func NewContractApi(c *rpc.Client) *ContractApi {
 	return &ContractApi{client: c}
 }

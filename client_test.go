@@ -17,14 +17,14 @@ func TestQLCClient_Version(t *testing.T) {
 
 func TestQLCClient_GenerateBlock(t *testing.T) {
 	t.Skip()
-	c, err := NewQLCClient("http://127.0.0.1:9735")
+	c, err := NewQLCClient("http://127.0.0.1:19735")
 	//client, err := NewQLCClient("http://47.244.138.61:9735")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer c.client.Close()
 
-	_, sPri, _ := types.KeypairFromSeed("363CA1A23BA71D078D03A2A52CE390D5CC5AD29CF15453E0A44C6554DA1471C5", 0)
+	_, sPri, _ := types.KeypairFromSeed("46b31acd0a3bf072e7bea611a86074e7afae5ff95610f5f870208f2fd9357418", 0)
 	sAccount := types.NewAccount(sPri)
 	_, rPri, _ := types.KeypairFromSeed("123227955e098c68c1fa78953b03cf144b04567826577c1b8cab877b4902f345", 0)
 	rAccount := types.NewAccount(rPri)
@@ -77,7 +77,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 		t.Fatal()
 	}
 
-	b, err := c.SMS.MessageBlock(mHash)
+	b, err := c.SMS.MessageBlocks(mHash)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -9,6 +9,7 @@ type NetApi struct {
 	client *rpc.Client
 }
 
+// NewNetApi creates net module for client
 func NewNetApi(c *rpc.Client) *NetApi {
 	return &NetApi{client: c}
 }
