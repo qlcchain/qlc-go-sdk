@@ -24,7 +24,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	}
 	defer c.client.Close()
 
-	_, sPri, _ := types.KeypairFromSeed("46b31acd0a3bf072e7bea611a86074e7afae5ff95610f5f870208f2fd9357418", 0)
+	_, sPri, _ := types.KeypairFromSeed("343227955e098c68c1fa78953b03cf144b04567826577c1b8cab877b4902f345", 0)
 	sAccount := types.NewAccount(sPri)
 	_, rPri, _ := types.KeypairFromSeed("123227955e098c68c1fa78953b03cf144b04567826577c1b8cab877b4902f345", 0)
 	rAccount := types.NewAccount(rPri)
