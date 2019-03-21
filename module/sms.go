@@ -10,6 +10,7 @@ type SMSApi struct {
 	client *rpc.Client
 }
 
+// NewSMSApi creates sms module for client
 func NewSMSApi(c *rpc.Client) *SMSApi {
 	return &SMSApi{client: c}
 }
@@ -25,9 +26,9 @@ func (s *SMSApi) PhoneBlocks(phone string) (map[string][]*api.APIBlock, error) {
 }
 
 // MessageBlock accepts a message hash, and returns blocks that relevant to the hash
-func (s *SMSApi) MessageBlock(hash types.Hash) ([]*api.APIBlock, error) {
+func (s *SMSApi) MessageBlocks(hash types.Hash) ([]*api.APIBlock, error) {
 	var ab []*api.APIBlock
-	err := s.client.Call(&ab, "sms_messageBlock", hash)
+	err := s.client.Call(&ab, "sms_messageBlocks", hash)
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,7 @@ type Wallet struct {
 	dir string
 }
 
+// NewWallet creates a new wallet
 func NewWallet(dir string) (*Wallet, error) {
 	lock.Lock()
 	defer lock.Unlock()
@@ -35,6 +36,7 @@ func NewWallet(dir string) (*Wallet, error) {
 	return cache[dir], nil
 }
 
+// WalletIds returns all wallet ids
 func (w *Wallet) WalletIds() ([]types.Address, error) {
 	return w.WalletStore.WalletIds()
 }
@@ -54,14 +56,17 @@ func (w *Wallet) NewWallet() (types.Address, error) {
 	return w.WalletStore.NewWallet()
 }
 
+// CurrentId returns current wallet id
 func (w *Wallet) CurrentId() (types.Address, error) {
 	return w.WalletStore.CurrentId()
 }
 
+// RemoveWallet removes wallet by account
 func (w *Wallet) RemoveWallet(id types.Address) error {
 	return w.WalletStore.RemoveWallet(id)
 }
 
+// ChangePassword changes password to a new password
 func (w Wallet) ChangePassword(addr types.Address, pwd string, newPwd string) error {
 	session := w.WalletStore.NewSession(addr)
 	b, err := session.VerifyPassword(pwd)
@@ -78,6 +83,7 @@ func (w Wallet) ChangePassword(addr types.Address, pwd string, newPwd string) er
 	return nil
 }
 
+// Close closes wallet
 func (ws *Wallet) Close() error {
 	lock.Lock()
 	defer lock.Unlock()

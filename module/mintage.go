@@ -10,6 +10,7 @@ type MintageApi struct {
 	client *rpc.Client
 }
 
+// NewMintageApi creates mintage module for client
 func NewMintageApi(c *rpc.Client) *MintageApi {
 	return &MintageApi{client: c}
 }

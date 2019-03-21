@@ -16,6 +16,7 @@ type LedgerApi struct {
 	client *rpc.Client
 }
 
+// NewLedgerApi creates ledger module for client
 func NewLedgerApi(c *rpc.Client) *LedgerApi {
 	return &LedgerApi{client: c}
 }

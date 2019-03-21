@@ -18,6 +18,7 @@ type QLCClient struct {
 	Util     *module.UtilApi
 }
 
+// NewQLCClient creates a new qlc client
 func NewQLCClient(url string) (*QLCClient, error) {
 	client, err := rpc.Dial(url)
 	if err != nil {
@@ -29,6 +30,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 	}, nil
 }
 
+// Version returns qlc client version
 func (c *QLCClient) Version() string {
 	return fmt.Sprintf("%s.%s.%s", VERSION, GITREV, BUILDTIME)
 }
