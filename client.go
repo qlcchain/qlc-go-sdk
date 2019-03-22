@@ -25,8 +25,12 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		return nil, err
 	}
 	return &QLCClient{client: client, Account: module.NewAccountApi(client),
-		Ledger: module.NewLedgerApi(client),
-		SMS:    module.NewSMSApi(client),
+		Ledger:   module.NewLedgerApi(client),
+		SMS:      module.NewSMSApi(client),
+		Contract: module.NewContractApi(client),
+		Mintage:  module.NewMintageApi(client),
+		Network:  module.NewNetApi(client),
+		Util:     module.NewUtilApi(client),
 	}, nil
 }
 
