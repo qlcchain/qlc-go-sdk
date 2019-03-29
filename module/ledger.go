@@ -350,7 +350,7 @@ func (l *LedgerApi) GenerateChangeBlock(account types.Address, representative ty
 		return nil, fmt.Errorf("invalid representative[%s]", representative.String())
 	}
 
-	rcTm, err := l.TokenMeta(common.QLCChainToken, account)
+	rcTm, err := l.TokenMeta(common.ChainToken(), account)
 	if err != nil {
 		return nil, err
 	}

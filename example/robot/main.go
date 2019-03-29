@@ -56,12 +56,12 @@ func main() {
 	flag.Parse()
 
 	if *txInterval < minInterval {
-		logger.Errorf("invalid txInterval %d[%d,∞]\n", *txInterval, minInterval)
+		logger.Errorf("invalid txInterval %d[%d,∞]", *txInterval, minInterval)
 		return
 	}
 
 	if *rxInterval < minInterval {
-		logger.Errorf("invalid rxInterval %d[%d,∞]\n", *rxInterval, minInterval)
+		logger.Errorf("invalid rxInterval %d[%d,∞]", *rxInterval, minInterval)
 		return
 	}
 
@@ -77,13 +77,13 @@ func main() {
 			continue
 		}
 		account := types.NewAccount(bytes)
-		logger.Infof("Tx[%d]: %s\n", i, account.Address().String())
+		logger.Infof("Tx[%d]: %s", i, account.Address().String())
 		txAccounts = append(txAccounts, account)
 	}
 	txAccountSize = len(txAccounts)
 
 	if txAccountSize < 2 {
-		logger.Errorf("not enough account(%d) to send Tx\n", txAccountSize)
+		logger.Errorf("not enough account(%d) to send Tx", txAccountSize)
 		return
 	}
 
