@@ -40,7 +40,7 @@ func Test_randomAccount(t *testing.T) {
 func Test_getAmount(t *testing.T) {
 	for i := 0; i < 1000000; i++ {
 		amount := randomAmount()
-		if amount <= 0 {
+		if amount.IsZero() {
 			t.Fatal("err")
 		}
 		//t.Log(amount)
