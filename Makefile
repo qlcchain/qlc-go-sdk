@@ -15,7 +15,7 @@ ROBOTNAME = qlcrobot
 ROBOTOMAIN = $(shell pwd)/example/robot/main.go
 
 BUILDDIR = $(shell pwd)/build
-VERSION = 0.0.1
+VERSION = 1.0.0
 GITREV = $(shell git rev-parse --short HEAD)
 BUILDTIME = $(shell date +'%Y-%m-%d_%T')
 LDFLAGS=-ldflags "-X main.version=${VERSION} -X main.sha1ver=${GITREV} -X main.buildTime=${BUILDTIME}"
@@ -35,7 +35,7 @@ clean:
 	rm -rf $(BUILDDIR)/
 
 robot-linux: robot-linux-amd64
-	@echo "Linux cross compilation done:"
+	@echo "Linux cross compilation done."
 
 robot-linux-amd64:
 	env GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -i -o $(BUILDDIR)/$(ROBOTNAME)-linux-amd64-v$(VERSION)-$(GITREV) $(ROBOTOMAIN)
@@ -44,11 +44,11 @@ robot-linux-amd64:
 
 robot-darwin:
 	env GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -i -o $(BUILDDIR)/$(ROBOTNAME)-darwin-amd64-v$(VERSION)-$(GITREV) $(ROBOTOMAIN)
-	@echo "Build darwin server done."
+	@echo "Build darwin amd64 done."
 	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-darwin-amd64-v$(VERSION)-$(GITREV)
 
 robot-windows: robot-windows-amd64 robot-windows-386
-	@echo "Windows cross compilation done:"
+	@echo "Windows cross compilation done."
 	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-windows-*
 
 robot-windows-386:
