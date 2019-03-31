@@ -43,7 +43,7 @@ var (
 	minInterval    = 10
 	txAccounts     []*types.Account
 	txAccountSize  int
-	maxAmount      = 10
+	maxAmount      = 9
 	currentAccount *types.Account
 	mutex          sync.RWMutex
 	token          = "QLC"
@@ -137,7 +137,7 @@ func main() {
 					From:      txAccount.Address(),
 					TokenName: token,
 					To:        rxAccount.Address(),
-					Amount:    types.Balance{Int: big.NewInt(int64(amount))},
+					Amount:    amount,
 					Sender:    randomPhone(),
 					Receiver:  randomPhone(),
 					Message:   mh,
@@ -210,12 +210,12 @@ func generateReceives(client *qlcchain.QLCClient) error {
 	return nil
 }
 
-func randomAmount() int {
+func randomAmount() types.Balance {
 	i, _ := random.Intn(maxAmount)
-	if i == 0 {
-		return randomAmount()
-	}
-	return i
+	u, _ := util.SafeMul(uint64(i+1), uint64(1e6))
+	b := new(big.Int).SetUint64(u)
+
+	return types.Balance{Int: b}
 }
 
 func randomAccount(a *types.Account, account []*types.Account) *types.Account {
