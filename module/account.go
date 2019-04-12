@@ -36,6 +36,15 @@ func (a *AccountApi) ForPublicKey(pubStr string) (types.Address, error) {
 	return addr, nil
 }
 
+// NewSeed generates new seed
+func (a *AccountApi) NewSeed() (string, error) {
+	seed, err := types.NewSeed()
+	if err != nil {
+		return "", err
+	}
+	return hex.EncodeToString(seed[:]), nil
+}
+
 // PublicKey returns public key for address
 func (a *AccountApi) PublicKey(addr types.Address) string {
 	pub := hex.EncodeToString(addr.Bytes())
