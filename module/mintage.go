@@ -54,3 +54,23 @@ func (m *MintageApi) GetWithdrawMintageData(tokenId types.Hash) ([]byte, error) 
 	}
 	return r, nil
 }
+
+// GetWithdrawMintageBlock returns withdraw mintage block by withdraw parameters
+func (m *MintageApi) GetWithdrawMintageBlock(param *api.WithdrawParams) (*types.StateBlock, error) {
+	var sb types.StateBlock
+	err := m.client.Call(&sb, "mintage_GetWithdrawMintageBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	return &sb, nil
+}
+
+// GetWithdrawRewardBlock returns withdraw mintage block by mintage block
+func (m *MintageApi) GetWithdrawRewardBlock(input *types.StateBlock) (*types.StateBlock, error) {
+	var sb types.StateBlock
+	err := m.client.Call(&sb, "mintage_getWithdrawRewardBlock", input)
+	if err != nil {
+		return nil, err
+	}
+	return &sb, nil
+}

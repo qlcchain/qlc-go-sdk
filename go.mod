@@ -6,5 +6,6 @@ replace github.com/go-interpreter/wagon v0.0.0 => github.com/qlcchain/wagon v0.0
 
 require (
 	github.com/google/uuid v1.1.1
-	github.com/qlcchain/go-qlc v1.0.4
+	github.com/qlcchain/go-qlc v0.0.0-20190415154055-7cacff565264
+	google.golang.org/appengine v1.5.0 // indirect
 )
