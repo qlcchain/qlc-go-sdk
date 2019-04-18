@@ -18,7 +18,7 @@ func NewPledgeApi(c *rpc.Client) *PledgeApi {
 // GetMintageData returns pledge data by pledge parameters
 func (p *PledgeApi) GetPledgeData(param *api.PledgeParam) ([]byte, error) {
 	var r []byte
-	err := p.client.Call(&r, "mintage_getPledgeData", param)
+	err := p.client.Call(&r, "pledge_getPledgeData", param)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +28,7 @@ func (p *PledgeApi) GetPledgeData(param *api.PledgeParam) ([]byte, error) {
 // GetPledgeBlock returns pledge block by pledge parameters
 func (p *PledgeApi) GetPledgeBlock(param *api.PledgeParam) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "mintage_getPledgeBlock", param)
+	err := p.client.Call(&sb, "pledge_getPledgeBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (p *PledgeApi) GetPledgeBlock(param *api.PledgeParam) (*types.StateBlock, e
 // GetPledgeRewordBlock returns pledge reward block by pledge block
 func (p *PledgeApi) GetPledgeRewordBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "mintage_getPledgeRewordBlock", input)
+	err := p.client.Call(&sb, "pledge_getPledgeRewordBlock", input)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (p *PledgeApi) GetPledgeRewordBlock(input *types.StateBlock) (*types.StateB
 // GetWithdrawPledgeData returns withdraw pledge data by withdraw parameters
 func (p *PledgeApi) GetWithdrawPledgeData(param *api.WithdrawPledgeParam) ([]byte, error) {
 	var r []byte
-	err := p.client.Call(&r, "mintage_getWithdrawPledgeData", param)
+	err := p.client.Call(&r, "pledge_getWithdrawPledgeData", param)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (p *PledgeApi) GetWithdrawPledgeData(param *api.WithdrawPledgeParam) ([]byt
 // GetWithdrawPledgeBlock returns withdraw pledge block by withdraw parameters
 func (p *PledgeApi) GetWithdrawPledgeBlock(param *api.WithdrawPledgeParam) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "mintage_getWithdrawPledgeBlock", param)
+	err := p.client.Call(&sb, "pledge_getWithdrawPledgeBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (p *PledgeApi) GetWithdrawPledgeBlock(param *api.WithdrawPledgeParam) (*typ
 // GetWithdrawRewardBlock returns withdraw reward block by pledge block
 func (p *PledgeApi) GetWithdrawRewardBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "mintage_getWithdrawRewardBlock", input)
+	err := p.client.Call(&sb, "pledge_getWithdrawRewardBlock", input)
 	if err != nil {
 		return nil, err
 	}
