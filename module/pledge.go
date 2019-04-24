@@ -74,3 +74,21 @@ func (p *PledgeApi) GetWithdrawRewardBlock(input *types.StateBlock) (*types.Stat
 	}
 	return &sb, nil
 }
+
+func (p *PledgeApi) SearchAllPledgeInfo() ([]*api.NEP5PledgeInfo, error) {
+	var r []*api.NEP5PledgeInfo
+	err := p.client.Call(&r, "pledge_searchAllPledgeInfo")
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (p *PledgeApi) SearchPledgeInfo(param *api.WithdrawPledgeParam) ([]*api.NEP5PledgeInfo, error) {
+	var r []*api.NEP5PledgeInfo
+	err := p.client.Call(&r, "pledge_searchPledgeInfo")
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
