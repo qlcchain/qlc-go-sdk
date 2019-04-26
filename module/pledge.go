@@ -86,7 +86,7 @@ func (p *PledgeApi) SearchAllPledgeInfo() ([]*api.NEP5PledgeInfo, error) {
 
 func (p *PledgeApi) SearchPledgeInfo(param *api.WithdrawPledgeParam) ([]*api.NEP5PledgeInfo, error) {
 	var r []*api.NEP5PledgeInfo
-	err := p.client.Call(&r, "pledge_searchPledgeInfo")
+	err := p.client.Call(&r, "pledge_searchPledgeInfo", param)
 	if err != nil {
 		return nil, err
 	}
