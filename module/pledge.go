@@ -38,7 +38,7 @@ func (p *PledgeApi) GetPledgeBlock(param *api.PledgeParam) (*types.StateBlock, e
 // GetPledgeRewordBlock returns pledge reward block by pledge block
 func (p *PledgeApi) GetPledgeRewordBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "pledge_getPledgeRewordBlock", input)
+	err := p.client.Call(&sb, "pledge_getPledgeRewardBlock", input)
 	if err != nil {
 		return nil, err
 	}
