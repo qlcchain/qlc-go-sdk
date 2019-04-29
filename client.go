@@ -13,6 +13,7 @@ type QLCClient struct {
 	Contract *module.ContractApi
 	Ledger   *module.LedgerApi
 	Mintage  *module.MintageApi
+	Pledger  *module.PledgeApi
 	Network  *module.NetApi
 	SMS      *module.SMSApi
 	Util     *module.UtilApi
@@ -29,6 +30,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		SMS:      module.NewSMSApi(client),
 		Contract: module.NewContractApi(client),
 		Mintage:  module.NewMintageApi(client),
+		Pledger:  module.NewPledgeApi(client),
 		Network:  module.NewNetApi(client),
 		Util:     module.NewUtilApi(client),
 	}, nil

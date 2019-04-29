@@ -392,6 +392,16 @@ func (l *LedgerApi) Process(block *types.StateBlock) (types.Hash, error) {
 	return hash, nil
 }
 
+// Pendings returns pending transaction list on chain
+func (l *LedgerApi) Pendings() ([]*api.APIPending, error) {
+	var r []*api.APIPending
+	err := l.client.Call(&r, "ledger_pendings")
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
 // Performance returns performance time
 func (l *LedgerApi) Performance() ([]*types.PerformanceTime, error) {
 	var r []*types.PerformanceTime
