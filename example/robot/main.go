@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/qlcchain/go-qlc/common/types"
@@ -36,18 +37,16 @@ var (
 	phonePrefix = []string{"130", "131", "132", "133", "134", "135", "136", "137", "138",
 		"139", "147", "150", "151", "152", "153", "155", "156", "157", "158", "159", "186",
 		"187", "188"}
-	txInterval     = flag.Int("txInterval", 10, "send message interval")
-	rxInterval     = flag.Int("rxInterval", 120, "receive message interval")
-	endPoint       = ""
-	accounts       arrayFlags
-	minInterval    = 10
-	txAccounts     []*types.Account
-	txAccountSize  int
-	maxAmount      = 9
-	currentAccount *types.Account
-	mutex          sync.RWMutex
-	token          = "QLC"
-	logger         = log.NewLogger("qlc_robot")
+	txInterval  = flag.Int("txInterval", 10, "send message interval")
+	rxInterval  = flag.Int("rxInterval", 120, "receive message interval")
+	endPoint    = ""
+	accounts    arrayFlags
+	minInterval = 10
+
+	txAccountSize int
+	maxAmount     = 8
+	token         = "QLC"
+	logger        = log.NewLogger("qlc_robot")
 )
 
 func main() {
@@ -69,7 +68,7 @@ func main() {
 		logger.Error("can not find any account")
 		return
 	}
-
+	var txAccounts []*types.Account
 	for i, a := range accounts {
 		bytes, e := hex.DecodeString(a)
 		if e != nil {
@@ -94,7 +93,8 @@ func main() {
 	}
 
 	// make sure all accounts already open
-	err = generateReceives(client)
+	accountPool := newAccountPool(txAccounts)
+	err = generateReceives(client, accountPool)
 	if err != nil {
 		logger.Error(err)
 		return
@@ -113,18 +113,31 @@ func main() {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 
+	//prepare phone pool
+	phonePool := newResourcePool(func() interface{} {
+		return randomPhone()
+	})
+
 	for {
 		select {
 		case <-c:
 			logger.Info("receive close signal, stop ...")
+			//_ = generateReceives(client, accountPool)
 			return
 		case txTime := <-txTicker.C:
 			logger.Info("produce send @ ", txTime)
 			go func() {
-				txAccount := randomAccount(nil, txAccounts)
-				setAccount(txAccount)
-				defer setAccount(nil)
-				rxAccount := randomAccount(txAccount, txAccounts)
+				txAccount := accountPool.Get()
+				rxAccount := accountPool.Get()
+				sender := phonePool.Get()
+				receiver := phonePool.Get()
+				defer func() {
+					accountPool.Put(txAccount)
+					accountPool.Put(rxAccount)
+					phonePool.Put(sender)
+					phonePool.Put(receiver)
+				}()
+
 				amount := randomAmount()
 				_, p := message.RandomPoem()
 				m := p.Message()
@@ -133,13 +146,14 @@ func main() {
 					logger.Error(err)
 					return
 				}
+
 				param := &api.APISendBlockPara{
 					From:      txAccount.Address(),
 					TokenName: token,
 					To:        rxAccount.Address(),
 					Amount:    amount,
-					Sender:    randomPhone(),
-					Receiver:  randomPhone(),
+					Sender:    sender.(string),
+					Receiver:  receiver.(string),
 					Message:   mh,
 				}
 				logger.Debug(util.ToString(param))
@@ -156,11 +170,12 @@ func main() {
 					logger.Error(err)
 				}
 				logger.Info(hash.String())
+
 			}()
 		case rxTime := <-rxTicker.C:
 			logger.Info("generate receive @ ", rxTime)
 			go func() {
-				err := generateReceives(client)
+				err := generateReceives(client, accountPool)
 				if err != nil {
 					logger.Error(err)
 				}
@@ -169,19 +184,17 @@ func main() {
 	}
 }
 
-func generateReceives(client *qlcchain.QLCClient) error {
+func generateReceives(client *qlcchain.QLCClient, pool *accountPool) error {
 	//generate receive block
 	cache := make(map[types.Address]*types.Account, 0)
 	var addresses []types.Address
-	account := getAccount()
-	for _, a := range txAccounts {
-		addr := a.Address()
-		if account != nil && addr == account.Address() {
-			continue
-		}
+
+	pool.Iter(func(account *types.Account) error {
+		addr := account.Address()
 		addresses = append(addresses, addr)
-		cache[addr] = a
-	}
+		cache[addr] = account
+		return nil
+	})
 
 	pendings, err := client.Ledger.AccountsPending(addresses, -1)
 	if err != nil {
@@ -212,7 +225,7 @@ func generateReceives(client *qlcchain.QLCClient) error {
 
 func randomAmount() types.Balance {
 	i, _ := random.Intn(maxAmount)
-	u, _ := util.SafeMul(uint64(i+1), uint64(1e6))
+	u, _ := util.SafeMul(uint64(i+1), uint64(1e7))
 	b := new(big.Int).SetUint64(u)
 
 	return types.Balance{Int: b}
@@ -227,20 +240,6 @@ func randomAccount(a *types.Account, account []*types.Account) *types.Account {
 	return tmp
 }
 
-func setAccount(account *types.Account) {
-	mutex.Lock()
-	defer mutex.Unlock()
-
-	currentAccount = account
-}
-
-func getAccount() *types.Account {
-	mutex.RLock()
-	defer mutex.RUnlock()
-
-	return currentAccount
-}
-
 func hash(msg string) types.Hash {
 	m := fmt.Sprintf("%s powered by qlcchain", msg)
 	h, _ := types.HashBytes([]byte(m))
@@ -250,11 +249,74 @@ func hash(msg string) types.Hash {
 func randomPhone() string {
 	i, _ := random.Intn(len(phonePrefix))
 	var sb strings.Builder
-	sb.WriteString("+86 ")
+	sb.WriteString("+86")
 	sb.WriteString(phonePrefix[i])
 	for i := 0; i < 8; i++ {
 		tmp, _ := random.Intn(10)
 		sb.WriteString(strconv.Itoa(tmp))
 	}
+
 	return sb.String()
+}
+
+type resourcePool struct {
+	pool sync.Pool
+	size int64
+}
+
+func newResourcePool(fn func() interface{}) *resourcePool {
+	return &resourcePool{pool: sync.Pool{New: fn}}
+}
+
+func (rp *resourcePool) Put(val interface{}) {
+	rp.pool.Put(val)
+	atomic.AddInt64(&(rp.size), 1)
+}
+
+func (rp *resourcePool) Get() interface{} {
+	if rp.size > 0 {
+		idx, _ := random.Intn(10)
+		for i := 0; i < idx; i++ {
+			val := rp.pool.Get()
+			rp.Put(val)
+		}
+		atomic.AddInt64(&(rp.size), -1)
+		//return rp.pool.Get()
+	}
+	return rp.pool.Get()
+}
+
+type accountPool struct {
+	accounts []*types.Account
+	locker   sync.RWMutex
+}
+
+func newAccountPool(accounts []*types.Account) *accountPool {
+	return &accountPool{accounts: accounts}
+}
+
+func (ap *accountPool) Get() *types.Account {
+	ap.locker.Lock()
+	defer ap.locker.Unlock()
+	i, _ := random.Intn(len(ap.accounts))
+	tmp := ap.accounts[i]
+	ap.accounts = append(ap.accounts[:i], ap.accounts[i+1:]...)
+	return tmp
+}
+
+func (ap *accountPool) Put(account *types.Account) {
+	ap.locker.Lock()
+	defer ap.locker.Unlock()
+	ap.accounts = append(ap.accounts, account)
+}
+
+func (ap *accountPool) Iter(fn func(account *types.Account) error) {
+	ap.locker.RLock()
+	defer ap.locker.RUnlock()
+	for _, acc := range ap.accounts {
+		e := fn(acc)
+		if e != nil {
+			logger.Error(e)
+		}
+	}
 }
