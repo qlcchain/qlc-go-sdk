@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -45,7 +46,7 @@ var (
 
 	txAccountSize int
 	maxAmount     = 8
-	token         = "QLC"
+	token         = "QGAS"
 	logger        = log.NewLogger("qlc_robot")
 )
 
@@ -77,6 +78,7 @@ func main() {
 		}
 		account := types.NewAccount(bytes)
 		logger.Infof("Tx[%d]: %s", i, account.Address().String())
+		//TODO: verify account balance
 		txAccounts = append(txAccounts, account)
 	}
 	txAccountSize = len(txAccounts)
@@ -100,11 +102,7 @@ func main() {
 		return
 	}
 
-	logger.Infof("%d Account will send Tx every %d second(s)", txAccountSize, *txInterval)
-
-	txDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *txInterval))
-	txTicker := time.NewTicker(txDuration)
-	defer txTicker.Stop()
+	logger.Infof("%d Account will send Tx every %d plus delta second(s)", txAccountSize, *txInterval)
 
 	rxDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *rxInterval))
 	rxTicker := time.NewTicker(rxDuration)
@@ -118,26 +116,26 @@ func main() {
 		return randomPhone()
 	})
 
-	for {
-		select {
-		case <-c:
-			logger.Info("receive close signal, stop ...")
-			//_ = generateReceives(client, accountPool)
-			return
-		case txTime := <-txTicker.C:
-			logger.Info("produce send @ ", txTime)
-			go func() {
-				txAccount := accountPool.Get()
-				rxAccount := accountPool.Get()
-				sender := phonePool.Get()
-				receiver := phonePool.Get()
-				defer func() {
-					accountPool.Put(txAccount)
-					accountPool.Put(rxAccount)
-					phonePool.Put(sender)
-					phonePool.Put(receiver)
+	ctx, cancel := context.WithCancel(context.Background())
+	txDelta := int(float32(*txInterval) * 0.1)
+
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+
+			case rxTime := <-rxTicker.C:
+				logger.Info("generate receive @ ", rxTime)
+				go func() {
+					err := generateReceives(client, accountPool)
+					if err != nil {
+						logger.Error(err)
+					}
 				}()
 
+			default:
+				logger.Info("produce send @ ", time.Now())
 				amount := randomAmount()
 				_, p := message.RandomPoem()
 				m := p.Message()
@@ -147,6 +145,10 @@ func main() {
 					return
 				}
 
+				txAccount := accountPool.Get()
+				rxAccount := accountPool.Get()
+				sender := phonePool.Get()
+				receiver := phonePool.Get()
 				param := &api.APISendBlockPara{
 					From:      txAccount.Address(),
 					TokenName: token,
@@ -163,25 +165,30 @@ func main() {
 
 				if err != nil {
 					logger.Error(err)
+				} else {
+					logger.Info(util.ToString(txBlock))
+					hash, err := client.Ledger.Process(txBlock)
+					if err != nil {
+						logger.Error(err)
+					}
+					logger.Info(hash.String())
 				}
-				logger.Info(util.ToString(txBlock))
-				hash, err := client.Ledger.Process(txBlock)
-				if err != nil {
-					logger.Error(err)
-				}
-				logger.Info(hash.String())
 
-			}()
-		case rxTime := <-rxTicker.C:
-			logger.Info("generate receive @ ", rxTime)
-			go func() {
-				err := generateReceives(client, accountPool)
-				if err != nil {
-					logger.Error(err)
-				}
-			}()
+				accountPool.Put(txAccount)
+				accountPool.Put(rxAccount)
+				phonePool.Put(sender)
+				phonePool.Put(receiver)
+
+				i, _ := random.Intn(txDelta)
+				txDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *txInterval+i))
+				<-time.After(txDuration)
+			}
 		}
-	}
+	}(ctx)
+
+	<-c
+	logger.Info("receive close signal, stop ...")
+	cancel()
 }
 
 func generateReceives(client *qlcchain.QLCClient, pool *accountPool) error {
@@ -229,15 +236,6 @@ func randomAmount() types.Balance {
 	b := new(big.Int).SetUint64(u)
 
 	return types.Balance{Int: b}
-}
-
-func randomAccount(a *types.Account, account []*types.Account) *types.Account {
-	i, _ := random.Intn(len(account))
-	tmp := account[i]
-	if a != nil && tmp.Address() == a.Address() {
-		return randomAccount(a, account)
-	}
-	return tmp
 }
 
 func hash(msg string) types.Hash {
