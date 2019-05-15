@@ -3,6 +3,7 @@ package message
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/qlcchain/go-qlc/crypto/random"
 )
 

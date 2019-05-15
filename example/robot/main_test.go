@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/qlcchain/go-qlc/common/types"
-	"github.com/qlcchain/go-qlc/test/mock"
-	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 	"strconv"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/qlcchain/go-qlc/common/types"
+	"github.com/qlcchain/go-qlc/test/mock"
+	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 
 func Test_randomAccount(t *testing.T) {

@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	qlcchain "github.com/qlcchain/qlc-go-sdk"
 	"math/big"
 	"os"
 	"os/signal"
@@ -19,7 +20,6 @@ import (
 	"github.com/qlcchain/go-qlc/crypto/random"
 	"github.com/qlcchain/go-qlc/log"
 	"github.com/qlcchain/go-qlc/rpc/api"
-	"github.com/qlcchain/qlc-go-sdk"
 	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 
@@ -69,6 +69,17 @@ func main() {
 		logger.Error("can not find any account")
 		return
 	}
+
+	client, err := qlcchain.NewQLCClient(endPoint)
+	if err != nil {
+		logger.Error(err)
+		return
+	}
+
+	defer func() {
+		_ = client.Close()
+	}()
+
 	var txAccounts []*types.Account
 	for i, a := range accounts {
 		bytes, e := hex.DecodeString(a)
@@ -78,19 +89,18 @@ func main() {
 		}
 		account := types.NewAccount(bytes)
 		logger.Infof("Tx[%d]: %s", i, account.Address().String())
-		//TODO: verify account balance
-		txAccounts = append(txAccounts, account)
+		if a, err := client.Ledger.AccountInfo(account.Address()); err == nil && a != nil && a.Tokens != nil {
+			for _, tm := range a.Tokens {
+				if tm.TokenName == token && tm.Balance.Compare(types.ZeroBalance) == types.BalanceCompBigger {
+					txAccounts = append(txAccounts, account)
+				}
+			}
+		}
 	}
 	txAccountSize = len(txAccounts)
 
 	if txAccountSize < 2 {
 		logger.Errorf("not enough account(%d) to send Tx", txAccountSize)
-		return
-	}
-
-	client, err := qlcchain.NewQLCClient(endPoint)
-	if err != nil {
-		logger.Error(err)
 		return
 	}
 
@@ -135,53 +145,57 @@ func main() {
 				}()
 
 			default:
-				logger.Info("produce send @ ", time.Now())
-				amount := randomAmount()
-				_, p := message.RandomPoem()
-				m := p.Message()
-				mh, err := client.SMS.MessageStore(m)
-				if err != nil {
-					logger.Error(err)
-					return
-				}
-
-				txAccount := accountPool.Get()
-				rxAccount := accountPool.Get()
-				sender := phonePool.Get()
-				receiver := phonePool.Get()
-				param := &api.APISendBlockPara{
-					From:      txAccount.Address(),
-					TokenName: token,
-					To:        rxAccount.Address(),
-					Amount:    amount,
-					Sender:    sender.(string),
-					Receiver:  receiver.(string),
-					Message:   mh,
-				}
-				logger.Debug(util.ToString(param))
-				txBlock, err := client.Ledger.GenerateSendBlock(param, func(hash types.Hash) (types.Signature, error) {
-					return txAccount.Sign(hash), nil
-				})
-
-				if err != nil {
-					logger.Error(err)
-				} else {
-					logger.Info(util.ToString(txBlock))
-					hash, err := client.Ledger.Process(txBlock)
+				func() {
+					logger.Info("produce send @ ", time.Now())
+					amount := randomAmount()
+					_, p := message.RandomPoem()
+					m := p.Message()
+					mh, err := client.SMS.MessageStore(m)
 					if err != nil {
 						logger.Error(err)
+						return
 					}
-					logger.Info(hash.String())
-				}
 
-				accountPool.Put(txAccount)
-				accountPool.Put(rxAccount)
-				phonePool.Put(sender)
-				phonePool.Put(receiver)
+					txAccount := accountPool.Get()
+					rxAccount := accountPool.Get()
+					sender := phonePool.Get()
+					receiver := phonePool.Get()
 
-				i, _ := random.Intn(txDelta)
-				txDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *txInterval+i))
-				<-time.After(txDuration)
+					defer func() {
+						accountPool.Put(txAccount)
+						accountPool.Put(rxAccount)
+						phonePool.Put(sender)
+						phonePool.Put(receiver)
+					}()
+
+					param := &api.APISendBlockPara{
+						From:      txAccount.Address(),
+						TokenName: token,
+						To:        rxAccount.Address(),
+						Amount:    amount,
+						Sender:    sender.(string),
+						Receiver:  receiver.(string),
+						Message:   mh,
+					}
+					//logger.Debug(util.ToString(param))
+
+					if txBlock, err := client.Ledger.GenerateSendBlock(param, func(hash types.Hash) (types.Signature, error) {
+						return txAccount.Sign(hash), nil
+					}); err != nil {
+						logger.Error(err)
+					} else {
+						logger.Info(util.ToString(txBlock))
+						if hash, err := client.Ledger.Process(txBlock); err != nil {
+							logger.Error(err)
+						} else {
+							logger.Info(hash.String())
+						}
+					}
+
+					i, _ := random.Intn(txDelta)
+					txDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *txInterval+i))
+					<-time.After(txDuration)
+				}()
 			}
 		}
 	}(ctx)
@@ -244,6 +258,7 @@ func hash(msg string) types.Hash {
 	return h
 }
 
+//TODO: remove
 func randomPhone() string {
 	i, _ := random.Intn(len(phonePrefix))
 	var sb strings.Builder
