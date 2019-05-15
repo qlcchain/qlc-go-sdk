@@ -1,11 +1,14 @@
 package main
 
 import (
-	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
+	"strconv"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/qlcchain/go-qlc/common/types"
 	"github.com/qlcchain/go-qlc/test/mock"
+	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 
 func Test_randomAccount(t *testing.T) {
@@ -16,25 +19,22 @@ func Test_randomAccount(t *testing.T) {
 		accounts = append(accounts, a)
 	}
 
-	a := randomAccount(nil, accounts)
-	if a == nil {
-		t.Fatal("invalid a")
-	}
+	pool := newAccountPool(accounts)
 
-	t.Log(a.Address().String())
-
-	b := randomAccount(a, accounts)
-	if b.Address() == a.Address() {
-		t.Fatal("invalid a and b ", a, b)
-	}
-	t.Log(a.Address().String(), b.Address().String())
-
-	b2 := randomAccount(b, accounts)
-
-	if b.Address() == b2.Address() {
-		t.Fatal("invalid a and b ", b2, b)
-	}
-	t.Log(b2.Address().String(), b.Address().String())
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 20; i++ {
+			acc1 := pool.Get()
+			acc2 := pool.Get()
+			t.Logf("acc1: %s, acc2: %s\n", acc1.Address().String(), acc2.Address().String())
+			time.Sleep(10 * time.Millisecond)
+			pool.Put(acc1)
+			pool.Put(acc2)
+		}
+	}()
+	wg.Wait()
 }
 
 func Test_getAmount(t *testing.T) {
@@ -66,4 +66,42 @@ func Test_randomPhone(t *testing.T) {
 		_ = randomPhone()
 		//t.Log(phone)
 	}
+}
+
+func TestPhonePool(t *testing.T) {
+	pool := newResourcePool(func() interface{} {
+		return randomPhone()
+	})
+
+	go func() {
+		for i := 0; i < 30; i++ {
+			pool.Put(strconv.Itoa(i))
+		}
+	}()
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 10; i++ {
+			//time.Sleep(10 * time.Millisecond)
+			s1 := pool.Get().(string)
+			s2 := pool.Get().(string)
+			t.Log("g1: s1=>", s1)
+			t.Log("g1: s2=>", s2)
+			pool.Put(s1)
+			//pool.Put(s2)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 10; i++ {
+			//time.Sleep(10 * time.Millisecond)
+			t.Log("g2: ", pool.Get().(string))
+		}
+	}()
+
+	wg.Wait()
+
 }

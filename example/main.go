@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/qlcchain/qlc-go-sdk"
+	qlcchain "github.com/qlcchain/qlc-go-sdk"
 )
 
 func main() {

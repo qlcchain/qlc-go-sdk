@@ -19,6 +19,13 @@ type QLCClient struct {
 	Util     *module.UtilApi
 }
 
+func (c *QLCClient) Close() error {
+	if c != nil && c.client != nil {
+		c.client.Close()
+	}
+	return nil
+}
+
 // NewQLCClient creates a new client
 func NewQLCClient(url string) (*QLCClient, error) {
 	client, err := rpc.Dial(url)
