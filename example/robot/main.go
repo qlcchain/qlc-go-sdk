@@ -88,29 +88,36 @@ func main() {
 			continue
 		}
 		account := types.NewAccount(bytes)
-		logger.Infof("Tx[%d]: %s", i, account.Address().String())
-		if a, err := client.Ledger.AccountInfo(account.Address()); err == nil && a != nil && a.Tokens != nil {
-			for _, tm := range a.Tokens {
-				if tm.TokenName == token && tm.Balance.Compare(types.ZeroBalance) == types.BalanceCompBigger {
-					txAccounts = append(txAccounts, account)
-				}
-			}
-		}
-	}
-	txAccountSize = len(txAccounts)
-
-	if txAccountSize < 2 {
-		logger.Errorf("not enough account(%d) to send Tx", txAccountSize)
-		return
+		txAccounts = append(txAccounts, account)
 	}
 
-	// make sure all accounts already open
+	//make sure all accounts already open
 	accountPool := newAccountPool(txAccounts)
 	err = generateReceives(client, accountPool)
 	if err != nil {
 		logger.Error(err)
 		return
 	}
+
+	var tmp []*types.Account
+	for i, account := range txAccounts {
+		if a, err := client.Ledger.AccountInfo(account.Address()); err == nil && a != nil && a.Tokens != nil {
+			for _, tm := range a.Tokens {
+				if tm.TokenName == token && tm.Balance.Compare(types.ZeroBalance) == types.BalanceCompBigger {
+					logger.Infof("Tx[%d]: %s", i, account.Address().String())
+					tmp = append(tmp, account)
+				}
+			}
+		}
+	}
+
+	txAccountSize = len(tmp)
+	if txAccountSize < 2 {
+		logger.Errorf("not enough account(%d) to send Tx", tmp)
+		return
+	}
+	accountPool.Clear()
+	accountPool.PutAll(tmp)
 
 	logger.Infof("%d Account will send Tx every %d plus delta second(s)", txAccountSize, *txInterval)
 
@@ -332,4 +339,16 @@ func (ap *accountPool) Iter(fn func(account *types.Account) error) {
 			logger.Error(e)
 		}
 	}
+}
+
+func (ap *accountPool) PutAll(accounts []*types.Account) {
+	ap.locker.Lock()
+	defer ap.locker.Unlock()
+	ap.accounts = append(ap.accounts, accounts...)
+}
+
+func (ap *accountPool) Clear() {
+	ap.locker.Lock()
+	defer ap.locker.Unlock()
+	ap.accounts = ap.accounts[:0]
 }
