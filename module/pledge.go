@@ -92,3 +92,12 @@ func (p *PledgeApi) SearchPledgeInfo(param *api.WithdrawPledgeParam) ([]*api.NEP
 	}
 	return r, nil
 }
+
+func (p *PledgeApi) GetPledgeInfoWithNEP5TxId(param *api.WithdrawPledgeParam) (*api.NEP5PledgeInfo, error) {
+	var r api.NEP5PledgeInfo
+	err := p.client.Call(&r, "pledge_getPledgeInfoWithNEP5TxId", param)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
