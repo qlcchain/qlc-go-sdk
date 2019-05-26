@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/qlcchain/go-qlc/common/types"
-	"github.com/qlcchain/go-qlc/test/mock"
+	"github.com/qlcchain/go-qlc/mock"
 	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 

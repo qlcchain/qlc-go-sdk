@@ -430,8 +430,8 @@ func (l *LedgerApi) Pending(address types.Address, hash types.Hash) (*api.APIPen
 // Representatives returns pairs of representative and its voting weight of chain
 // if set sorting false , will return representatives randomly, if set true,
 // will sorting representative balance in descending order
-func (l *LedgerApi) Representatives(sorting bool) (*api.APIAccountBalances, error) {
-	var r api.APIAccountBalances
+func (l *LedgerApi) Representatives(sorting bool) (*api.APIRepresentative, error) {
+	var r api.APIRepresentative
 	err := l.client.Call(&r, "ledger_representatives", sorting)
 	if err != nil {
 		return nil, err

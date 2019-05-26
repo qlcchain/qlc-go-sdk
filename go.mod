@@ -4,5 +4,5 @@ go 1.12
 
 require (
 	github.com/google/uuid v1.1.1
-	github.com/qlcchain/go-qlc v1.1.2
+	github.com/qlcchain/go-qlc v1.2.1
 )

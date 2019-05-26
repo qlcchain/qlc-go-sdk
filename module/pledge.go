@@ -4,6 +4,7 @@ import (
 	"github.com/qlcchain/go-qlc/common/types"
 	"github.com/qlcchain/go-qlc/rpc"
 	"github.com/qlcchain/go-qlc/rpc/api"
+	"math/big"
 )
 
 type PledgeApi struct {
@@ -100,4 +101,13 @@ func (p *PledgeApi) GetPledgeInfoWithNEP5TxId(param *api.WithdrawPledgeParam) (*
 		return nil, err
 	}
 	return &r, nil
+}
+
+func (p *PledgeApi) GetTotalPledgeAmount() (*big.Int, error) {
+	r := new(big.Int)
+	err := p.client.Call(r, "pledge_getTotalPledgeAmount")
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
