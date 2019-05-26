@@ -62,14 +62,14 @@ func (r *RewardsApi) GetReceiveRewardBlock(send *types.Hash) (*types.StateBlock,
 	return &sb, nil
 }
 
-func (r *RewardsApi) GetReceiveConfidantBlock(send *types.Hash) (*types.StateBlock, error) {
-	var sb types.StateBlock
-	err := r.client.Call(&sb, "rewards_getReceiveConfidantBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	return &sb, nil
-}
+//func (r *RewardsApi) GetReceiveConfidantBlock(send *types.Hash) (*types.StateBlock, error) {
+//	var sb types.StateBlock
+//	err := r.client.Call(&sb, "rewards_getReceiveConfidantBlock", send)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return &sb, nil
+//}
 
 func (r *RewardsApi) GetTotalRewards(txId string) (*big.Int, error) {
 	var result *big.Int
