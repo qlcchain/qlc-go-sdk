@@ -1,5 +1,5 @@
 package qlcchain
 
-const GITREV = "3a2548f"
-const VERSION = "0.0.1"
-const BUILDTIME = "2019-03-14_14:25:32"
+const GITREV = "9436e5b"
+const VERSION = "1.0.0"
+const BUILDTIME = "2019-06-18_19:44:24"

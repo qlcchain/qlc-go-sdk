@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/qlcchain/go-qlc/crypto/random"
+	"github.com/qlcchain/qlc-go-sdk/pkg/random"
 )
 
 type Poem struct {
