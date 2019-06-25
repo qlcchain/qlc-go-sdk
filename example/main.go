@@ -30,5 +30,5 @@ type printLog struct {
 }
 
 func (printLog) Printf(format string, v ...interface{}) {
-	fmt.Printf(format, v)
+	fmt.Printf(format, v...)
 }
