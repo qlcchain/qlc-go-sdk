@@ -6,16 +6,22 @@ import (
 	"testing"
 	"time"
 
-	"github.com/qlcchain/go-qlc/common/types"
-	"github.com/qlcchain/go-qlc/mock"
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
+
 	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
+
+func account() *types.Account {
+	seed, _ := types.NewSeed()
+	_, priv, _ := types.KeypairFromSeed(seed.String(), 0)
+	return types.NewAccount(priv)
+}
 
 func Test_randomAccount(t *testing.T) {
 	var accounts []*types.Account
 
 	for i := 0; i < 10; i++ {
-		a := mock.Account()
+		a := account()
 		accounts = append(accounts, a)
 	}
 

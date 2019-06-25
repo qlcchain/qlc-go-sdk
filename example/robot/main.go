@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	qlcchain "github.com/qlcchain/qlc-go-sdk"
+	"log"
 	"math/big"
 	"os"
 	"os/signal"
@@ -15,11 +15,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/qlcchain/go-qlc/common/types"
-	"github.com/qlcchain/go-qlc/common/util"
-	"github.com/qlcchain/go-qlc/crypto/random"
-	"github.com/qlcchain/go-qlc/log"
-	"github.com/qlcchain/go-qlc/rpc/api"
+	"github.com/qlcchain/qlc-go-sdk/pkg/random"
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
+	"github.com/qlcchain/qlc-go-sdk/pkg/util"
+
+	qlcchain "github.com/qlcchain/qlc-go-sdk"
+
 	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 
@@ -47,8 +48,11 @@ var (
 	txAccountSize int
 	maxAmount     = 8
 	token         = "QGAS"
-	logger        = log.NewLogger("qlc_robot")
 )
+
+func init() {
+	log.SetOutput(os.Stderr)
+}
 
 func main() {
 	flag.StringVar(&endPoint, "endpoint", "ws://127.0.0.1:19736", "RPC Server endpoint")
@@ -56,24 +60,20 @@ func main() {
 	flag.Parse()
 
 	if *txInterval < minInterval {
-		logger.Errorf("invalid txInterval %d[%d,∞]", *txInterval, minInterval)
-		return
+		log.Fatalf("invalid txInterval %d[%d,∞]\n", *txInterval, minInterval)
 	}
 
 	if *rxInterval < minInterval {
-		logger.Errorf("invalid rxInterval %d[%d,∞]", *rxInterval, minInterval)
-		return
+		log.Fatalf("invalid rxInterval %d[%d,∞]\n", *rxInterval, minInterval)
 	}
 
 	if len(accounts) == 0 {
-		logger.Error("can not find any account")
-		return
+		log.Fatalln("can not find any account")
 	}
 
 	client, err := qlcchain.NewQLCClient(endPoint)
 	if err != nil {
-		logger.Error(err)
-		return
+		log.Fatal(err)
 	}
 
 	defer func() {
@@ -84,35 +84,42 @@ func main() {
 	for i, a := range accounts {
 		bytes, e := hex.DecodeString(a)
 		if e != nil {
-			logger.Errorf("can not decode (%s) at %d to Account", a, i)
+			log.Printf("can not decode (%s) at %d to Account\n", a, i)
 			continue
 		}
 		account := types.NewAccount(bytes)
-		logger.Infof("Tx[%d]: %s", i, account.Address().String())
+		txAccounts = append(txAccounts, account)
+	}
+
+	//make sure all accounts already open
+	accountPool := newAccountPool(txAccounts)
+	err = generateReceives(client, accountPool)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var tmp []*types.Account
+	for i, account := range txAccounts {
 		if a, err := client.Ledger.AccountInfo(account.Address()); err == nil && a != nil && a.Tokens != nil {
 			for _, tm := range a.Tokens {
 				if tm.TokenName == token && tm.Balance.Compare(types.ZeroBalance) == types.BalanceCompBigger {
-					txAccounts = append(txAccounts, account)
+					log.Printf("Tx[%d]: %s\n", i, account.Address().String())
+					tmp = append(tmp, account)
 				}
 			}
 		}
 	}
-	txAccountSize = len(txAccounts)
 
+	txAccountSize = len(tmp)
 	if txAccountSize < 2 {
-		logger.Errorf("not enough account(%d) to send Tx", txAccountSize)
+		log.Printf("not enough account(%d) to send Tx\n", txAccountSize)
 		return
 	}
+	accountPool.Clear()
+	accountPool.PutAll(tmp)
 
-	// make sure all accounts already open
-	accountPool := newAccountPool(txAccounts)
-	err = generateReceives(client, accountPool)
-	if err != nil {
-		logger.Error(err)
-		return
-	}
-
-	logger.Infof("%d Account will send Tx every %d plus delta second(s)", txAccountSize, *txInterval)
+	log.Printf("%d Account will send Tx every %d plus delta second(s)\n", txAccountSize, *txInterval)
 
 	rxDuration, _ := time.ParseDuration(fmt.Sprintf("%ds", *rxInterval))
 	rxTicker := time.NewTicker(rxDuration)
@@ -136,23 +143,23 @@ func main() {
 				return
 
 			case rxTime := <-rxTicker.C:
-				logger.Info("generate receive @ ", rxTime)
+				log.Println("generate receive @ ", rxTime)
 				go func() {
 					err := generateReceives(client, accountPool)
 					if err != nil {
-						logger.Error(err)
+						log.Fatal(err)
 					}
 				}()
 
 			default:
 				func() {
-					logger.Info("produce send @ ", time.Now())
+					log.Println("produce send @ ", time.Now())
 					amount := randomAmount()
 					_, p := message.RandomPoem()
 					m := p.Message()
 					mh, err := client.SMS.MessageStore(m)
 					if err != nil {
-						logger.Error(err)
+						log.Fatalln(err)
 						return
 					}
 
@@ -168,7 +175,7 @@ func main() {
 						phonePool.Put(receiver)
 					}()
 
-					param := &api.APISendBlockPara{
+					param := &qlcchain.APISendBlockPara{
 						From:      txAccount.Address(),
 						TokenName: token,
 						To:        rxAccount.Address(),
@@ -182,13 +189,13 @@ func main() {
 					if txBlock, err := client.Ledger.GenerateSendBlock(param, func(hash types.Hash) (types.Signature, error) {
 						return txAccount.Sign(hash), nil
 					}); err != nil {
-						logger.Error(err)
+						log.Println(err)
 					} else {
-						logger.Info(util.ToString(txBlock))
+						log.Println(util.ToString(txBlock))
 						if hash, err := client.Ledger.Process(txBlock); err != nil {
-							logger.Error(err)
+							log.Println(err)
 						} else {
-							logger.Info(hash.String())
+							log.Println(hash.String())
 						}
 					}
 
@@ -201,7 +208,7 @@ func main() {
 	}(ctx)
 
 	<-c
-	logger.Info("receive close signal, stop ...")
+	log.Println("receive close signal, stop ...")
 	cancel()
 }
 
@@ -232,11 +239,11 @@ func generateReceives(client *qlcchain.QLCClient, pool *accountPool) error {
 				}
 			})
 			if err != nil {
-				logger.Error(err)
+				log.Println(err)
 				continue
 			}
 			if h, err := client.Ledger.Process(rxBlock); err == nil {
-				logger.Infof("generate receive %s from %s", pending.Hash.String(), h.String())
+				log.Printf("generate receive %s from %s\n", pending.Hash.String(), h.String())
 			}
 		}
 	}
@@ -329,7 +336,19 @@ func (ap *accountPool) Iter(fn func(account *types.Account) error) {
 	for _, acc := range ap.accounts {
 		e := fn(acc)
 		if e != nil {
-			logger.Error(e)
+			log.Println(e)
 		}
 	}
+}
+
+func (ap *accountPool) PutAll(accounts []*types.Account) {
+	ap.locker.Lock()
+	defer ap.locker.Unlock()
+	ap.accounts = append(ap.accounts, accounts...)
+}
+
+func (ap *accountPool) Clear() {
+	ap.locker.Lock()
+	defer ap.locker.Unlock()
+	ap.accounts = ap.accounts[:0]
 }

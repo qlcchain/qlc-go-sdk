@@ -5,14 +5,18 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/qlcchain/go-qlc/common/types"
-	"github.com/qlcchain/go-qlc/mock"
-	"github.com/qlcchain/go-qlc/rpc/api"
-	"github.com/qlcchain/qlc-go-sdk/module"
+	"github.com/qlcchain/qlc-go-sdk/pkg/random"
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 func TestQLCClient_Version(t *testing.T) {
 	t.Log("test")
+}
+
+func Hash() types.Hash {
+	h := types.Hash{}
+	_ = random.Bytes(h[:])
+	return h
 }
 
 func TestQLCClient_GenerateBlock(t *testing.T) {
@@ -31,9 +35,9 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 
 	sender := "100"
 	receiver := "200"
-	mHash := mock.Hash()
+	mHash := Hash()
 	fmt.Println("message hash, ", mHash)
-	bp := api.APISendBlockPara{
+	bp := APISendBlockPara{
 		From:      sAccount.Address(),
 		TokenName: "QLC",
 		To:        rAccount.Address(),
@@ -44,7 +48,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	}
 
 	sendBlock, err := c.Ledger.GenerateSendBlock(&bp, func(hash types.Hash) (signatures types.Signature, e error) {
-		return module.SignatureFunc(sAccount, hash)
+		return SignatureFunc(sAccount, hash)
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -61,7 +65,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	}
 
 	receBlock, err := c.Ledger.GenerateReceiveBlock(sendBlock, func(hash types.Hash) (signatures types.Signature, e error) {
-		return module.SignatureFunc(rAccount, hash)
+		return SignatureFunc(rAccount, hash)
 	})
 	if err != nil {
 		t.Fatal(err)
