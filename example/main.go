@@ -7,10 +7,11 @@ import (
 )
 
 func main() {
-	//client, err := qlcchain.NewQLCClient("ws://127.0.0.1:19736")
-	client, err := qlcchain.NewQLCClient("http://127.0.0.1:19735", jsonrpc2.LogMessages(printLog{}))
+	//client, err := qlcchain.NewQLCClient("http://127.0.0.1:19736")
+	client, err := qlcchain.NewQLCClient("ws://127.0.0.1:19735", jsonrpc2.LogMessages(printLog{}))
 	if err != nil || client == nil {
 		fmt.Println(err)
+		return
 	}
 
 	addr, err := client.Ledger.Accounts(20, 0)
