@@ -1,16 +1,17 @@
 package qlcchain
 
 import (
+	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 type UtilApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 // NewUtilApi creates unit module for client
-func NewUtilApi(c *QLCClient) *UtilApi {
+func NewUtilApi(c *rpc.Client) *UtilApi {
 	return &UtilApi{client: c}
 }
 
