@@ -1,11 +1,13 @@
 package qlcchain
 
+import rpc "github.com/qlcchain/jsonrpc2"
+
 type ContractApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 // NewContractApi creates contract module for client
-func NewContractApi(c *QLCClient) *ContractApi {
+func NewContractApi(c *rpc.Client) *ContractApi {
 	return &ContractApi{client: c}
 }
 

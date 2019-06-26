@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	rpc "github.com/qlcchain/jsonrpc2"
+
 	common "github.com/qlcchain/qlc-go-sdk/pkg"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 type LedgerApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 type APIBlock struct {
@@ -84,7 +86,7 @@ type APISendBlockPara struct {
 }
 
 // NewLedgerApi creates ledger module for client
-func NewLedgerApi(c *QLCClient) *LedgerApi {
+func NewLedgerApi(c *rpc.Client) *LedgerApi {
 	return &LedgerApi{client: c}
 }
 

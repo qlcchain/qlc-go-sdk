@@ -1,16 +1,18 @@
 package qlcchain
 
 import (
-	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"math/big"
+
+	rpc "github.com/qlcchain/jsonrpc2"
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type RewardsApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 // NewRewardApi creates reward module for client
-func NewRewardApi(c *QLCClient) *RewardsApi {
+func NewRewardApi(c *rpc.Client) *RewardsApi {
 	return &RewardsApi{client: c}
 }
 

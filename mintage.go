@@ -1,11 +1,12 @@
 package qlcchain
 
 import (
+	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type MintageApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 type MintageParams struct {
@@ -25,7 +26,7 @@ type WithdrawParams struct {
 }
 
 // NewMintageApi creates mintage module for client
-func NewMintageApi(c *QLCClient) *MintageApi {
+func NewMintageApi(c *rpc.Client) *MintageApi {
 	return &MintageApi{client: c}
 }
 

@@ -1,12 +1,14 @@
 package qlcchain
 
 import (
-	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"math/big"
+
+	rpc "github.com/qlcchain/jsonrpc2"
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type PledgeApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 type PledgeParam struct {
@@ -34,7 +36,7 @@ type NEP5PledgeInfo struct {
 }
 
 // NewPledgeApi creates pledge module for client
-func NewPledgeApi(c *QLCClient) *PledgeApi {
+func NewPledgeApi(c *rpc.Client) *PledgeApi {
 	return &PledgeApi{client: c}
 }
 

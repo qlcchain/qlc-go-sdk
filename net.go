@@ -1,15 +1,16 @@
 package qlcchain
 
 import (
+	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type NetApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 // NewNetApi creates net module for client
-func NewNetApi(c *QLCClient) *NetApi {
+func NewNetApi(c *rpc.Client) *NetApi {
 	return &NetApi{client: c}
 }
 

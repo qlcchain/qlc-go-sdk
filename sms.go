@@ -1,15 +1,16 @@
 package qlcchain
 
 import (
+	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type SMSApi struct {
-	client *QLCClient
+	client *rpc.Client
 }
 
 // NewSMSApi creates sms module for client
-func NewSMSApi(c *QLCClient) *SMSApi {
+func NewSMSApi(c *rpc.Client) *SMSApi {
 	return &SMSApi{client: c}
 }
 
