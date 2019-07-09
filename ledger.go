@@ -6,7 +6,6 @@ import (
 	"time"
 
 	rpc "github.com/qlcchain/jsonrpc2"
-
 	common "github.com/qlcchain/qlc-go-sdk/pkg"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
@@ -146,8 +145,8 @@ func (l *LedgerApi) AccountVotingWeight(address types.Address) (types.Balance, e
 }
 
 // AccountsBalance returns balance and pending(amount that has not yet been received) for each account
-func (l *LedgerApi) AccountsBalance(addresses []types.Address) (map[types.Address]map[string]map[string]types.Balance, error) {
-	var r map[types.Address]map[string]map[string]types.Balance
+func (l *LedgerApi) AccountsBalance(addresses []types.Address) (map[types.Address]map[string]*APIAccountsBalance, error) {
+	var r map[types.Address]map[string]*APIAccountsBalance
 	err := l.client.Call(&r, "ledger_accountsBalance", addresses)
 	if err != nil {
 		return nil, err
