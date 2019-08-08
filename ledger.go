@@ -231,6 +231,16 @@ func (l *LedgerApi) BlocksCountByType() (map[string]uint64, error) {
 	return r, nil
 }
 
+// Return block confirmed status, if block confirmed，return `true`，otherwise return `false`
+func (l *LedgerApi) BlockConfirmedStatus(hash types.Hash) (bool, error) {
+	var r bool
+	err := l.client.Call(&r, "ledger_blockConfirmedStatus", hash)
+	if err != nil {
+		return false, err
+	}
+	return r, nil
+}
+
 // BlockInfo accepts a block hash, and returns block info for the hash
 func (l *LedgerApi) BlockInfo(hash types.Hash) (*APIBlock, error) {
 	b, err := l.BlocksInfo([]types.Hash{hash})
@@ -263,6 +273,16 @@ func (l *LedgerApi) Blocks(count int, offset int) ([]*APIBlock, error) {
 		return nil, err
 	}
 	return r, nil
+}
+
+// Return confirmed account detail info , include each token in the account
+func (l *LedgerApi) ConfirmedAccountInfo(address types.Address) (*APIAccount, error) {
+	var aa APIAccount
+	err := l.client.Call(&aa, "ledger_confirmedAccountInfo", address)
+	if err != nil {
+		return nil, err
+	}
+	return &aa, nil
 }
 
 // Chain returns a consecutive block hash list for a specific hash

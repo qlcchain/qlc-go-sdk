@@ -1,6 +1,7 @@
 package qlcchain
 
 import (
+	"encoding/hex"
 	"fmt"
 	"math/big"
 	"testing"
@@ -87,5 +88,29 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	}
 	if b[0].GetHash() != sendBlock.GetHash() {
 		t.Fatal()
+	}
+}
+
+func TestQLCClient_BlockConfirmedStatus(t *testing.T) {
+	c, err := NewQLCClient("http://47.244.138.61:9735")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.client.Close()
+
+	hByte, err := hex.DecodeString("078199c2baa601e8d4ce49203afa015c5ed861614066b071b7f3fbf431d5462c")
+	if err != nil {
+		t.Fatal(err)
+	}
+	hash, err := types.BytesToHash(hByte)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := c.Ledger.BlockConfirmedStatus(hash)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !r {
+		t.Fatal("block not confirmed")
 	}
 }
