@@ -19,6 +19,14 @@ import (
 	"github.com/libp2p/go-libp2p-core/peer"
 )
 
+const (
+	QlcConfigFile = "qlc.json"
+	configVersion = 5
+	cfgDir        = "GQlcchain_bot"
+	nixCfgDir     = ".gqlcchain_bot"
+	ipcName       = "gqlc-bot.ipc"
+)
+
 // identityConfig initializes a new identity.
 func identityConfig() (string, string, error) {
 	sk, pk, err := ic.GenerateKeyPair(ic.RSA, 2048)

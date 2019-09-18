@@ -34,7 +34,7 @@ func defaultMetrics() *MetricsConfig {
 		SampleInterval: 1,
 		Influx: &Influx{
 			Enable:   false,
-			URL:      "http://localhost:8086",
+			URL:      "http://localhost:10086",
 			Database: "qlcchain",
 			User:     "qlcchain",
 			Password: "",
@@ -111,19 +111,19 @@ func DefaultConfigV2(dir string) (*ConfigV2, error) {
 		RPC: &RPCConfigV2{
 			Enable:           true,
 			HTTPEnabled:      true,
-			HTTPEndpoint:     "tcp4://0.0.0.0:9735",
+			HTTPEndpoint:     "tcp4://0.0.0.0:10735",
 			HTTPCors:         []string{"*"},
 			HttpVirtualHosts: []string{},
 			WSEnabled:        true,
-			WSEndpoint:       "tcp4://0.0.0.0:9736",
+			WSEndpoint:       "tcp4://0.0.0.0:10736",
 			IPCEnabled:       true,
 			IPCEndpoint:      defaultIPCEndpoint(),
 			PublicModules:    modules,
 		},
 		P2P: &P2PConfigV2{
 			BootNodes:    []string{},
-			Listen:       "/ip4/0.0.0.0/tcp/9734",
-			SyncInterval: 120,
+			Listen:       "/ip4/0.0.0.0/tcp/10734",
+			SyncInterval: 30,
 			Discovery: &DiscoveryConfigV2{
 				DiscoveryInterval: 10,
 				Limit:             20,
