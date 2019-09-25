@@ -19,12 +19,15 @@ func DefaultConfig(dir string) (*Config, error) {
 	return &cfg, nil
 }
 
+const tokenLength = 32
+
 func DefaultConfigV5(dir string) (*ConfigV5, error) {
 	var cfg ConfigV5
 	cfg4, _ := DefaultConfigV4(dir)
 	cfg.ConfigV4 = *cfg4
 	cfg.Version = configVersion
 	cfg.Metrics = defaultMetrics()
+	cfg.Manager = &Manager{AdminToken: util.RandomFixedString(tokenLength)}
 	return &cfg, nil
 }
 

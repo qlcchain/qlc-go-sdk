@@ -3,6 +3,7 @@ package config
 type ConfigV5 struct {
 	ConfigV4 `mapstructure:",squash"`
 	Metrics  *MetricsConfig `json:"metrics"`
+	Manager  *Manager       `json:"manager"`
 }
 
 type MetricsConfig struct {
@@ -18,6 +19,10 @@ type Influx struct {
 	User     string `json:"user" validate:"nonzero"`
 	Password string `json:"password"`
 	Interval int    `json:"interval" validate:"min=1"`
+}
+
+type Manager struct {
+	AdminToken string `json:"adminToken"`
 }
 
 type ConfigV4 struct {
