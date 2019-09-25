@@ -1,9 +1,13 @@
 package qlcchain
 
 import (
+	"errors"
+	"fmt"
 	"math/big"
 
 	rpc "github.com/qlcchain/jsonrpc2"
+	common "github.com/qlcchain/qlc-go-sdk/pkg"
+	"github.com/qlcchain/qlc-go-sdk/pkg/ed25519"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
@@ -32,9 +36,69 @@ type APIDestroyInfo struct {
 	TimeStamp int64         `json:"timestamp"`
 }
 
-func (b *DestroyApi) GetSendBlackHoleBlock(param *APIDestroyParam) (*types.StateBlock, error) {
+func (param *APIDestroyParam) Signature(acc *types.Account) (types.Signature, error) {
+	if acc.Address() == param.Owner {
+		var data []byte
+
+		data = append(data, param.Owner[:]...)
+		data = append(data, param.Previous[:]...)
+		data = append(data, param.Token[:]...)
+		data = append(data, param.Amount.Bytes()...)
+		var sig types.Signature
+		copy(sig[:], ed25519.Sign(acc.PrivateKey(), data))
+		return sig, nil
+	} else {
+		return types.ZeroSignature, fmt.Errorf("invalid address, exp: %s, act: %s",
+			param.Owner.String(), acc.Address().String())
+	}
+}
+
+// Verify destroy params
+func (param *APIDestroyParam) Verify() (bool, error) {
+	if param.Owner.IsZero() {
+		return false, errors.New("invalid account")
+	}
+
+	if param.Previous.IsZero() {
+		return false, errors.New("invalid previous")
+	}
+
+	if param.Token != common.GasToken() {
+		return false, errors.New("invalid token to be destroyed")
+	}
+
+	if param.Amount == nil || param.Amount.Sign() <= 0 {
+		return false, errors.New("invalid amount")
+	}
+
+	var data []byte
+
+	data = append(data, param.Owner[:]...)
+	data = append(data, param.Previous[:]...)
+	data = append(data, param.Token[:]...)
+	data = append(data, param.Amount.Bytes()...)
+
+	return param.Owner.Verify(data, param.Sign[:]), nil
+}
+
+type SignatureParam func() (types.Signature, error)
+
+func (b *DestroyApi) GetSendBlackHoleBlock(param *APIDestroyParam, sign SignatureParam) (*types.StateBlock, error) {
+	signature, err := sign()
+	if err != nil {
+		return nil, err
+	}
+
+	param.Sign = signature
+	if b, err := param.Verify(); err != nil {
+		return nil, err
+	} else if !b {
+		return nil, errors.New("invalid sign")
+	}
+
+	param.Sign = signature
 	var r types.StateBlock
-	err := b.client.Call(&r, "destroy_getSendBlackHoleBlock", param)
+	err = b.client.Call(&r, "destroy_getSendBlackHoleBlock", param)
 	if err != nil {
 		return nil, err
 	}
