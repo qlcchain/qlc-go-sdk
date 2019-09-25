@@ -83,7 +83,7 @@ func (param *APIDestroyParam) Verify() (bool, error) {
 
 type SignatureParam func() (types.Signature, error)
 
-func (b *DestroyApi) GetSendBlackHoleBlock(param *APIDestroyParam, sign SignatureParam) (*types.StateBlock, error) {
+func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (*types.StateBlock, error) {
 	signature, err := sign()
 	if err != nil {
 		return nil, err
@@ -98,16 +98,16 @@ func (b *DestroyApi) GetSendBlackHoleBlock(param *APIDestroyParam, sign Signatur
 
 	param.Sign = signature
 	var r types.StateBlock
-	err = b.client.Call(&r, "destroy_getSendBlackHoleBlock", param)
+	err = b.client.Call(&r, "destroy_getSendBlock", param)
 	if err != nil {
 		return nil, err
 	}
 	return &r, nil
 }
 
-func (b *DestroyApi) GetReceiveBlackHoleBlock(send *types.Hash) (*types.StateBlock, error) {
+func (b *DestroyApi) GetRewardsBlock(send *types.Hash) (*types.StateBlock, error) {
 	var r types.StateBlock
-	err := b.client.Call(&r, "destroy_getReceiveBlackHoleBlock", send)
+	err := b.client.Call(&r, "destroy_getRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
