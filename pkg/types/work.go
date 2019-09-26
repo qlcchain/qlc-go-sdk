@@ -15,7 +15,6 @@ import (
 	"strconv"
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
-
 	"github.com/tinylib/msgp/msgp"
 	"golang.org/x/crypto/blake2b"
 )
@@ -28,8 +27,6 @@ const (
 	//WorkSize work size
 	WorkSize = 8
 )
-
-var WorkThreshold = uint64(0xfffffe0000000000)
 
 // Work PoW work
 type Work uint64

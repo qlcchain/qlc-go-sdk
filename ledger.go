@@ -187,8 +187,8 @@ func (l *LedgerApi) AccountsCount() (uint64, error) {
 
 // Accounts returns accounts list of chain
 // count is number of accounts to return, and offset is index of account where to start
-func (l *LedgerApi) Accounts(count int, offset int) ([]*types.Address, error) {
-	var r []*types.Address
+func (l *LedgerApi) Accounts(count int, offset int) ([]types.Address, error) {
+	var r []types.Address
 	err := l.client.Call(&r, "ledger_accounts", count, offset)
 	if err != nil {
 		return nil, err
