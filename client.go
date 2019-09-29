@@ -18,6 +18,7 @@ type QLCClient struct {
 	SMS      *SMSApi
 	Util     *UtilApi
 	Destroy  *DestroyApi
+	Debug    *DebugApi
 }
 
 func (c *QLCClient) Close() error {
@@ -46,6 +47,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		Network:  NewNetApi(client),
 		Util:     NewUtilApi(client),
 		Destroy:  NewDestroyApi(client),
+		Debug:    NewDebugApi(client),
 	}, nil
 
 }

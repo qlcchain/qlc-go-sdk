@@ -15,7 +15,7 @@ type DestroyApi struct {
 	client *rpc.Client
 }
 
-// NewSMSApi creates sms module for client
+// NewDestroyApi creates destroy module for client
 func NewDestroyApi(c *rpc.Client) *DestroyApi {
 	return &DestroyApi{client: c}
 }
@@ -83,6 +83,7 @@ func (param *APIDestroyParam) Verify() (bool, error) {
 
 type SignatureParam func() (types.Signature, error)
 
+// GetSendBlock returns destory contract send block by destory parameters
 func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (*types.StateBlock, error) {
 	signature, err := sign()
 	if err != nil {
@@ -105,6 +106,7 @@ func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (
 	return &r, nil
 }
 
+// GetRewardBlock returns contract reward block by  destory contract send
 func (b *DestroyApi) GetRewardsBlock(send *types.Hash) (*types.StateBlock, error) {
 	var r types.StateBlock
 	err := b.client.Call(&r, "destroy_getRewardsBlock", send)
@@ -114,6 +116,7 @@ func (b *DestroyApi) GetRewardsBlock(send *types.Hash) (*types.StateBlock, error
 	return &r, nil
 }
 
+// GetTotalDestroyInfo returns total amount of qgas destroyed
 func (b *DestroyApi) GetTotalDestroyInfo(addr *types.Address) (types.Balance, error) {
 	var r types.Balance
 	err := b.client.Call(&r, "destroy_getTotalDestroyInfo", addr)
@@ -123,6 +126,7 @@ func (b *DestroyApi) GetTotalDestroyInfo(addr *types.Address) (types.Balance, er
 	return r, nil
 }
 
+// GetDestroyInfoDetail returns detail info of qgas destroyed
 func (b *DestroyApi) GetDestroyInfoDetail(addr *types.Address) ([]*APIDestroyInfo, error) {
 	var r []*APIDestroyInfo
 	err := b.client.Call(&r, "destroy_getDestroyInfoDetail", addr)
