@@ -18,8 +18,6 @@ builds:
       - windows
     goarch:
       - amd64
-    hooks:
-      post: mkdir -p artifact; cp dist/*.tar.gz artifact/; cp dist/*.zip artifact/; cp dist/*.txt artifact/
 
 archives:
 - format: tar.gz
