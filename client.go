@@ -12,11 +12,13 @@ type QLCClient struct {
 	Contract *ContractApi
 	Ledger   *LedgerApi
 	Mintage  *MintageApi
-	Pledger  *PledgeApi
+	Pledge   *PledgeApi
 	Rewards  *RewardsApi
 	Network  *NetApi
 	SMS      *SMSApi
 	Util     *UtilApi
+	Destroy  *DestroyApi
+	Debug    *DebugApi
 }
 
 func (c *QLCClient) Close() error {
@@ -33,15 +35,19 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		return nil, err
 	}
 
-	return &QLCClient{client: client, Account: NewAccountApi(client),
+	return &QLCClient{
+		client:   client,
+		Account:  NewAccountApi(client),
 		Ledger:   NewLedgerApi(client),
 		SMS:      NewSMSApi(client),
 		Contract: NewContractApi(client),
 		Mintage:  NewMintageApi(client),
-		Pledger:  NewPledgeApi(client),
+		Pledge:   NewPledgeApi(client),
 		Rewards:  NewRewardApi(client),
 		Network:  NewNetApi(client),
 		Util:     NewUtilApi(client),
+		Destroy:  NewDestroyApi(client),
+		Debug:    NewDebugApi(client),
 	}, nil
 
 }

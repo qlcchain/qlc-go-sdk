@@ -187,8 +187,8 @@ func (l *LedgerApi) AccountsCount() (uint64, error) {
 
 // Accounts returns accounts list of chain
 // count is number of accounts to return, and offset is index of account where to start
-func (l *LedgerApi) Accounts(count int, offset int) ([]*types.Address, error) {
-	var r []*types.Address
+func (l *LedgerApi) Accounts(count int, offset int) ([]types.Address, error) {
+	var r []types.Address
 	err := l.client.Call(&r, "ledger_accounts", count, offset)
 	if err != nil {
 		return nil, err
@@ -518,13 +518,13 @@ func (l *LedgerApi) Pending(address types.Address, hash types.Hash) (*APIPending
 // Representatives returns pairs of representative and its voting weight of chain
 // if set sorting false , will return representatives randomly, if set true,
 // will sorting representative balance in descending order
-func (l *LedgerApi) Representatives(sorting bool) (*APIRepresentative, error) {
-	var r APIRepresentative
+func (l *LedgerApi) Representatives(sorting bool) ([]*APIRepresentative, error) {
+	var r []*APIRepresentative
 	err := l.client.Call(&r, "ledger_representatives", sorting)
 	if err != nil {
 		return nil, err
 	}
-	return &r, nil
+	return r, nil
 }
 
 // TokenMeta return tokenmeta info by account and token hash
