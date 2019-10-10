@@ -25,7 +25,7 @@ type PovHeader struct {
 	Hash Hash `msg:"hash,extension" json:"hash"`
 
 	Previous      Hash      `msg:"previous,extension" json:"previous"`
-	MerkleRoot    Hash      `msg:"merkleRoot,extension" j son:"merkleRoot"`
+	MerkleRoot    Hash      `msg:"merkleRoot,extension" json:"merkleRoot"`
 	Nonce         uint64    `msg:"nonce" json:"nonce"`
 	VoteSignature Signature `msg:"voteSignature,extension" json:"voteSignature"`
 

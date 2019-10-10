@@ -1,0 +1,64 @@
+name: Main workflow
+on: [push]
+
+jobs:
+  build:
+    name: Check, Build and Publish snapshot artifacts 
+    runs-on: ubuntu-18.04
+    if: contains(github.event.head_commit.message, '[skip ci]') == false && contains(github.event.head_commit.message, '[ci skip]') == false
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13.x
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 10
+
+      - name: Check code style and calculate coverage 
+        env:
+          GO111MODULE: on
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go get github.com/mattn/goveralls
+          if [[ -n "$(gofmt -l .| grep -v ^vendor/)" ]]; then
+            echo "Go code is not formatted:"
+            gofmt -d .
+            exit 1
+          fi
+          go vet ./...
+          go test ./... -covermode=count -coverprofile=coverage.out
+          goveralls -coverprofile=coverage.out -repotoken ${{ secrets.COVERALLS_TOKEN }}
+          make clean build
+
+      - name: Run golangci-lint with reviewdog 
+        # uses: reviewdog/action-golangci-lint@v1.0.4 
+        uses: docker://reviewdog/action-golangci-lint:v1.0.4 
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          golangci_lint_flags: "--config=.golangci.yml -v"
+          level: warning # GitHub Status Check won't become failure with this level.
+
+      - name: Build snapshot 
+        env: 
+          GORELEASER_VERSION: 0.119.0
+          GORELEASER_DOWNLOAD_FILE: goreleaser_Linux_x86_64.tar.gz
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          wget https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+          tar -xzf ${GORELEASER_DOWNLOAD_FILE} -C $(go env GOPATH)/bin/ goreleaser
+          chmod +x $(go env GOPATH)/bin/goreleaser
+          goreleaser -v
+          make snapshot
+          mkdir -p artifact; cp dist/*.tar.gz artifact/; cp dist/*.zip artifact/; cp dist/*.txt artifact/
+
+      - name: Upload snapshot artifacts 
+        uses: actions/upload-artifact@master 
+        with:
+          name: robot-artifact
+          path: artifact/
+

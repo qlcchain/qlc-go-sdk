@@ -11,7 +11,7 @@ ROBOTNAME = qlcrobot
 ROBOTOMAIN = $(shell pwd)/example/robot/main.go
 
 BUILDDIR = $(shell pwd)/build
-VERSION ?= 1.0.0
+VERSION ?= 1.2.4
 GITREV = $(shell git rev-parse --short HEAD)
 BUILDTIME = $(shell date +'%FT%TZ%z')
 LDFLAGS=-ldflags "-X main.version=${VERSION} -X main.commit=${GITREV} -X main.date=${BUILDTIME}"

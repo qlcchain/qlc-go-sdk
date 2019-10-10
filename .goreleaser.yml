@@ -20,7 +20,12 @@ builds:
       - amd64
 
 archives:
-- replacements:
+- format: tar.gz
+  format_overrides:
+    - goos: windows
+      format: zip
+  name_template: "{{ .Binary }}-v{{ .Version }}-{{ .ShortCommit }}-{{ .Os }}-{{ .Arch }}"
+  replacements:
     darwin: Darwin
     linux: Linux
     windows: Windows
@@ -29,6 +34,7 @@ archives:
 
 checksum:
   name_template: 'checksums.txt'
+
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  name_template: SNAPSHOT-{{.ShortCommit}}
 
