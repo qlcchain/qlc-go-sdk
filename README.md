@@ -1,6 +1,6 @@
 # QLC Chain Golang SDK
 [![Actions Status](https://github.com/qlcchain/qlc-go-sdk/workflows/Main%20workflow/badge.svg)](https://github.com/qlcchain/qlc-go-sdk/actions)
-[![Coverage Status](https://coveralls.io/repos/github/qlcchain/qlc-go-sdk/badge.svg?branch=HEAD)](https://coveralls.io/github/qlcchain/qlc-go-sdk?branch=HEAD)
+[![codecov](https://codecov.io/gh/qlcchain/qlc-go-sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/qlcchain/qlc-go-sdk)
 [![GoDoc](https://godoc.org/github.com/qlcchain/qlc-go-sdk?status.svg)](https://godoc.org/github.com/qlcchain/qlc-go-sdk)
 
 QLC Chain Golang API

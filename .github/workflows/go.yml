@@ -29,7 +29,7 @@ jobs:
             exit 1
           fi
           go vet ./...
-          go test ./... -covermode=count -coverprofile=coverage.txt
+          go test ./... -covermode=atomic -coverprofile=coverage.txt
           make clean build
 
       - name: Upload codecov coverage
