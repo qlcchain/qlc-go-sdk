@@ -48,6 +48,10 @@ var (
 	txAccountSize int
 	maxAmount     = 8
 	token         = "QGAS"
+
+	version string
+	date    string
+	commit  string
 )
 
 func init() {
@@ -55,6 +59,7 @@ func init() {
 }
 
 func main() {
+	fmt.Printf("robot: %s-%s, build @ %s\n", version, commit, date)
 	flag.StringVar(&endPoint, "endpoint", "ws://127.0.0.1:19736", "RPC Server endpoint")
 	flag.Var(&accounts, "account", "account private key")
 	flag.Parse()
@@ -214,7 +219,7 @@ func main() {
 
 func generateReceives(client *qlcchain.QLCClient, pool *accountPool) error {
 	//generate receive block
-	cache := make(map[types.Address]*types.Account, 0)
+	cache := make(map[types.Address]*types.Account)
 	var addresses []types.Address
 
 	pool.Iter(func(account *types.Account) error {

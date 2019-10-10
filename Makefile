@@ -1,8 +1,4 @@
-.PHONY: all clean
-.PHONY: robot_linux  robot-linux-amd64 robot-darwin-amd64
-.PHONY: robot-darwin robot-darwin-amd64
-.PHONY: robot-windows robot-windows-386 robot-windows-amd64
-
+.PHONY: deps clean build lint snapshot changelog release
 
 # Check for required command tools to build or stop immediately
 EXECUTABLES = git go find pwd
@@ -15,10 +11,15 @@ ROBOTNAME = qlcrobot
 ROBOTOMAIN = $(shell pwd)/example/robot/main.go
 
 BUILDDIR = $(shell pwd)/build
-VERSION = 1.0.0
+VERSION ?= 1.0.0
 GITREV = $(shell git rev-parse --short HEAD)
-BUILDTIME = $(shell date +'%Y-%m-%d_%T')
-LDFLAGS=-ldflags "-X main.version=${VERSION} -X main.sha1ver=${GITREV} -X main.buildTime=${BUILDTIME}"
+BUILDTIME = $(shell date +'%FT%TZ%z')
+LDFLAGS=-ldflags "-X main.version=${VERSION} -X main.commit=${GITREV} -X main.date=${BUILDTIME}"
+
+deps:
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
+	go get -u github.com/goreleaser/goreleaser
 
 build:
 	@echo "package qlcchain" > $(shell pwd)/version.go
@@ -29,35 +30,17 @@ build:
 	go build ${LDFLAGS} -v -i -o $(BUILDDIR)/$(ROBOTNAME) $(ROBOTOMAIN)
 	@echo "Build robot done."
 
-all: robot-windows robot-darwin robot-linux
-
 clean:
 	rm -rf $(BUILDDIR)/
 
-robot-linux: robot-linux-amd64
-	@echo "Linux cross compilation done."
+lint: 
+	golangci-lint run --fix
 
-robot-linux-amd64:
-	env GOOS=linux GOARCH=amd64 go build ${LDFLAGS} -i -o $(BUILDDIR)/$(ROBOTNAME)-linux-amd64-v$(VERSION)-$(GITREV) $(ROBOTOMAIN)
-	@echo "Build linux amd64 done."
-	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-linux-amd64-v$(VERSION)-$(GITREV)
+snapshot:
+	goreleaser --snapshot --rm-dist
 
-robot-darwin:
-	env GOOS=darwin GOARCH=amd64 go build ${LDFLAGS} -i -o $(BUILDDIR)/$(ROBOTNAME)-darwin-amd64-v$(VERSION)-$(GITREV) $(ROBOTOMAIN)
-	@echo "Build darwin amd64 done."
-	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-darwin-amd64-v$(VERSION)-$(GITREV)
+changelog:
+	git-chglog $(VERSION) > CHANGELOG.md
 
-robot-windows: robot-windows-amd64 robot-windows-386
-	@echo "Windows cross compilation done."
-	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-windows-*
-
-robot-windows-386:
-	env GOOS=windows GOARCH=386 go build ${LDFLAGS} -i -o $(BUILDDIR)/$(ROBOTNAME)-windows-386-v$(VERSION)-$(GITREV).exe $(ROBOTOMAIN)
-	@echo "Build windows x86 done."
-	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-windows-386-v$(VERSION)-$(GITREV).exe
-
-robot-windows-amd64:
-	env GOOS=windows GOARCH=amd64 go build ${LDFLAGS} -i -o $(BUILDDIR)/$(ROBOTNAME)-windows-amd64-v$(VERSION)-$(GITREV).exe $(ROBOTOMAIN)
-	@echo "Build windows amd64 done."
-	@ls -ld $(BUILDDIR)/$(ROBOTNAME)-windows-amd64-v$(VERSION)-$(GITREV).exe
-
+release: changelog
+	goreleaser --rm-dist --skip-publish --release-notes=CHANGELOG.md
