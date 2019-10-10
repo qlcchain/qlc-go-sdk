@@ -44,17 +44,25 @@ jobs:
           level: warning # GitHub Status Check won't become failure with this level.
 
       - name: Build snapshot 
-        env: 
-          GORELEASER_VERSION: 0.119.0
-          GORELEASER_DOWNLOAD_FILE: goreleaser_Linux_x86_64.tar.gz
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          wget https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
-          tar -xzf ${GORELEASER_DOWNLOAD_FILE} -C $(go env GOPATH)/bin/ goreleaser
-          chmod +x $(go env GOPATH)/bin/goreleaser
-          goreleaser -v
-          make snapshot
-          mkdir -p artifact; cp dist/*.tar.gz artifact/; cp dist/*.zip artifact/; cp dist/*.txt artifact/
+        uses: goreleaser/goreleaser-action@v1
+        with:
+          version: latest
+          args: --snapshot --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      
+      # - name: Build snapshot 
+      #   env: 
+      #     GORELEASER_VERSION: 0.119.0
+      #     GORELEASER_DOWNLOAD_FILE: goreleaser_Linux_x86_64.tar.gz
+      #   run: |
+      #     export PATH=$PATH:$(go env GOPATH)/bin
+      #     wget https://github.com/goreleaser/goreleaser/releases/download/v${GORELEASER_VERSION}/${GORELEASER_DOWNLOAD_FILE}
+      #     tar -xzf ${GORELEASER_DOWNLOAD_FILE} -C $(go env GOPATH)/bin/ goreleaser
+      #     chmod +x $(go env GOPATH)/bin/goreleaser
+      #     goreleaser -v
+      #     make snapshot
+      #     mkdir -p artifact; cp dist/*.tar.gz artifact/; cp dist/*.zip artifact/; cp dist/*.txt artifact/
 
       - name: Upload snapshot artifacts 
         uses: actions/upload-artifact@master 
