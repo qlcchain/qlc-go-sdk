@@ -40,14 +40,6 @@ jobs:
           flags: unittests 
           name: codecov-umbrella
 
-      - name: Run golangci-lint with reviewdog 
-        # uses: reviewdog/action-golangci-lint@v1.0.4 
-        uses: docker://reviewdog/action-golangci-lint:v1.0.4 
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          golangci_lint_flags: "--config=.golangci.yml -v"
-          level: warning # GitHub Status Check won't become failure with this level.
-
       - name: Build snapshot 
         uses: goreleaser/goreleaser-action@v1
         with:
