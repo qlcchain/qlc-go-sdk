@@ -35,8 +35,8 @@ type NEP5PledgeInfo struct {
 	NEP5TxId      string
 }
 
-// NewPledgeApi creates pledge module for client
-func NewPledgeApi(c *rpc.Client) *PledgeApi {
+// NewPledgeAPI creates pledge module for client
+func NewPledgeAPI(c *rpc.Client) *PledgeApi {
 	return &PledgeApi{client: c}
 }
 

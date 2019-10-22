@@ -12,8 +12,8 @@ type UtilApi struct {
 	client *rpc.Client
 }
 
-// NewUtilApi creates unit module for client
-func NewUtilApi(c *rpc.Client) *UtilApi {
+// NewUtilAPI creates unit module for client
+func NewUtilAPI(c *rpc.Client) *UtilApi {
 	return &UtilApi{client: c}
 }
 

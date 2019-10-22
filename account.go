@@ -4,7 +4,6 @@ import (
 	"encoding/hex"
 
 	rpc "github.com/qlcchain/jsonrpc2"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
@@ -12,8 +11,8 @@ type AccountApi struct {
 	client *rpc.Client
 }
 
-// NewAccountApi creates account module for client
-func NewAccountApi(c *rpc.Client) *AccountApi {
+// NewAccountAPI creates account module for client
+func NewAccountAPI(c *rpc.Client) *AccountApi {
 	return &AccountApi{client: c}
 }
 

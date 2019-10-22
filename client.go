@@ -37,17 +37,17 @@ func NewQLCClient(url string) (*QLCClient, error) {
 
 	return &QLCClient{
 		client:   client,
-		Account:  NewAccountApi(client),
-		Ledger:   NewLedgerApi(client),
-		SMS:      NewSMSApi(client),
-		Contract: NewContractApi(client),
-		Mintage:  NewMintageApi(client),
-		Pledge:   NewPledgeApi(client),
-		Rewards:  NewRewardApi(client),
-		Network:  NewNetApi(client),
-		Util:     NewUtilApi(client),
-		Destroy:  NewDestroyApi(client),
-		Debug:    NewDebugApi(client),
+		Account:  NewAccountAPI(client),
+		Ledger:   NewLedgerAPI(url, client),
+		SMS:      NewSMSAPI(client),
+		Contract: NewContractAPI(client),
+		Mintage:  NewMintageAPI(client),
+		Pledge:   NewPledgeAPI(client),
+		Rewards:  NewRewardAPI(client),
+		Network:  NewNetAPI(client),
+		Util:     NewUtilAPI(client),
+		Destroy:  NewDestroyAPI(client),
+		Debug:    NewDebugAPI(client),
 	}, nil
 
 }

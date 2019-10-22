@@ -9,8 +9,8 @@ type SMSApi struct {
 	client *rpc.Client
 }
 
-// NewSMSApi creates sms module for client
-func NewSMSApi(c *rpc.Client) *SMSApi {
+// NewSMSAPI creates sms module for client
+func NewSMSAPI(c *rpc.Client) *SMSApi {
 	return &SMSApi{client: c}
 }
 
