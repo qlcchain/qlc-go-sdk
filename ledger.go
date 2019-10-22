@@ -1,6 +1,7 @@
 package qlcchain
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -12,6 +13,7 @@ import (
 )
 
 type LedgerApi struct {
+	url    string
 	client *rpc.Client
 }
 
@@ -51,8 +53,9 @@ type APITokenMeta struct {
 type APIPending struct {
 	*types.PendingKey
 	*types.PendingInfo
-	TokenName string `json:"tokenName"`
-	Timestamp int64  `json:"timestamp"`
+	TokenName string          `json:"tokenName"`
+	Timestamp int64           `json:"timestamp"`
+	BlockType types.BlockType `json:"blockType"`
 }
 
 type ApiTokenInfo struct {
@@ -84,9 +87,9 @@ type APISendBlockPara struct {
 	Message   types.Hash    `json:"message"`
 }
 
-// NewLedgerApi creates ledger module for client
-func NewLedgerApi(c *rpc.Client) *LedgerApi {
-	return &LedgerApi{client: c}
+// NewLedgerAPI creates ledger module for client
+func NewLedgerAPI(url string, c *rpc.Client) *LedgerApi {
+	return &LedgerApi{url: url, client: c}
 }
 
 // AccountBlocksCount returns number of blocks for a specific account of chain
@@ -579,4 +582,106 @@ func (l *LedgerApi) TokenInfoByName(tokenName string) (*ApiTokenInfo, error) {
 		return nil, err
 	}
 	return &at, nil
+}
+
+// NewBlock support publish/subscription, ch is StateBlock channel,
+// once there is new block stored to the chain, set the block to channel
+func (l *LedgerApi) NewBlock(ch chan *types.StateBlock) (*Subscribe, error) {
+	subscribe := NewSubscribe(l.url)
+	request := `{"id":1,"method":"ledger_subscribe","params":["newBlock"]}`
+	if err := subscribe.subscribe(request); err != nil {
+		return nil, fmt.Errorf("subscribe fail: %s", err)
+	}
+
+	go func() {
+		for {
+			if result, stopped := subscribe.publish(); !stopped {
+				rBytes, err := json.Marshal(result)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				blk := new(types.StateBlock)
+				err = json.Unmarshal(rBytes, &blk)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				ch <- blk
+			} else {
+				break
+			}
+		}
+	}()
+	return subscribe, nil
+}
+
+// BalanceChange support publish/subscription, ch is AccountMeta channel,
+// once the balance of a account change, set the newest account info to channel
+func (l *LedgerApi) BalanceChange(ch chan *types.AccountMeta, address types.Address) (*Subscribe, error) {
+	subscribe := NewSubscribe(l.url)
+	request := fmt.Sprintf(`{"id":1,"method":"ledger_subscribe","params":["balanceChange","%s"]}`, address)
+	if err := subscribe.subscribe(request); err != nil {
+		return nil, fmt.Errorf("subscribe fail: %s", err)
+	}
+
+	go func() {
+		for {
+			if result, stopped := subscribe.publish(); !stopped {
+				rBytes, err := json.Marshal(result)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				am := new(types.AccountMeta)
+				err = json.Unmarshal(rBytes, &am)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				ch <- am
+			} else {
+				break
+			}
+		}
+	}()
+	return subscribe, nil
+}
+
+// NewPending support publish/subscription, ch is APIPending channel,
+// once there is a pending transaction of a account, set the pending info to channel
+func (l *LedgerApi) NewPending(ch chan *APIPending, address types.Address) (*Subscribe, error) {
+	subscribe := NewSubscribe(l.url)
+	request := fmt.Sprintf(`{"id":1,"method":"ledger_subscribe","params":["newPending","%s"]}`, address)
+	if err := subscribe.subscribe(request); err != nil {
+		return nil, fmt.Errorf("subscribe fail: %s", err)
+	}
+
+	go func() {
+		for {
+			if result, stopped := subscribe.publish(); !stopped {
+				rBytes, err := json.Marshal(result)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				am := new(APIPending)
+				err = json.Unmarshal(rBytes, &am)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				ch <- am
+			} else {
+				break
+			}
+		}
+	}()
+	return subscribe, nil
+}
+
+// Unsubscribe close a pub-sub connection
+func (l *LedgerApi) Unsubscribe(subscribe *Subscribe) error {
+	request := fmt.Sprintf(`{"id":1,"method":"ledger_unsubscribe","params":["%s"]}`, subscribe.subscribeID)
+	return subscribe.Unsubscribe(request)
 }

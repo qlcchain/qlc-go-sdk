@@ -15,13 +15,11 @@ import (
 	"sync/atomic"
 	"time"
 
+	qlcchain "github.com/qlcchain/qlc-go-sdk"
+	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 	"github.com/qlcchain/qlc-go-sdk/pkg/random"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
-
-	qlcchain "github.com/qlcchain/qlc-go-sdk"
-
-	"github.com/qlcchain/qlc-go-sdk/example/robot/message"
 )
 
 type arrayFlags []string

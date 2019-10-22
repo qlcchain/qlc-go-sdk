@@ -25,8 +25,8 @@ type WithdrawParams struct {
 	TokenId  types.Hash    `json:"tokenId"`
 }
 
-// NewMintageApi creates mintage module for client
-func NewMintageApi(c *rpc.Client) *MintageApi {
+// NewMintageAPI creates mintage module for client
+func NewMintageAPI(c *rpc.Client) *MintageApi {
 	return &MintageApi{client: c}
 }
 

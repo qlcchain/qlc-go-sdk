@@ -11,8 +11,8 @@ type RewardsApi struct {
 	client *rpc.Client
 }
 
-// NewRewardApi creates reward module for client
-func NewRewardApi(c *rpc.Client) *RewardsApi {
+// NewRewardAPI creates reward module for client
+func NewRewardAPI(c *rpc.Client) *RewardsApi {
 	return &RewardsApi{client: c}
 }
 

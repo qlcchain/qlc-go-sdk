@@ -15,8 +15,8 @@ type DestroyApi struct {
 	client *rpc.Client
 }
 
-// NewDestroyApi creates destroy module for client
-func NewDestroyApi(c *rpc.Client) *DestroyApi {
+// NewDestroyAPI creates destroy module for client
+func NewDestroyAPI(c *rpc.Client) *DestroyApi {
 	return &DestroyApi{client: c}
 }
 
