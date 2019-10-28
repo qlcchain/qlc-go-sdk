@@ -19,6 +19,7 @@ type QLCClient struct {
 	Util     *UtilApi
 	Destroy  *DestroyApi
 	Debug    *DebugApi
+	Pov      *PovApi
 }
 
 func (c *QLCClient) Close() error {
@@ -48,6 +49,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		Util:     NewUtilAPI(client),
 		Destroy:  NewDestroyAPI(client),
 		Debug:    NewDebugAPI(client),
+		Pov:      NewPovAPI(client),
 	}, nil
 
 }
