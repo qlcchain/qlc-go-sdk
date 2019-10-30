@@ -51,7 +51,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		Util:     NewUtilAPI(client),
 		Destroy:  NewDestroyAPI(client),
 		Debug:    NewDebugAPI(client),
-		Pov:      NewPovAPI(client),
+		Pov:      NewPovAPI(url, client),
 		Miner:    NewMinerAPI(client),
 		Rep:      NewRepAPI(client),
 	}, nil

@@ -1,6 +1,8 @@
 package qlcchain
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	rpc "github.com/qlcchain/jsonrpc2"
@@ -9,6 +11,7 @@ import (
 )
 
 type PovApi struct {
+	url    string
 	client *rpc.Client
 }
 
@@ -166,8 +169,8 @@ type PovApiSubmitWork struct {
 }
 
 // NewPovAPI creates pov module for client
-func NewPovAPI(c *rpc.Client) *PovApi {
-	return &PovApi{client: c}
+func NewPovAPI(url string, c *rpc.Client) *PovApi {
+	return &PovApi{url: url, client: c}
 }
 
 // GetFittestHeader returns fittest pov header info
@@ -380,4 +383,42 @@ func (p *PovApi) SubmitWork(work *PovApiSubmitWork) error {
 		return err
 	}
 	return nil
+}
+
+// NewBlock support publish/subscription, ch is PovHeader channel,
+// once there is new block stored to the chain, set the block to channel
+func (p *PovApi) NewBlock(ch chan *types.PovHeader) (*Subscribe, error) {
+	subscribe := NewSubscribe(p.url)
+	request := `{"id":1,"method":"pov_subscribe","params":["newBlock"]}`
+	if err := subscribe.subscribe(request); err != nil {
+		return nil, fmt.Errorf("subscribe fail: %s", err)
+	}
+
+	go func() {
+		for {
+			if result, stopped := subscribe.publish(); !stopped {
+				rBytes, err := json.Marshal(result)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				blk := new(types.PovHeader)
+				err = json.Unmarshal(rBytes, &blk)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				ch <- blk
+			} else {
+				break
+			}
+		}
+	}()
+	return subscribe, nil
+}
+
+// Unsubscribe close a pub-sub connection
+func (p *PovApi) Unsubscribe(subscribe *Subscribe) error {
+	request := fmt.Sprintf(`{"id":1,"method":"pov_unsubscribe","params":["%s"]}`, subscribe.subscribeID)
+	return subscribe.Unsubscribe(request)
 }
