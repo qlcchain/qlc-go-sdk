@@ -3,7 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	qlcchain "github.com/qlcchain/qlc-go-sdk"
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
@@ -87,4 +89,22 @@ func main() {
 		return
 	}
 	fmt.Printf("GetLastNHourInfo:\n%s\n", util.ToIndentString(rspHours))
+
+	fmt.Println("============ miner contract api ============")
+	minerAddr, _ := types.HexToAddress("qlc_176f1aj1361y5i4yu8ccyp8xphjcbxmmu4ryh4jecnsncse1eiud7uncz8bj")
+	rspRwdInfo, err := client.Miner.GetAvailRewardInfo(minerAddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("GetAvailRewardInfo:\n%s\n", util.ToIndentString(rspRwdInfo))
+
+	fmt.Println("============ rep contract api ============")
+	repAddr, _ := types.HexToAddress("qlc_176f1aj1361y5i4yu8ccyp8xphjcbxmmu4ryh4jecnsncse1eiud7uncz8bj")
+	rspRepInfo, err := client.Rep.GetAvailRewardInfo(repAddr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("GetAvailRewardInfo:\n%s\n", util.ToIndentString(rspRepInfo))
 }
