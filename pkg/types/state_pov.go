@@ -5,17 +5,14 @@ import (
 	"strings"
 )
 
-//go:generate msgp
-
 type PovAccountState struct {
-	Hash        Hash             `msg:"hash,extension" json:"hash"`
-	Balance     Balance          `msg:"balance,extension" json:"balance"`
-	Vote        Balance          `msg:"vote,extension" json:"vote"`
-	Network     Balance          `msg:"network,extension" json:"network"`
-	Storage     Balance          `msg:"storage,extension" json:"storage"`
-	Oracle      Balance          `msg:"oracle,extension" json:"oracle"`
-	TokenStates []*PovTokenState `msg:"tokenStates" json:"tokenStates"`
-	RepState    *PovRepState     `msg:"repState" json:"repState"`
+	Account     Address          `msg:"a,extension" json:"account"`
+	Balance     Balance          `msg:"b,extension" json:"balance"`
+	Vote        Balance          `msg:"v,extension" json:"vote"`
+	Network     Balance          `msg:"n,extension" json:"network"`
+	Storage     Balance          `msg:"s,extension" json:"storage"`
+	Oracle      Balance          `msg:"o,extension" json:"oracle"`
+	TokenStates []*PovTokenState `msg:"ts" json:"tokenStates"`
 }
 
 func NewPovAccountState() *PovAccountState {
@@ -62,10 +59,6 @@ func (as *PovAccountState) Clone() *PovAccountState {
 		newAs.TokenStates = append(newAs.TokenStates, newTs)
 	}
 
-	if as.RepState != nil {
-		newAs.RepState = as.RepState.Clone()
-	}
-
 	return &newAs
 }
 
@@ -73,8 +66,8 @@ func (as *PovAccountState) String() string {
 	sb := strings.Builder{}
 	sb.WriteString("{")
 
-	asInfo := fmt.Sprintf("Hash:%s, Balance:%s, Vote:%s, Network:%s, Storage:%s, Oracle:%s",
-		as.Hash, as.Balance, as.Vote, as.Network, as.Storage, as.Oracle)
+	asInfo := fmt.Sprintf("Balance:%s, Vote:%s, Network:%s, Storage:%s, Oracle:%s",
+		as.Balance, as.Vote, as.Network, as.Storage, as.Oracle)
 	sb.WriteString(asInfo)
 
 	sb.WriteString(", TokenState:[")
@@ -83,24 +76,20 @@ func (as *PovAccountState) String() string {
 	}
 	sb.WriteString("]")
 
-	if as.RepState != nil {
-		sb.WriteString(", RepState:{")
-		sb.WriteString(as.RepState.String())
-		sb.WriteString("}")
-	}
-
 	sb.WriteString("}")
 	return sb.String()
 }
 
 type PovTokenState struct {
-	Type           Hash    `msg:"type,extension" json:"type"`
-	Representative Address `msg:"rep,extension" json:"representative"`
-	Balance        Balance `msg:"balance,extension" json:"balance"`
+	Type           Hash    `msg:"t,extension" json:"type"`
+	Hash           Hash    `msg:"h,extension" json:"hash"`
+	Representative Address `msg:"r,extension" json:"representative"`
+	Balance        Balance `msg:"b,extension" json:"balance"`
 }
 
-func NewPovTokenState() *PovTokenState {
+func NewPovTokenState(token Hash) *PovTokenState {
 	return &PovTokenState{
+		Type:    token,
 		Balance: NewBalance(0),
 	}
 }
@@ -123,17 +112,21 @@ func (ts *PovTokenState) Clone() *PovTokenState {
 }
 
 func (ts *PovTokenState) String() string {
-	return fmt.Sprintf("{Type:%s, Rep:%s, Balance:%s}",
-		ts.Type, ts.Representative, ts.Balance)
+	return fmt.Sprintf("{Type:%s, Hash:%s, Rep:%s, Balance:%s}",
+		ts.Type, ts.Hash, ts.Representative, ts.Balance)
 }
 
 type PovRepState struct {
-	Balance Balance `msg:"balance,extension" json:"balance"`
-	Vote    Balance `msg:"vote,extension" json:"vote"`
-	Network Balance `msg:"network,extension" json:"network"`
-	Storage Balance `msg:"storage,extension" json:"storage"`
-	Oracle  Balance `msg:"oracle,extension" json:"oracle"`
-	Total   Balance `msg:"total,extension" json:"total"`
+	Account Address `msg:"a,extension" json:"account"`
+	Balance Balance `msg:"b,extension" json:"balance"`
+	Vote    Balance `msg:"v,extension" json:"vote"`
+	Network Balance `msg:"n,extension" json:"network"`
+	Storage Balance `msg:"s,extension" json:"storage"`
+	Oracle  Balance `msg:"o,extension" json:"oracle"`
+	Total   Balance `msg:"t,extension" json:"total"`
+
+	Status uint32 `msg:"st" json:"status"`
+	Height uint64 `msg:"he" json:"height"`
 }
 
 func NewPovRepState() *PovRepState {
@@ -161,6 +154,12 @@ func (rs *PovRepState) Deserialize(text []byte) error {
 
 func (rs *PovRepState) Clone() *PovRepState {
 	newRs := *rs
+	newRs.Balance = rs.Balance.Copy()
+	newRs.Vote = rs.Vote.Copy()
+	newRs.Network = rs.Network.Copy()
+	newRs.Storage = rs.Storage.Copy()
+	newRs.Oracle = rs.Oracle.Copy()
+	newRs.Total = rs.Total.Copy()
 	return &newRs
 }
 
@@ -169,6 +168,6 @@ func (rs *PovRepState) CalcTotal() Balance {
 }
 
 func (rs *PovRepState) String() string {
-	return fmt.Sprintf("{Balance:%s, Vote:%s, Network:%s, Storage:%s, Oracle:%s, Total:%s}",
-		rs.Balance, rs.Vote, rs.Network, rs.Storage, rs.Oracle, rs.Total)
+	return fmt.Sprintf("{Account:%s, Balance:%s, Vote:%s, Network:%s, Storage:%s, Oracle:%s, Total:%s, Status:%d, Height:%d}",
+		rs.Account, rs.Balance, rs.Vote, rs.Network, rs.Storage, rs.Oracle, rs.Total, rs.Status, rs.Height)
 }

@@ -36,12 +36,32 @@ func main() {
 		}
 	}()
 
+	chPov := make(chan *types.PovHeader)
+	subPov, err := client.Pov.NewBlock(chPov)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	go func() {
+		time.Sleep(30 * time.Second)
+		if err := client.Pov.Unsubscribe(subPov); err != nil {
+			log.Println(err)
+			return
+		}
+	}()
+
 	for {
 		select {
 		case result := <-ch:
 			log.Println("result: ", result)
+		case result := <-chPov:
+			log.Println("pov result: ", result)
 		case <-subscribe.Stopped:
 			log.Println("subscribe stopped")
+			return
+		case <-subPov.Stopped:
+			log.Println("pov subscribe stopped")
 			return
 		}
 	}

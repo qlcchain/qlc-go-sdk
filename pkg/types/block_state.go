@@ -191,11 +191,11 @@ func (b *StateBlock) String() string {
 }
 
 func (b *StateBlock) IsReceiveBlock() bool {
-	return b.Type == Receive || b.Type == Open
+	return b.Type == Receive || b.Type == Open || b.Type == ContractReward
 }
 
 func (b *StateBlock) IsSendBlock() bool {
-	return b.Type == Send || b.Type == ContractReward || b.Type == ContractSend || b.Type == ContractRefund
+	return b.Type == Send || b.Type == ContractSend
 }
 
 func (b *StateBlock) IsContractBlock() bool {
@@ -207,6 +207,20 @@ func (b *StateBlock) Clone() *StateBlock {
 	bytes, _ := b.Serialize()
 	_ = clone.Deserialize(bytes)
 	return &clone
+}
+
+type StateBlockList []*StateBlock
+
+func (bs *StateBlockList) Serialize() ([]byte, error) {
+	return bs.MarshalMsg(nil)
+}
+
+func (bs *StateBlockList) Deserialize(text []byte) error {
+	_, err := bs.UnmarshalMsg(text)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //
