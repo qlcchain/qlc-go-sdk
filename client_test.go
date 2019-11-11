@@ -22,14 +22,14 @@ func Hash() types.Hash {
 
 func TestQLCClient_GenerateBlock(t *testing.T) {
 	t.Skip()
-	c, err := NewQLCClient("http://127.0.0.1:19735")
+	c, err := NewQLCClient("ws://127.0.0.1:19736")
 	//client, err := NewQLCClient("http://47.244.138.61:9735")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer c.client.Close()
+	defer c.Close()
 
-	_, sPri, _ := types.KeypairFromSeed("343227955e098c68c1fa78953b03cf144b04567826577c1b8cab877b4902f345", 0)
+	_, sPri, _ := types.KeypairFromSeed("46b31acd0a3bf072e7bea611a86074e7afae5ff95610f5f870208f2fd9357418", 0)
 	sAccount := types.NewAccount(sPri)
 	_, rPri, _ := types.KeypairFromSeed("123227955e098c68c1fa78953b03cf144b04567826577c1b8cab877b4902f345", 0)
 	rAccount := types.NewAccount(rPri)
@@ -47,6 +47,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 		Receiver:  receiver,
 		Message:   mHash,
 	}
+	fmt.Println("send address: ", sAccount.Address())
 
 	sendBlock, err := c.Ledger.GenerateSendBlock(&bp, func(hash types.Hash) (signatures types.Signature, e error) {
 		return SignatureFunc(sAccount, hash)
@@ -54,16 +55,24 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("send address: ", sAccount.Address())
+
 	fmt.Println("send block: ", sendBlock.String())
-	fmt.Println("hash: ", sendBlock.GetHash())
-	hash, err := c.Ledger.Process(sendBlock)
+	fmt.Println("send hash: ", sendBlock.GetHash())
+	// hash, err := c.Ledger.Process(sendBlock)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	b, err := c.Ledger.ProcessAndConfirmed(sendBlock)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if hash != sendBlock.GetHash() {
-		t.Fatal()
+	if !b {
+		t.Fatal(err)
 	}
+	// if hash != sendBlock.GetHash() {
+	//	t.Fatal()
+	//}
+	fmt.Println("receiver address: ", rAccount.Address())
 
 	receBlock, err := c.Ledger.GenerateReceiveBlock(sendBlock, func(hash types.Hash) (signatures types.Signature, e error) {
 		return SignatureFunc(rAccount, hash)
@@ -71,24 +80,30 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Println("receiver address: ", rAccount.Address())
 	fmt.Println("receiver block: ", receBlock.String())
 	fmt.Println("hash: ", receBlock.GetHash())
-	rHash, err := c.Ledger.Process(receBlock)
+	// rHash, err := c.Ledger.Process(receBlock)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//if rHash != receBlock.GetHash() {
+	//	t.Fatal()
+	//}
+	b, err = c.Ledger.ProcessAndConfirmed(receBlock)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if rHash != receBlock.GetHash() {
-		t.Fatal()
-	}
-
-	b, err := c.SMS.MessageBlocks(mHash)
-	if err != nil {
+	if !b {
 		t.Fatal(err)
 	}
-	if b[0].GetHash() != sendBlock.GetHash() {
-		t.Fatal()
-	}
+	//
+	//b, err := c.SMS.MessageBlocks(mHash)
+	//if err != nil {
+	//	t.Fatal(err)
+	//}
+	//if b[0].GetHash() != sendBlock.GetHash() {
+	//	t.Fatal()
+	//}
 }
 
 func TestQLCClient_BlockConfirmedStatus(t *testing.T) {
