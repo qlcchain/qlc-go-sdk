@@ -27,6 +27,7 @@ type QLCClient struct {
 func (c *QLCClient) Close() error {
 	if c != nil && c.client != nil {
 		c.client.Close()
+		c.Ledger.Stop()
 	}
 	return nil
 }

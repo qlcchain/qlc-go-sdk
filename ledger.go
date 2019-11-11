@@ -4,17 +4,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	rpc "github.com/qlcchain/jsonrpc2"
-	common "github.com/qlcchain/qlc-go-sdk/pkg"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 type LedgerApi struct {
-	url    string
-	client *rpc.Client
+	url        string
+	subscribes map[types.Address]*BlockSubscription
+	client     *rpc.Client
 }
 
 type APIBlock struct {
@@ -89,7 +90,18 @@ type APISendBlockPara struct {
 
 // NewLedgerAPI creates ledger module for client
 func NewLedgerAPI(url string, c *rpc.Client) *LedgerApi {
-	return &LedgerApi{url: url, client: c}
+	return &LedgerApi{
+		url:    url,
+		client: c,
+
+		subscribes: make(map[types.Address]*BlockSubscription),
+	}
+}
+
+func (l *LedgerApi) Stop() {
+	for _, s := range l.subscribes {
+		s.subscribe.Close()
+	}
 }
 
 // AccountBlocksCount returns number of blocks for a specific account of chain
@@ -341,89 +353,60 @@ func phoneNumberSeri(number string) []byte {
 
 // GenerateSendBlock returns send block by transaction parameter, sign is a function to sign the block
 func (l *LedgerApi) GenerateSendBlock(para *APISendBlockPara, sign Signature) (*types.StateBlock, error) {
-	info, err := l.TokenInfoByName(para.TokenName)
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_generateSendBlock", para)
 	if err != nil {
 		return nil, err
 	}
-	tm, err := l.TokenMeta(info.TokenId, para.From)
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	blk.Work = generateWork(blk.Root())
+	return &blk, nil
+}
+
+func (l *LedgerApi) GenerateAndProcessSendBlock(para *APISendBlockPara, sign Signature) (types.Hash, error) {
+	blk, err := l.GenerateSendBlock(para, sign)
 	if err != nil {
-		return nil, errors.New("token not found")
+		return types.ZeroHash, err
 	}
-	if tm.Balance.Compare(para.Amount) != types.BalanceCompSmaller {
-		blk := types.StateBlock{
-			Type:           types.Send,
-			Address:        para.From,
-			Token:          info.TokenId,
-			Balance:        tm.Balance.Sub(para.Amount),
-			Previous:       tm.Header,
-			Link:           para.To.ToHash(),
-			Representative: tm.Representative,
-			Sender:         phoneNumberSeri(para.Sender),
-			Receiver:       phoneNumberSeri(para.Receiver),
-			Message:        para.Message,
-			Timestamp:      time.Now().Unix(),
-		}
-		if sign != nil {
-			blk.Signature, err = sign(blk.GetHash())
-			if err != nil {
-				return nil, err
-			}
-		}
-		blk.Work = generateWork(blk.Root())
-		return &blk, nil
-	} else {
-		return nil, fmt.Errorf("not enought balance(%s) of %s", tm.Balance, para.Amount)
-	}
+	return l.Process(blk)
 }
 
 // GenerateReceiveBlock returns receive block by send block, sign is a function to sign the block
 func (l *LedgerApi) GenerateReceiveBlock(txBlock *types.StateBlock, sign Signature) (*types.StateBlock, error) {
-	if !txBlock.GetType().Equal(types.Send) {
-		return nil, fmt.Errorf("(%s) is not send block", txBlock.GetHash().String())
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_generateReceiveBlock", txBlock)
+	if err != nil {
+		return nil, err
 	}
-	return l.GenerateReceiveBlockByHash(txBlock.GetHash(), sign)
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	blk.Work = generateWork(blk.Root())
+	return &blk, nil
+}
+
+func (l *LedgerApi) GenerateAndProcessReceiveBlock(txBlock *types.StateBlock, sign Signature) (types.Hash, error) {
+	blk, err := l.GenerateReceiveBlock(txBlock, sign)
+	if err != nil {
+		return types.ZeroHash, err
+	}
+	return l.Process(blk)
 }
 
 // GenerateReceiveBlockByHash returns receive block by send block hash, sign is a function to sign the block
 func (l *LedgerApi) GenerateReceiveBlockByHash(txHash types.Hash, sign Signature) (*types.StateBlock, error) {
-	txBlock, err := l.BlockInfo(txHash)
-	if err != nil {
-		return nil, err
-	}
-
-	rcAddress := types.Address(txBlock.Link)
-	pending, err := l.Pending(rcAddress, txHash)
-	if err != nil {
-		return nil, err
-	}
-	rcTm, _ := l.TokenMeta(txBlock.GetToken(), rcAddress)
-
 	var blk types.StateBlock
-	if rcTm != nil {
-		blk = types.StateBlock{
-			Type:           types.Receive,
-			Address:        rcAddress,
-			Balance:        rcTm.Balance.Add(pending.Amount),
-			Previous:       rcTm.Header,
-			Link:           txHash,
-			Representative: rcTm.Representative,
-			Token:          rcTm.Type,
-			Extra:          types.ZeroHash,
-			Timestamp:      time.Now().Unix(),
-		}
-
-	} else {
-		blk = types.StateBlock{
-			Type:           types.Open,
-			Address:        rcAddress,
-			Balance:        pending.Amount,
-			Previous:       types.ZeroHash,
-			Link:           txHash,
-			Representative: txBlock.GetRepresentative(), //Representative: genesis.Owner,
-			Token:          txBlock.GetToken(),
-			Extra:          types.ZeroHash,
-			Timestamp:      time.Now().Unix(),
-		}
+	err := l.client.Call(&blk, "ledger_generateReceiveBlockByHash", txHash)
+	if err != nil {
+		return nil, err
 	}
 	if sign != nil {
 		blk.Signature, err = sign(blk.GetHash())
@@ -435,33 +418,20 @@ func (l *LedgerApi) GenerateReceiveBlockByHash(txHash types.Hash, sign Signature
 	return &blk, nil
 }
 
+func (l *LedgerApi) GenerateAndProcessReceiveBlockByHash(txHash types.Hash, sign Signature) (types.Hash, error) {
+	blk, err := l.GenerateReceiveBlockByHash(txHash, sign)
+	if err != nil {
+		return types.ZeroHash, err
+	}
+	return l.Process(blk)
+}
+
 // GenerateChangeBlock returns change block by account and new representative address, sign is a function to sign the block
-func (l *LedgerApi) GenerateChangeBlock(account types.Address, representative types.Address, sign Signature) (*types.StateBlock, error) {
-	if _, err := l.AccountInfo(representative); err != nil {
-		return nil, fmt.Errorf("invalid representative[%s]", representative.String())
-	}
-
-	rcTm, err := l.TokenMeta(common.ChainToken(), account)
+func (l *LedgerApi) GenerateChangeBlock(account, representative types.Address, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_generateChangeBlock", account, representative)
 	if err != nil {
 		return nil, err
-	}
-
-	//get latest chain token block
-	block, err := l.BlockInfo(rcTm.Header)
-	if err != nil {
-		return nil, err
-	}
-
-	blk := types.StateBlock{
-		Type:           types.Change,
-		Address:        account,
-		Balance:        rcTm.Balance,
-		Previous:       rcTm.Header,
-		Link:           types.ZeroHash,
-		Representative: representative,
-		Token:          block.Token,
-		Extra:          types.ZeroHash,
-		Timestamp:      time.Now().Unix(),
 	}
 	if sign != nil {
 		blk.Signature, err = sign(blk.GetHash())
@@ -471,6 +441,14 @@ func (l *LedgerApi) GenerateChangeBlock(account types.Address, representative ty
 	}
 	blk.Work = generateWork(blk.Root())
 	return &blk, nil
+}
+
+func (l *LedgerApi) GenerateAndProcessChangeBlock(account, representative types.Address, sign Signature) (types.Hash, error) {
+	blk, err := l.GenerateChangeBlock(account, representative, sign)
+	if err != nil {
+		return types.ZeroHash, err
+	}
+	return l.Process(blk)
 }
 
 // Process checks block base info , updates info of chain for the block ,and broadcasts block
@@ -481,6 +459,34 @@ func (l *LedgerApi) Process(block *types.StateBlock) (types.Hash, error) {
 		return types.ZeroHash, err
 	}
 	return hash, nil
+}
+
+func (l *LedgerApi) ProcessAndConfirmed(block *types.StateBlock) (bool, error) {
+	var hash types.Hash
+	err := l.client.Call(&hash, "ledger_process", block)
+	if err != nil {
+		return false, err
+	}
+
+	ch := make(chan *types.StateBlock)
+	subscribe, err := l.BlockSubscription(block.GetAddress())
+	if err != nil {
+		return false, err
+	}
+	subscribe.addChan(ch)
+	defer subscribe.removeChan(ch)
+
+	ticker := time.NewTicker(180 * time.Second)
+	for {
+		select {
+		case blk := <-ch:
+			if blk.GetHash() == block.GetHash() {
+				return true, nil
+			}
+		case <-ticker.C:
+			return false, errors.New("consensus timeout")
+		}
+	}
 }
 
 // Pendings returns pending transaction list on chain
@@ -595,6 +601,40 @@ func (l *LedgerApi) NewBlock(ch chan *types.StateBlock) (*Subscribe, error) {
 
 	go func() {
 		for {
+			if r, stopped := subscribe.publish(); !stopped {
+				rBytes, err := json.Marshal(r)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+
+				block := new(types.StateBlock)
+				err = json.Unmarshal(rBytes, &block)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+
+				ch <- block
+			} else {
+				break
+			}
+		}
+	}()
+	return subscribe, nil
+}
+
+// NewAccountBlock support publish/subscription, ch is StateBlock channel,
+// once there is new account block stored to the chain, set the block to channel
+func (l *LedgerApi) NewAccountBlock(ch chan *types.StateBlock, address types.Address) (*Subscribe, error) {
+	subscribe := NewSubscribe(l.url)
+	request := fmt.Sprintf(`{"id":1,"method":"ledger_subscribe","params":["newAccountBlock","%s"]}`, address)
+	if err := subscribe.subscribe(request); err != nil {
+		return nil, fmt.Errorf("subscribe fail: %s", err)
+	}
+
+	go func() {
+		for {
 			if result, stopped := subscribe.publish(); !stopped {
 				rBytes, err := json.Marshal(result)
 				if err != nil {
@@ -684,4 +724,80 @@ func (l *LedgerApi) NewPending(ch chan *APIPending, address types.Address) (*Sub
 func (l *LedgerApi) Unsubscribe(subscribe *Subscribe) error {
 	request := fmt.Sprintf(`{"id":1,"method":"ledger_unsubscribe","params":["%s"]}`, subscribe.subscribeID)
 	return subscribe.Unsubscribe(request)
+}
+
+type BlockSubscription struct {
+	mu        *sync.Mutex
+	subscribe *Subscribe
+	chans     []chan *types.StateBlock
+	blocks    chan *types.StateBlock
+	stoped    chan bool
+}
+
+func (l *LedgerApi) BlockSubscription(address types.Address) (*BlockSubscription, error) {
+	s, ok := l.subscribes[address]
+	if !ok {
+		ch := make(chan *types.StateBlock)
+		subscribe, err := l.NewAccountBlock(ch, address)
+		if err != nil {
+			return nil, err
+		}
+
+		sub := &BlockSubscription{
+			mu:        &sync.Mutex{},
+			chans:     make([]chan *types.StateBlock, 0),
+			blocks:    make(chan *types.StateBlock, 100),
+			stoped:    make(chan bool),
+			subscribe: subscribe,
+		}
+		l.subscribes[address] = sub
+		go func() {
+			for {
+				select {
+				case block := <-ch:
+					if len(sub.chans) > 0 {
+						sub.blocks <- block
+					}
+				case <-subscribe.Stopped:
+					sub.stoped <- true
+					return
+				}
+			}
+		}()
+		go func() {
+			for {
+				select {
+				case b := <-sub.blocks:
+					for _, c := range sub.chans {
+						c <- b
+					}
+				case <-sub.stoped:
+					return
+				}
+			}
+		}()
+		return sub, nil
+	}
+	return s, nil
+}
+
+func (r *BlockSubscription) addChan(ch chan *types.StateBlock) {
+	r.mu.Lock()
+	defer func() {
+		r.mu.Unlock()
+	}()
+	r.chans = append(r.chans, ch)
+}
+
+func (r *BlockSubscription) removeChan(ch chan *types.StateBlock) {
+	r.mu.Lock()
+	defer func() {
+		r.mu.Unlock()
+	}()
+	for index, c := range r.chans {
+		if c == ch {
+			r.chans = append(r.chans[:index], r.chans[index+1:]...)
+			break
+		}
+	}
 }
