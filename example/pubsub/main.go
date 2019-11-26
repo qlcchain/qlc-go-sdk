@@ -36,8 +36,8 @@ func main() {
 		}
 	}()
 
-	chPov := make(chan *types.PovHeader)
-	subPov, err := client.Pov.NewBlock(chPov)
+	chPov := make(chan *qlcchain.PovApiHeader)
+	subPov, err := client.Pov.SubscribeNewBlock(chPov)
 	if err != nil {
 		log.Println(err)
 		return

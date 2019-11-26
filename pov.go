@@ -385,9 +385,9 @@ func (p *PovApi) SubmitWork(work *PovApiSubmitWork) error {
 	return nil
 }
 
-// NewBlock support publish/subscription, ch is PovHeader channel,
+// NewBlock support publish/subscription, ch is PovApiHeader channel,
 // once there is new block stored to the chain, set the block to channel
-func (p *PovApi) NewBlock(ch chan *types.PovHeader) (*Subscribe, error) {
+func (p *PovApi) SubscribeNewBlock(ch chan *PovApiHeader) (*Subscribe, error) {
 	subscribe := NewSubscribe(p.url)
 	request := `{"id":1,"method":"pov_subscribe","params":["newBlock"]}`
 	if err := subscribe.subscribe(request); err != nil {
@@ -402,7 +402,7 @@ func (p *PovApi) NewBlock(ch chan *types.PovHeader) (*Subscribe, error) {
 					fmt.Println(err)
 					continue
 				}
-				blk := new(types.PovHeader)
+				blk := new(PovApiHeader)
 				err = json.Unmarshal(rBytes, &blk)
 				if err != nil {
 					fmt.Println(err)
