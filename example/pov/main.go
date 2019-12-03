@@ -83,6 +83,20 @@ func main() {
 	}
 	fmt.Printf("GetMinerStats:\n%s\n", util.ToIndentString(rspMiners))
 
+	rspDDS, err := client.Pov.GetDiffDayStatByHeight(1439)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("GetDiffDayStat:\n%s\n", util.ToIndentString(rspDDS))
+
+	rspMDS, err := client.Pov.GetMinerDayStatByHeight(1439)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("GetMinerDayStat:\n%s\n", util.ToIndentString(rspMDS))
+
 	rspHours, err := client.Pov.GetLastNHourInfo(0, 0)
 	if err != nil {
 		fmt.Println(err)

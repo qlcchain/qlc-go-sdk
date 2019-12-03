@@ -344,6 +344,46 @@ func (p *PovApi) GetMinerStats(addrs []types.Address) (*PovMinerStats, error) {
 	return &rspData, nil
 }
 
+// GetMinerDayStat returns pov miner day statistic
+func (p *PovApi) GetMinerDayStat(dayIndex int) (*types.PovMinerDayStat, error) {
+	var rspData types.PovMinerDayStat
+	err := p.client.Call(&rspData, "pov_getMinerDayStat", dayIndex)
+	if err != nil {
+		return nil, err
+	}
+	return &rspData, nil
+}
+
+// GetMinerDayStatByHeight returns pov miner day statistic
+func (p *PovApi) GetMinerDayStatByHeight(height uint64) (*types.PovMinerDayStat, error) {
+	var rspData types.PovMinerDayStat
+	err := p.client.Call(&rspData, "pov_getMinerDayStatByHeight", height)
+	if err != nil {
+		return nil, err
+	}
+	return &rspData, nil
+}
+
+// GetDiffDayStat returns pov difficulty day statistic
+func (p *PovApi) GetDiffDayStat(dayIndex int) (*types.PovDiffDayStat, error) {
+	var rspData types.PovDiffDayStat
+	err := p.client.Call(&rspData, "pov_getDiffDayStat", dayIndex)
+	if err != nil {
+		return nil, err
+	}
+	return &rspData, nil
+}
+
+// GetDiffDayStatByHeight returns pov difficulty day statistic
+func (p *PovApi) GetDiffDayStatByHeight(height uint64) (*types.PovDiffDayStat, error) {
+	var rspData types.PovDiffDayStat
+	err := p.client.Call(&rspData, "pov_getDiffDayStatByHeight", height)
+	if err != nil {
+		return nil, err
+	}
+	return &rspData, nil
+}
+
 // GetRepStats returns pov rep statistic
 func (p *PovApi) GetRepStats(addrs []types.Address) (map[types.Address]*PovRepStats, error) {
 	var rspData map[types.Address]*PovRepStats
