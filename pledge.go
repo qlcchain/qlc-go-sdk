@@ -136,8 +136,17 @@ func (p *PledgeApi) GetTotalPledgeAmount() (*big.Int, error) {
 	return r, nil
 }
 
-func (p *PledgeApi) ParsePledgeInfo(data []byte) (*NEP5PledgeInfo, error) {
-	var r NEP5PledgeInfo
+type PledgeInfo struct {
+	PType         uint8
+	Amount        *big.Int
+	WithdrawTime  int64
+	Beneficial    types.Address
+	PledgeAddress types.Address
+	NEP5TxId      string
+}
+
+func (p *PledgeApi) ParsePledgeInfo(data []byte) (*PledgeInfo, error) {
+	var r PledgeInfo
 	err := p.client.Call(&r, "pledge_parsePledgeInfo", data)
 	if err != nil {
 		return nil, err
