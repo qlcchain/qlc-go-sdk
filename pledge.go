@@ -135,3 +135,12 @@ func (p *PledgeApi) GetTotalPledgeAmount() (*big.Int, error) {
 	}
 	return r, nil
 }
+
+func (p *PledgeApi) ParsePledgeInfo(data []byte) (*NEP5PledgeInfo, error) {
+	var r NEP5PledgeInfo
+	err := p.client.Call(&r, "pledge_parsePledgeInfo", data)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
