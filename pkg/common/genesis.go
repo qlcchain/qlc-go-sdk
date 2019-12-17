@@ -7,7 +7,7 @@
  * https://opensource.org/licenses/MIT
  */
 
-package pkg
+package common
 
 import (
 	"encoding/json"

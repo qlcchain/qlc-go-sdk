@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	rpc "github.com/qlcchain/jsonrpc2"
-	common "github.com/qlcchain/qlc-go-sdk/pkg"
+	"github.com/qlcchain/qlc-go-sdk/pkg/common"
 	"github.com/qlcchain/qlc-go-sdk/pkg/ed25519"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
