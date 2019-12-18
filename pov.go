@@ -15,6 +15,12 @@ type PovApi struct {
 	client *rpc.Client
 }
 
+type PovApiStatus struct {
+	PovEnabled   bool   `json:"povEnabled"`
+	SyncState    int    `json:"syncState"`
+	SyncStateStr string `json:"syncStateStr"`
+}
+
 type PovApiHeader struct {
 	*types.PovHeader
 	AlgoName       string  `json:"algoName"`
@@ -171,6 +177,17 @@ type PovApiSubmitWork struct {
 // NewPovAPI creates pov module for client
 func NewPovAPI(url string, c *rpc.Client) *PovApi {
 	return &PovApi{url: url, client: c}
+}
+
+// GetFittestHeader returns fittest pov header info
+// If node is in pov syncing, will return error
+func (p *PovApi) GetPovStatus() (*PovApiStatus, error) {
+	var rspData PovApiStatus
+	err := p.client.Call(&rspData, "pov_getPovStatus")
+	if err != nil {
+		return nil, err
+	}
+	return &rspData, nil
 }
 
 // GetFittestHeader returns fittest pov header info
