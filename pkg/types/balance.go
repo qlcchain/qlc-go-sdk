@@ -6,9 +6,9 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/qlcchain/qlc-go-sdk/pkg/util"
-
 	"github.com/tinylib/msgp/msgp"
+
+	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 func init() {
@@ -18,6 +18,7 @@ func init() {
 const (
 	// BalanceMaxPrecision  balance max precision
 	BalanceMaxPrecision = 11
+	BalanceSize         = 64
 )
 
 // BalanceComp compare
@@ -44,9 +45,9 @@ type Balance struct {
 
 //StringToBalance create balance from string
 func StringToBalance(b string) Balance {
-	t := new(big.Int)
-	t.SetString(b, 10)
-	return Balance{t}
+	v := &Balance{}
+	_ = v.UnmarshalJSON([]byte(b))
+	return *v
 }
 
 // BytesToBalance create balance from byte slice
@@ -184,17 +185,8 @@ func (b *Balance) UnmarshalText(text []byte) error {
 }
 
 //MarshalJSON implements the json.Marshaler interface.
-func (b *Balance) MarshalJSON() ([]byte, error) {
-	s := ""
-
-	if b == nil || b.Int == nil {
-		s = ZeroBalance.String()
-		//s = fmt.Sprintf("\"%s\"", ZeroBalance)
-	} else {
-		//s = fmt.Sprintf("\"%s\"", b.String())
-		s = b.String()
-	}
-	return []byte(s), nil
+func (b Balance) MarshalJSON() ([]byte, error) {
+	return b.MarshalText()
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
