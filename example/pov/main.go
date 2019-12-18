@@ -24,6 +24,13 @@ func main() {
 
 	fmt.Println(client.Version())
 
+	rspStatus, err := client.Pov.GetPovStatus()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("GetPovStatus:\n%s\n", util.ToIndentString(rspStatus))
+
 	fmt.Println("============ pov header api ============")
 	rspHeader, err := client.Pov.GetLatestHeader()
 	if err != nil {
