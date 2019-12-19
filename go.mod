@@ -4,7 +4,6 @@ go 1.12
 
 require (
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/libp2p/go-libp2p-core v0.0.6
 	github.com/philhofer/fwd v1.0.0 // indirect
 	github.com/qlcchain/jsonrpc2 v0.0.6
 	github.com/tinylib/msgp v1.1.0
