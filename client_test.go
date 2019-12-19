@@ -22,7 +22,7 @@ func Hash() types.Hash {
 }
 
 func TestQLCClient_GenerateBlock(t *testing.T) {
-	//t.Skip()
+	t.Skip()
 	c, err := NewQLCClient("ws://127.0.0.1:19736")
 	//client, err := NewQLCClient("http://47.244.138.61:9735")
 	if err != nil {
