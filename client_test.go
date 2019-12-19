@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"testing"
+	"time"
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/random"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
@@ -21,7 +22,7 @@ func Hash() types.Hash {
 }
 
 func TestQLCClient_GenerateBlock(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	c, err := NewQLCClient("ws://127.0.0.1:19736")
 	//client, err := NewQLCClient("http://47.244.138.61:9735")
 	if err != nil {
@@ -62,11 +63,12 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	//if err != nil {
 	//	t.Fatal(err)
 	//}
-	b, err := c.Ledger.ProcessAndConfirmed(sendBlock)
+	h, err := c.Ledger.Process(sendBlock)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !b {
+	time.Sleep(5 * time.Second)
+	if b, err := c.Ledger.BlockConfirmedStatus(h); err != nil || !b {
 		t.Fatal(err)
 	}
 	// if hash != sendBlock.GetHash() {
@@ -89,11 +91,12 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 	//if rHash != receBlock.GetHash() {
 	//	t.Fatal()
 	//}
-	b, err = c.Ledger.ProcessAndConfirmed(receBlock)
+	b, err := c.Ledger.Process(receBlock)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !b {
+	time.Sleep(5 * time.Second)
+	if b, err := c.Ledger.BlockConfirmedStatus(b); err != nil || !b {
 		t.Fatal(err)
 	}
 	//
