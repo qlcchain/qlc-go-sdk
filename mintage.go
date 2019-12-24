@@ -89,3 +89,12 @@ func (m *MintageApi) GetWithdrawRewardBlock(input *types.StateBlock) (*types.Sta
 	}
 	return &sb, nil
 }
+
+func (m *MintageApi) ParseTokenInfo(data []byte) (*types.TokenInfo, error) {
+	var ti types.TokenInfo
+	err := m.client.Call(&ti, "mintage_parseTokenInfo", data)
+	if err != nil {
+		return nil, err
+	}
+	return &ti, nil
+}

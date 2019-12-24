@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 
 	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
@@ -461,33 +460,33 @@ func (l *LedgerApi) Process(block *types.StateBlock) (types.Hash, error) {
 	return hash, nil
 }
 
-func (l *LedgerApi) ProcessAndConfirmed(block *types.StateBlock) (bool, error) {
-	var hash types.Hash
-	err := l.client.Call(&hash, "ledger_process", block)
-	if err != nil {
-		return false, err
-	}
-
-	ch := make(chan *types.StateBlock)
-	subscribe, err := l.BlockSubscription(block.GetAddress())
-	if err != nil {
-		return false, err
-	}
-	subscribe.addChan(ch)
-	defer subscribe.removeChan(ch)
-
-	ticker := time.NewTicker(180 * time.Second)
-	for {
-		select {
-		case blk := <-ch:
-			if blk.GetHash() == block.GetHash() {
-				return true, nil
-			}
-		case <-ticker.C:
-			return false, errors.New("consensus timeout")
-		}
-	}
-}
+// func (l *LedgerApi) ProcessAndConfirmed(block *types.StateBlock) (bool, error) {
+//	var hash types.Hash
+//	err := l.client.Call(&hash, "ledger_process", block)
+//	if err != nil {
+//		return false, err
+//	}
+//
+//	ch := make(chan *types.StateBlock)
+//	subscribe, err := l.BlockSubscription(block.GetAddress())
+//	if err != nil {
+//		return false, err
+//	}
+//	subscribe.addChan(ch)
+//	defer subscribe.removeChan(ch)
+//
+//	ticker := time.NewTicker(180 * time.Second)
+//	for {
+//		select {
+//		case blk := <-ch:
+//			if blk.GetHash() == block.GetHash() {
+//				return true, nil
+//			}
+//		case <-ticker.C:
+//			return false, errors.New("consensus timeout")
+//		}
+//	}
+//}
 
 // Pendings returns pending transaction list on chain
 func (l *LedgerApi) Pendings() ([]*APIPending, error) {
