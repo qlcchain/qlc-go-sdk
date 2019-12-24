@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sync"
+
 	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
-	"sync"
 )
 
 type LedgerApi struct {
@@ -459,7 +460,7 @@ func (l *LedgerApi) Process(block *types.StateBlock) (types.Hash, error) {
 	return hash, nil
 }
 
-//func (l *LedgerApi) ProcessAndConfirmed(block *types.StateBlock) (bool, error) {
+// func (l *LedgerApi) ProcessAndConfirmed(block *types.StateBlock) (bool, error) {
 //	var hash types.Hash
 //	err := l.client.Call(&hash, "ledger_process", block)
 //	if err != nil {
