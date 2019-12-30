@@ -100,11 +100,25 @@ type PovMinerStats struct {
 	LatestBlockHeight uint64 `json:"latestBlockHeight"`
 }
 
-type PovRepStats struct {
+type PovRepStatItem struct {
 	MainBlockNum       uint32        `json:"mainBlockNum"`
 	MainRewardAmount   types.Balance `json:"mainRewardAmount"`
+	MainOnlinePeriod   uint32        `json:"mainOnlinePeriod"`
 	StableBlockNum     uint32        `json:"stableBlockNum"`
 	StableRewardAmount types.Balance `json:"stableRewardAmount"`
+	StableOnlinePeriod uint32        `json:"stableOnlinePeriod"`
+	LastOnlineTime     time.Time     `json:"lastOnlineTime"`
+	LastOnlineHeight   uint64        `json:"lastOnlineHeight"`
+	IsOnline           bool          `json:"isOnline"`
+}
+
+type PovRepStats struct {
+	RepCount          uint32                            `json:"repCount"`
+	RepStats          map[types.Address]*PovRepStatItem `json:"repStats"`
+	TotalBlockNum     uint32                            `json:"totalBlockNum"`
+	TotalPeriod       uint32                            `json:"totalPeriod"`
+	TotalRewardAmount types.Balance                     `json:"totalRewardAmount"`
+	LatestBlockHeight uint64                            `json:"latestBlockHeight"`
 }
 
 type PovApiGetLastNHourItem struct {
@@ -402,13 +416,13 @@ func (p *PovApi) GetDiffDayStatByHeight(height uint64) (*types.PovDiffDayStat, e
 }
 
 // GetRepStats returns pov rep statistic
-func (p *PovApi) GetRepStats(addrs []types.Address) (map[types.Address]*PovRepStats, error) {
-	var rspData map[types.Address]*PovRepStats
+func (p *PovApi) GetRepStats(addrs []types.Address) (*PovRepStats, error) {
+	var rspData PovRepStats
 	err := p.client.Call(&rspData, "pov_getRepStats", addrs)
 	if err != nil {
 		return nil, err
 	}
-	return rspData, nil
+	return &rspData, nil
 }
 
 // GetLastNHourInfo returns pov last n hour statistic
