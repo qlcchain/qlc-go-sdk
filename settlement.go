@@ -85,17 +85,21 @@ type SignContractParam struct {
 }
 
 type StopParam struct {
-	StopName string `json:"stopName" validate:"nonzero"`
+	StopName        string        `json:"stopName" validate:"nonzero"`
+	Address         types.Address `json:"address"`
+	ContractAddress types.Address `json:"contractAddress"`
 }
 
 type UpdateStopParam struct {
-	StopName string `json:"stopName" validate:"nonzero"`
-	New      string `json:"newName" validate:"nonzero"`
+	StopName        string        `json:"stopName" validate:"nonzero"`
+	New             string        `json:"newName" validate:"nonzero"`
+	Address         types.Address `json:"address"`
+	ContractAddress types.Address `json:"contractAddress"`
 }
 
 func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getContractRewardsBlock", param)
+	err := s.client.Call(&blk, "settlement_getSignContractBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +114,7 @@ func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Sign
 
 func (s *SettlementAPI) GetSignRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getContractRewardsBlock", send)
+	err := s.client.Call(&blk, "settlement_getSignRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -321,6 +325,15 @@ type SettlementContract struct {
 	ConfirmDate int64          `msg:"t2" json:"confirmDate"`
 	Status      ContractStatus `msg:"s" json:"status"`
 	Address     types.Address  // settlement smart contract address
+}
+
+func (s *SettlementAPI) GetAllContracts(count int, offset *int) ([]*SettlementContract, error) {
+	var r []*SettlementContract
+	err := s.client.Call(&r, "settlement_getAllContracts", count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 func (s *SettlementAPI) GetContractsByAddress(addr *types.Address, count int, offset *int) ([]*SettlementContract, error) {
