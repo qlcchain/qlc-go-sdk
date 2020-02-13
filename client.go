@@ -7,21 +7,22 @@ import (
 )
 
 type QLCClient struct {
-	client   *rpc.Client
-	Account  *AccountApi
-	Contract *ContractApi
-	Ledger   *LedgerApi
-	Mintage  *MintageApi
-	Pledge   *PledgeApi
-	Rewards  *RewardsApi
-	Network  *NetApi
-	SMS      *SMSApi
-	Util     *UtilApi
-	Destroy  *DestroyApi
-	Debug    *DebugApi
-	Pov      *PovApi
-	Miner    *MinerApi
-	Rep      *RepApi
+	client     *rpc.Client
+	Account    *AccountApi
+	Contract   *ContractApi
+	Ledger     *LedgerApi
+	Mintage    *MintageApi
+	Pledge     *PledgeApi
+	Rewards    *RewardsApi
+	Network    *NetApi
+	SMS        *SMSApi
+	Util       *UtilApi
+	Destroy    *DestroyApi
+	Debug      *DebugApi
+	Pov        *PovApi
+	Miner      *MinerApi
+	Rep        *RepApi
+	Settlement *SettlementAPI
 }
 
 func (c *QLCClient) Close() error {
@@ -40,21 +41,22 @@ func NewQLCClient(url string) (*QLCClient, error) {
 	}
 
 	return &QLCClient{
-		client:   client,
-		Account:  NewAccountAPI(client),
-		Ledger:   NewLedgerAPI(url, client),
-		SMS:      NewSMSAPI(client),
-		Contract: NewContractAPI(client),
-		Mintage:  NewMintageAPI(client),
-		Pledge:   NewPledgeAPI(client),
-		Rewards:  NewRewardAPI(client),
-		Network:  NewNetAPI(client),
-		Util:     NewUtilAPI(client),
-		Destroy:  NewDestroyAPI(client),
-		Debug:    NewDebugAPI(client),
-		Pov:      NewPovAPI(url, client),
-		Miner:    NewMinerAPI(client),
-		Rep:      NewRepAPI(client),
+		client:     client,
+		Account:    NewAccountAPI(client),
+		Ledger:     NewLedgerAPI(url, client),
+		SMS:        NewSMSAPI(client),
+		Contract:   NewContractAPI(client),
+		Mintage:    NewMintageAPI(client),
+		Pledge:     NewPledgeAPI(client),
+		Rewards:    NewRewardAPI(client),
+		Network:    NewNetAPI(client),
+		Util:       NewUtilAPI(client),
+		Destroy:    NewDestroyAPI(client),
+		Debug:      NewDebugAPI(client),
+		Pov:        NewPovAPI(url, client),
+		Miner:      NewMinerAPI(client),
+		Rep:        NewRepAPI(client),
+		Settlement: NewSettlementAPI(client),
 	}, nil
 
 }
