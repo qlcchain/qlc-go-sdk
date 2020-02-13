@@ -85,16 +85,16 @@ type SignContractParam struct {
 }
 
 type StopParam struct {
+	ContractAddress types.Address `json:"contractAddress"`
 	StopName        string        `json:"stopName" validate:"nonzero"`
 	Address         types.Address `json:"address"`
-	ContractAddress types.Address `json:"contractAddress"`
 }
 
 type UpdateStopParam struct {
+	ContractAddress types.Address `json:"contractAddress"`
 	StopName        string        `json:"stopName" validate:"nonzero"`
 	New             string        `json:"newName" validate:"nonzero"`
 	Address         types.Address `json:"address"`
-	ContractAddress types.Address `json:"contractAddress"`
 }
 
 func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Signature) (*types.StateBlock, error) {
@@ -115,6 +115,36 @@ func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Sign
 func (s *SettlementAPI) GetSignRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "settlement_getSignRewardsBlock", send)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
+func (s *SettlementAPI) GetProcessCDRBlock(addr *types.Address, param *CDRParam, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "settlement_getProcessCDRBlock", addr, param)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
+func (s *SettlementAPI) GetProcessCDRRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "settlement_getProcessCDRRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -398,14 +428,15 @@ duplicate
 type SettlementStatus int
 
 type CDRParam struct {
-	Index         uint64        `json:"index" validate:"min=1"`
-	SmsDt         int64         `json:"smsDt" validate:"min=1"`
-	Sender        string        `json:"sender" validate:"nonzero"`
-	Destination   string        `json:"destination" validate:"nonzero"`
-	SendingStatus SendingStatus `json:"sendingStatus" `
-	DlrStatus     DLRStatus     `json:"dlrStatus"`
-	PreStop       string        `json:"preStop" `
-	NextStop      string        `json:"nextStop" `
+	ContractAddress types.Address `json:"contractAddress"`
+	Index           uint64        `json:"index" validate:"min=1"`
+	SmsDt           int64         `json:"smsDt" validate:"min=1"`
+	Sender          string        `json:"sender" validate:"nonzero"`
+	Destination     string        `json:"destination" validate:"nonzero"`
+	SendingStatus   SendingStatus `json:"sendingStatus" `
+	DlrStatus       DLRStatus     `json:"dlrStatus"`
+	PreStop         string        `json:"preStop" `
+	NextStop        string        `json:"nextStop" `
 }
 
 type SettlementCDR struct {
@@ -429,7 +460,7 @@ func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDR
 
 func (s *SettlementAPI) GetAllCDRStatus(addr *types.Address, count int, offset *int) ([]*CDRStatus, error) {
 	var r []*CDRStatus
-	err := s.client.Call(&r, "settlement_getCDRStatus", addr, count, offset)
+	err := s.client.Call(&r, "settlement_getAllCDRStatus", addr, count, offset)
 	if err != nil {
 		return nil, err
 	}
