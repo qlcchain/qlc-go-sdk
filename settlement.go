@@ -81,7 +81,7 @@ func (s *SettlementAPI) GetContractRewardsBlock(send *types.Hash, sign Signature
 type SignContractParam struct {
 	ContractAddress types.Address `json:"contractAddress"`
 	ConfirmDate     int64         `json:"confirmDate"`
-	Address         types.Address // PartyB address
+	Address         types.Address
 }
 
 type StopParam struct {
