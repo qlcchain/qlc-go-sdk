@@ -396,7 +396,7 @@ func (s *SettlementAPI) GetContractsAsPartyB(addr *types.Address, count int, off
 //go:generate go-enum -f=$GOFILE --marshal --names
 /*
 ENUM(
-Send
+Sent
 Error
 Empty
 )
@@ -407,6 +407,7 @@ type SendingStatus int
 /*
 ENUM(
 Delivered
+Rejected
 Unknown
 Undelivered
 Empty
