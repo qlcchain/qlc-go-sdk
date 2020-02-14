@@ -6,7 +6,6 @@ import (
 	"math/big"
 
 	rpc "github.com/qlcchain/jsonrpc2"
-	"github.com/qlcchain/qlc-go-sdk/pkg/common"
 	"github.com/qlcchain/qlc-go-sdk/pkg/ed25519"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
@@ -54,7 +53,7 @@ func (param *APIDestroyParam) Signature(acc *types.Account) (types.Signature, er
 }
 
 // Verify destroy params
-func (param *APIDestroyParam) Verify() (bool, error) {
+func (param *APIDestroyParam) Verify(c *rpc.Client) (bool, error) {
 	if param.Owner.IsZero() {
 		return false, errors.New("invalid account")
 	}
@@ -63,7 +62,7 @@ func (param *APIDestroyParam) Verify() (bool, error) {
 		return false, errors.New("invalid previous")
 	}
 
-	if param.Token != common.GasToken() {
+	if param.Token != GasToken(c) {
 		return false, errors.New("invalid token to be destroyed")
 	}
 
@@ -91,7 +90,7 @@ func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (
 	}
 
 	param.Sign = signature
-	if b, err := param.Verify(); err != nil {
+	if b, err := param.Verify(b.client); err != nil {
 		return nil, err
 	} else if !b {
 		return nil, errors.New("invalid sign")
