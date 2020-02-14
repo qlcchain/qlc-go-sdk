@@ -5,14 +5,15 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"math/big"
+	"strings"
+	"time"
+
 	qlcchain "github.com/qlcchain/qlc-go-sdk"
 	"github.com/qlcchain/qlc-go-sdk/pkg/common"
 	"github.com/qlcchain/qlc-go-sdk/pkg/random"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
-	"math/big"
-	"strings"
-	"time"
 )
 
 var (
@@ -216,7 +217,7 @@ func main() {
 		SmsDt:         time.Now().Unix(),
 		Sender:        "WeChat",
 		Destination:   "85257***343",
-		SendingStatus: qlcchain.SendingStatusSend,
+		SendingStatus: qlcchain.SendingStatusSent,
 		DlrStatus:     qlcchain.DLRStatusDelivered,
 		PreStop:       "",
 		NextStop:      "HKTCSL",
@@ -239,7 +240,7 @@ func main() {
 		SmsDt:         time.Now().Unix(),
 		Sender:        "WeChat",
 		Destination:   "85257***343",
-		SendingStatus: qlcchain.SendingStatusSend,
+		SendingStatus: qlcchain.SendingStatusSent,
 		DlrStatus:     qlcchain.DLRStatusDelivered,
 		PreStop:       "PCCWG",
 		NextStop:      "",
