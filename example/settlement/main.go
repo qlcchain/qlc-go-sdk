@@ -45,7 +45,7 @@ var (
 		}},
 		SignDate:  1581129222,
 		StartDate: 1581388422,
-		EndData:   1613356422,
+		EndDate:   1613356422,
 	}
 )
 
@@ -137,7 +137,7 @@ func main() {
 				return
 			} else {
 				for _, c := range contracts {
-					if c.Status != qlcchain.ContractStatusActived {
+					if c.Status != qlcchain.ContractStatusActivated {
 						if txBlk, err := client.Settlement.GetSignContractBlock(&qlcchain.SignContractParam{
 							ContractAddress: c.Address,
 							ConfirmDate:     time.Now().Unix(),

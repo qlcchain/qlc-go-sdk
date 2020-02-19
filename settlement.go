@@ -3,6 +3,7 @@ package qlcchain
 import (
 	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
+	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 type SettlementAPI struct {
@@ -36,7 +37,7 @@ type CreateContractParam struct {
 	Services  []ContractService `json:"services"`
 	SignDate  int64             `json:"signDate"`
 	StartDate int64             `json:"startDate"`
-	EndData   int64             `json:"endData"`
+	EndDate   int64             `json:"endDate"`
 }
 
 func (s *SettlementAPI) ToAddress(param *CreateContractParam) (types.Address, error) {
@@ -81,7 +82,7 @@ func (s *SettlementAPI) GetContractRewardsBlock(send *types.Hash, sign Signature
 type SignContractParam struct {
 	ContractAddress types.Address `json:"contractAddress"`
 	ConfirmDate     int64         `json:"confirmDate"`
-	Address         types.Address
+	Address         types.Address `json:"address"`
 }
 
 type StopParam struct {
@@ -337,11 +338,46 @@ func (s *SettlementAPI) GetUpdateNextStopRewardsBlock(send *types.Hash, sign Sig
 	return &blk, nil
 }
 
+type TerminateParam struct {
+	ContractAddress types.Address `json:"contractAddress"`
+	Address         types.Address `json:"address"`
+}
+
+func (s *SettlementAPI) GetTerminateContractBlock(param *TerminateParam, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "settlement_getTerminateContractBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
+func (s *SettlementAPI) GetTerminateRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "settlement_getTerminateRewardsBlock", send)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
 //go:generate go-enum -f=$GOFILE --marshal --names
 /*
 ENUM(
 ActiveStage1
-Actived
+Activated
 DestroyStage1
 Destroyed
 )
@@ -350,11 +386,12 @@ type ContractStatus int
 
 type SettlementContract struct {
 	CreateContractParam
-	PreStops    []string       `msg:"pre" json:"preStops"`
-	NextStops   []string       `msg:"nex" json:"nextStops"`
-	ConfirmDate int64          `msg:"t2" json:"confirmDate"`
-	Status      ContractStatus `msg:"s" json:"status"`
-	Address     types.Address  // settlement smart contract address
+	PreStops    []string       `json:"preStops"`
+	NextStops   []string       `json:"nextStops"`
+	ConfirmDate int64          `json:"confirmDate"`
+	Status      ContractStatus `json:"status"`
+	Address     types.Address  `json:"address"`
+	Terminator  *types.Address `json:"-"`
 }
 
 func (s *SettlementAPI) GetAllContracts(count int, offset *int) ([]*SettlementContract, error) {
@@ -393,39 +430,9 @@ func (s *SettlementAPI) GetContractsAsPartyB(addr *types.Address, count int, off
 	return r, nil
 }
 
-//go:generate go-enum -f=$GOFILE --marshal --names
-/*
-ENUM(
-Sent
-Error
-Empty
-)
-*/
 type SendingStatus int
-
-//go:generate go-enum -f=$GOFILE --marshal --names
-/*
-ENUM(
-Delivered
-Rejected
-Unknown
-Undelivered
-Empty
-)
-*/
 type DLRStatus int
 
-//go:generate go-enum -f=$GOFILE --marshal --names
-/*
-ENUM(
-unknown
-stage1
-success
-failure
-missing
-duplicate
-)
-*/
 type SettlementStatus int
 
 type CDRParam struct {
@@ -440,14 +447,18 @@ type CDRParam struct {
 	NextStop        string        `json:"nextStop" `
 }
 
+func (z *CDRParam) ToHash() (types.Hash, error) {
+	return types.HashBytes(util.BE_Uint64ToBytes(z.Index), []byte(z.Sender), []byte(z.Destination))
+}
+
 type SettlementCDR struct {
 	CDRParam
 	From types.Address `json:"from"`
 }
 
 type CDRStatus struct {
-	Params []SettlementCDR  `json:"params"`
-	Status SettlementStatus `json:"status"`
+	Params map[string][]CDRParam `json:"params"`
+	Status SettlementStatus      `json:"status"`
 }
 
 func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDRStatus, error) {
@@ -462,6 +473,69 @@ func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDR
 func (s *SettlementAPI) GetAllCDRStatus(addr *types.Address, count int, offset *int) ([]*CDRStatus, error) {
 	var r []*CDRStatus
 	err := s.client.Call(&r, "settlement_getAllCDRStatus", addr, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GetCDRStatusByDate(addr *types.Address, start, end int64, count int, offset *int) ([]*CDRStatus, error) {
+	var r []*CDRStatus
+	err := s.client.Call(&r, "settlement_getCDRStatusByDate", addr, start, end, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+type SummaryRecord struct {
+	Total   uint64  `json:"total"`
+	Success uint64  `json:"success"`
+	Fail    uint64  `json:"fail"`
+	Result  float64 `json:"result"`
+}
+
+type CompareRecord struct {
+	PartyA *SummaryRecord `json:"partyA"`
+	PartyB *SummaryRecord `json:"partyB"`
+}
+
+type SummaryResult struct {
+	Contract *SettlementContract       `json:"contract"`
+	Records  map[string]*CompareRecord `json:"records"`
+	PartyA   *SummaryRecord            `json:"partyA"`
+	PartyB   *SummaryRecord            `json:"partyB"`
+}
+
+func (s *SettlementAPI) GetSummaryReport(addr *types.Address, start, end int64) (*SummaryResult, error) {
+	var r SummaryResult
+	err := s.client.Call(&r, "settlement_getSummaryReport", addr, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+type InvoiceRecord struct {
+	Address                  types.Address `json:"contractAddress"`
+	StartDate                int64         `json:"startDate"`
+	EndDate                  int64         `json:"endDate"`
+	Customer                 string        `json:"customer"`
+	CustomerSr               string        `json:"customerSr"`
+	Country                  string        `json:"country"`
+	Operator                 string        `json:"operator"`
+	ServiceId                string        `json:"serviceId"`
+	MCC                      uint64        `json:"mcc"`
+	MNC                      uint64        `json:"mnc"`
+	Currency                 string        `json:"currency"`
+	UnitPrice                float64       `json:"unitPrice"`
+	SumOfBillableSMSCustomer uint64        `json:"sumOfBillableSMSCustomer"`
+	SumOfTOTPrice            float64       `json:"sumOfTOTPrice"`
+}
+
+func (s *SettlementAPI) GenerateInvoices(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
+	var r []*InvoiceRecord
+	err := s.client.Call(&r, "settlement_generateInvoices", addr, start, end)
 	if err != nil {
 		return nil, err
 	}
