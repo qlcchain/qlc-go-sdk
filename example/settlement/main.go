@@ -43,7 +43,6 @@ var (
 			UnitPrice:   0.023,
 			Currency:    "USD",
 		}},
-		SignDate:  1581129222,
 		StartDate: 1581388422,
 		EndDate:   1613356422,
 	}
@@ -106,16 +105,9 @@ func main() {
 	size := printAllContract(client)
 	// create settlement contract if zero
 	if size == 0 {
-		tm, err := client.Ledger.TokenMeta(token, pccwAddr)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
 		param := createContractParam
 		param.PartyA.Address = pccwAddr
 		param.PartyB.Address = cslAddr
-		param.Previous = tm.Header
 		mnc, _ := random.Intn(100)
 		param.Services[0].Mnc = uint64(mnc)
 
@@ -140,7 +132,6 @@ func main() {
 					if c.Status != qlcchain.ContractStatusActivated {
 						if txBlk, err := client.Settlement.GetSignContractBlock(&qlcchain.SignContractParam{
 							ContractAddress: c.Address,
-							ConfirmDate:     time.Now().Unix(),
 							Address:         cslAddr,
 						}, func(hash types.Hash) (signature types.Signature, err error) {
 							return cslAccount.Sign(hash), nil

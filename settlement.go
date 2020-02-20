@@ -33,9 +33,7 @@ type ContractService struct {
 type CreateContractParam struct {
 	PartyA    Contractor        `json:"partyA"`
 	PartyB    Contractor        `json:"partyB"`
-	Previous  types.Hash        `json:"previous"`
 	Services  []ContractService `json:"services"`
-	SignDate  int64             `json:"signDate"`
 	StartDate int64             `json:"startDate"`
 	EndDate   int64             `json:"endDate"`
 }
@@ -81,7 +79,6 @@ func (s *SettlementAPI) GetContractRewardsBlock(send *types.Hash, sign Signature
 
 type SignContractParam struct {
 	ContractAddress types.Address `json:"contractAddress"`
-	ConfirmDate     int64         `json:"confirmDate"`
 	Address         types.Address `json:"address"`
 }
 
