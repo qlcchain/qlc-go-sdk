@@ -538,3 +538,21 @@ func (s *SettlementAPI) GenerateInvoices(addr *types.Address, start, end int64) 
 	}
 	return r, nil
 }
+
+func (s *SettlementAPI) GenerateInvoicesByContract(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
+	var r []*InvoiceRecord
+	err := s.client.Call(&r, "settlement_generateInvoicesByContract", addr, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GenerateMultiPartyInvoice(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
+	var r []*InvoiceRecord
+	err := s.client.Call(&r, "settlement_generateMultiPartyInvoice", addr, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
