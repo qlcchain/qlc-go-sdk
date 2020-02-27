@@ -41,6 +41,7 @@ const (
 	ContractRefund
 	ContractError
 	SmartContract
+	Online
 	Invalid
 )
 
@@ -66,6 +67,8 @@ func parseString(s string) BlockType {
 		return ContractError
 	case "smartcontract":
 		return SmartContract
+	case "online":
+		return Online
 	default:
 		return Invalid
 	}
@@ -93,6 +96,8 @@ func (t BlockType) String() string {
 		return "ContractError"
 	case SmartContract:
 		return "SmartContract"
+	case Online:
+		return "Online"
 	default:
 		return "<invalid>"
 	}

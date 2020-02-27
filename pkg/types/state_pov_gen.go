@@ -365,6 +365,432 @@ func (z *PovAccountState) Msgsize() (s int) {
 }
 
 // DecodeMsg implements msgp.Decodable
+func (z *PovContractState) DecodeMsg(dc *msgp.Reader) (err error) {
+	var field []byte
+	_ = field
+	var zb0001 uint32
+	zb0001, err = dc.ReadMapHeader()
+	if err != nil {
+		err = msgp.WrapError(err)
+		return
+	}
+	for zb0001 > 0 {
+		zb0001--
+		field, err = dc.ReadMapKeyPtr()
+		if err != nil {
+			err = msgp.WrapError(err)
+			return
+		}
+		switch msgp.UnsafeString(field) {
+		case "sh":
+			err = dc.ReadExtension(&z.StateHash)
+			if err != nil {
+				err = msgp.WrapError(err, "StateHash")
+				return
+			}
+		case "ch":
+			err = dc.ReadExtension(&z.CodeHash)
+			if err != nil {
+				err = msgp.WrapError(err, "CodeHash")
+				return
+			}
+		default:
+			err = dc.Skip()
+			if err != nil {
+				err = msgp.WrapError(err)
+				return
+			}
+		}
+	}
+	return
+}
+
+// EncodeMsg implements msgp.Encodable
+func (z PovContractState) EncodeMsg(en *msgp.Writer) (err error) {
+	// map header, size 2
+	// write "sh"
+	err = en.Append(0x82, 0xa2, 0x73, 0x68)
+	if err != nil {
+		return
+	}
+	err = en.WriteExtension(&z.StateHash)
+	if err != nil {
+		err = msgp.WrapError(err, "StateHash")
+		return
+	}
+	// write "ch"
+	err = en.Append(0xa2, 0x63, 0x68)
+	if err != nil {
+		return
+	}
+	err = en.WriteExtension(&z.CodeHash)
+	if err != nil {
+		err = msgp.WrapError(err, "CodeHash")
+		return
+	}
+	return
+}
+
+// MarshalMsg implements msgp.Marshaler
+func (z PovContractState) MarshalMsg(b []byte) (o []byte, err error) {
+	o = msgp.Require(b, z.Msgsize())
+	// map header, size 2
+	// string "sh"
+	o = append(o, 0x82, 0xa2, 0x73, 0x68)
+	o, err = msgp.AppendExtension(o, &z.StateHash)
+	if err != nil {
+		err = msgp.WrapError(err, "StateHash")
+		return
+	}
+	// string "ch"
+	o = append(o, 0xa2, 0x63, 0x68)
+	o, err = msgp.AppendExtension(o, &z.CodeHash)
+	if err != nil {
+		err = msgp.WrapError(err, "CodeHash")
+		return
+	}
+	return
+}
+
+// UnmarshalMsg implements msgp.Unmarshaler
+func (z *PovContractState) UnmarshalMsg(bts []byte) (o []byte, err error) {
+	var field []byte
+	_ = field
+	var zb0001 uint32
+	zb0001, bts, err = msgp.ReadMapHeaderBytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err)
+		return
+	}
+	for zb0001 > 0 {
+		zb0001--
+		field, bts, err = msgp.ReadMapKeyZC(bts)
+		if err != nil {
+			err = msgp.WrapError(err)
+			return
+		}
+		switch msgp.UnsafeString(field) {
+		case "sh":
+			bts, err = msgp.ReadExtensionBytes(bts, &z.StateHash)
+			if err != nil {
+				err = msgp.WrapError(err, "StateHash")
+				return
+			}
+		case "ch":
+			bts, err = msgp.ReadExtensionBytes(bts, &z.CodeHash)
+			if err != nil {
+				err = msgp.WrapError(err, "CodeHash")
+				return
+			}
+		default:
+			bts, err = msgp.Skip(bts)
+			if err != nil {
+				err = msgp.WrapError(err)
+				return
+			}
+		}
+	}
+	o = bts
+	return
+}
+
+// Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
+func (z PovContractState) Msgsize() (s int) {
+	s = 1 + 3 + msgp.ExtensionPrefixSize + z.StateHash.Len() + 3 + msgp.ExtensionPrefixSize + z.CodeHash.Len()
+	return
+}
+
+// DecodeMsg implements msgp.Decodable
+func (z *PovPublishState) DecodeMsg(dc *msgp.Reader) (err error) {
+	var field []byte
+	_ = field
+	var zb0001 uint32
+	zb0001, err = dc.ReadMapHeader()
+	if err != nil {
+		err = msgp.WrapError(err)
+		return
+	}
+	for zb0001 > 0 {
+		zb0001--
+		field, err = dc.ReadMapKeyPtr()
+		if err != nil {
+			err = msgp.WrapError(err)
+			return
+		}
+		switch msgp.UnsafeString(field) {
+		case "oas":
+			var zb0002 uint32
+			zb0002, err = dc.ReadArrayHeader()
+			if err != nil {
+				err = msgp.WrapError(err, "OracleAccounts")
+				return
+			}
+			if cap(z.OracleAccounts) >= int(zb0002) {
+				z.OracleAccounts = (z.OracleAccounts)[:zb0002]
+			} else {
+				z.OracleAccounts = make([]Address, zb0002)
+			}
+			for za0001 := range z.OracleAccounts {
+				err = z.OracleAccounts[za0001].DecodeMsg(dc)
+				if err != nil {
+					err = msgp.WrapError(err, "OracleAccounts", za0001)
+					return
+				}
+			}
+		case "ph":
+			z.PublishHeight, err = dc.ReadUint64()
+			if err != nil {
+				err = msgp.WrapError(err, "PublishHeight")
+				return
+			}
+		case "vh":
+			z.VerifiedHeight, err = dc.ReadUint64()
+			if err != nil {
+				err = msgp.WrapError(err, "VerifiedHeight")
+				return
+			}
+		case "vs":
+			z.VerifiedStatus, err = dc.ReadInt8()
+			if err != nil {
+				err = msgp.WrapError(err, "VerifiedStatus")
+				return
+			}
+		case "bf":
+			if dc.IsNil() {
+				err = dc.ReadNil()
+				if err != nil {
+					err = msgp.WrapError(err, "BonusFee")
+					return
+				}
+				z.BonusFee = nil
+			} else {
+				if z.BonusFee == nil {
+					z.BonusFee = new(BigNum)
+				}
+				err = dc.ReadExtension(z.BonusFee)
+				if err != nil {
+					err = msgp.WrapError(err, "BonusFee")
+					return
+				}
+			}
+		default:
+			err = dc.Skip()
+			if err != nil {
+				err = msgp.WrapError(err)
+				return
+			}
+		}
+	}
+	return
+}
+
+// EncodeMsg implements msgp.Encodable
+func (z *PovPublishState) EncodeMsg(en *msgp.Writer) (err error) {
+	// map header, size 5
+	// write "oas"
+	err = en.Append(0x85, 0xa3, 0x6f, 0x61, 0x73)
+	if err != nil {
+		return
+	}
+	err = en.WriteArrayHeader(uint32(len(z.OracleAccounts)))
+	if err != nil {
+		err = msgp.WrapError(err, "OracleAccounts")
+		return
+	}
+	for za0001 := range z.OracleAccounts {
+		err = z.OracleAccounts[za0001].EncodeMsg(en)
+		if err != nil {
+			err = msgp.WrapError(err, "OracleAccounts", za0001)
+			return
+		}
+	}
+	// write "ph"
+	err = en.Append(0xa2, 0x70, 0x68)
+	if err != nil {
+		return
+	}
+	err = en.WriteUint64(z.PublishHeight)
+	if err != nil {
+		err = msgp.WrapError(err, "PublishHeight")
+		return
+	}
+	// write "vh"
+	err = en.Append(0xa2, 0x76, 0x68)
+	if err != nil {
+		return
+	}
+	err = en.WriteUint64(z.VerifiedHeight)
+	if err != nil {
+		err = msgp.WrapError(err, "VerifiedHeight")
+		return
+	}
+	// write "vs"
+	err = en.Append(0xa2, 0x76, 0x73)
+	if err != nil {
+		return
+	}
+	err = en.WriteInt8(z.VerifiedStatus)
+	if err != nil {
+		err = msgp.WrapError(err, "VerifiedStatus")
+		return
+	}
+	// write "bf"
+	err = en.Append(0xa2, 0x62, 0x66)
+	if err != nil {
+		return
+	}
+	if z.BonusFee == nil {
+		err = en.WriteNil()
+		if err != nil {
+			return
+		}
+	} else {
+		err = en.WriteExtension(z.BonusFee)
+		if err != nil {
+			err = msgp.WrapError(err, "BonusFee")
+			return
+		}
+	}
+	return
+}
+
+// MarshalMsg implements msgp.Marshaler
+func (z *PovPublishState) MarshalMsg(b []byte) (o []byte, err error) {
+	o = msgp.Require(b, z.Msgsize())
+	// map header, size 5
+	// string "oas"
+	o = append(o, 0x85, 0xa3, 0x6f, 0x61, 0x73)
+	o = msgp.AppendArrayHeader(o, uint32(len(z.OracleAccounts)))
+	for za0001 := range z.OracleAccounts {
+		o, err = z.OracleAccounts[za0001].MarshalMsg(o)
+		if err != nil {
+			err = msgp.WrapError(err, "OracleAccounts", za0001)
+			return
+		}
+	}
+	// string "ph"
+	o = append(o, 0xa2, 0x70, 0x68)
+	o = msgp.AppendUint64(o, z.PublishHeight)
+	// string "vh"
+	o = append(o, 0xa2, 0x76, 0x68)
+	o = msgp.AppendUint64(o, z.VerifiedHeight)
+	// string "vs"
+	o = append(o, 0xa2, 0x76, 0x73)
+	o = msgp.AppendInt8(o, z.VerifiedStatus)
+	// string "bf"
+	o = append(o, 0xa2, 0x62, 0x66)
+	if z.BonusFee == nil {
+		o = msgp.AppendNil(o)
+	} else {
+		o, err = msgp.AppendExtension(o, z.BonusFee)
+		if err != nil {
+			err = msgp.WrapError(err, "BonusFee")
+			return
+		}
+	}
+	return
+}
+
+// UnmarshalMsg implements msgp.Unmarshaler
+func (z *PovPublishState) UnmarshalMsg(bts []byte) (o []byte, err error) {
+	var field []byte
+	_ = field
+	var zb0001 uint32
+	zb0001, bts, err = msgp.ReadMapHeaderBytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err)
+		return
+	}
+	for zb0001 > 0 {
+		zb0001--
+		field, bts, err = msgp.ReadMapKeyZC(bts)
+		if err != nil {
+			err = msgp.WrapError(err)
+			return
+		}
+		switch msgp.UnsafeString(field) {
+		case "oas":
+			var zb0002 uint32
+			zb0002, bts, err = msgp.ReadArrayHeaderBytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "OracleAccounts")
+				return
+			}
+			if cap(z.OracleAccounts) >= int(zb0002) {
+				z.OracleAccounts = (z.OracleAccounts)[:zb0002]
+			} else {
+				z.OracleAccounts = make([]Address, zb0002)
+			}
+			for za0001 := range z.OracleAccounts {
+				bts, err = z.OracleAccounts[za0001].UnmarshalMsg(bts)
+				if err != nil {
+					err = msgp.WrapError(err, "OracleAccounts", za0001)
+					return
+				}
+			}
+		case "ph":
+			z.PublishHeight, bts, err = msgp.ReadUint64Bytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "PublishHeight")
+				return
+			}
+		case "vh":
+			z.VerifiedHeight, bts, err = msgp.ReadUint64Bytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "VerifiedHeight")
+				return
+			}
+		case "vs":
+			z.VerifiedStatus, bts, err = msgp.ReadInt8Bytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "VerifiedStatus")
+				return
+			}
+		case "bf":
+			if msgp.IsNil(bts) {
+				bts, err = msgp.ReadNilBytes(bts)
+				if err != nil {
+					return
+				}
+				z.BonusFee = nil
+			} else {
+				if z.BonusFee == nil {
+					z.BonusFee = new(BigNum)
+				}
+				bts, err = msgp.ReadExtensionBytes(bts, z.BonusFee)
+				if err != nil {
+					err = msgp.WrapError(err, "BonusFee")
+					return
+				}
+			}
+		default:
+			bts, err = msgp.Skip(bts)
+			if err != nil {
+				err = msgp.WrapError(err)
+				return
+			}
+		}
+	}
+	o = bts
+	return
+}
+
+// Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
+func (z *PovPublishState) Msgsize() (s int) {
+	s = 1 + 4 + msgp.ArrayHeaderSize
+	for za0001 := range z.OracleAccounts {
+		s += z.OracleAccounts[za0001].Msgsize()
+	}
+	s += 3 + msgp.Uint64Size + 3 + msgp.Uint64Size + 3 + msgp.Int8Size + 3
+	if z.BonusFee == nil {
+		s += msgp.NilSize
+	} else {
+		s += msgp.ExtensionPrefixSize + z.BonusFee.Len()
+	}
+	return
+}
+
+// DecodeMsg implements msgp.Decodable
 func (z *PovRepState) DecodeMsg(dc *msgp.Reader) (err error) {
 	var field []byte
 	_ = field
@@ -886,5 +1312,272 @@ func (z *PovTokenState) UnmarshalMsg(bts []byte) (o []byte, err error) {
 // Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
 func (z *PovTokenState) Msgsize() (s int) {
 	s = 1 + 2 + msgp.ExtensionPrefixSize + z.Type.Len() + 2 + msgp.ExtensionPrefixSize + z.Hash.Len() + 2 + msgp.ExtensionPrefixSize + z.Representative.Len() + 2 + msgp.ExtensionPrefixSize + z.Balance.Len()
+	return
+}
+
+// DecodeMsg implements msgp.Decodable
+func (z *PovVerifierState) DecodeMsg(dc *msgp.Reader) (err error) {
+	var field []byte
+	_ = field
+	var zb0001 uint32
+	zb0001, err = dc.ReadMapHeader()
+	if err != nil {
+		err = msgp.WrapError(err)
+		return
+	}
+	for zb0001 > 0 {
+		zb0001--
+		field, err = dc.ReadMapKeyPtr()
+		if err != nil {
+			err = msgp.WrapError(err)
+			return
+		}
+		switch msgp.UnsafeString(field) {
+		case "tv":
+			z.TotalVerify, err = dc.ReadUint64()
+			if err != nil {
+				err = msgp.WrapError(err, "TotalVerify")
+				return
+			}
+		case "tr":
+			if dc.IsNil() {
+				err = dc.ReadNil()
+				if err != nil {
+					err = msgp.WrapError(err, "TotalReward")
+					return
+				}
+				z.TotalReward = nil
+			} else {
+				if z.TotalReward == nil {
+					z.TotalReward = new(BigNum)
+				}
+				err = dc.ReadExtension(z.TotalReward)
+				if err != nil {
+					err = msgp.WrapError(err, "TotalReward")
+					return
+				}
+			}
+		case "ah":
+			var zb0002 uint32
+			zb0002, err = dc.ReadMapHeader()
+			if err != nil {
+				err = msgp.WrapError(err, "ActiveHeight")
+				return
+			}
+			if z.ActiveHeight == nil {
+				z.ActiveHeight = make(map[string]uint64, zb0002)
+			} else if len(z.ActiveHeight) > 0 {
+				for key := range z.ActiveHeight {
+					delete(z.ActiveHeight, key)
+				}
+			}
+			for zb0002 > 0 {
+				zb0002--
+				var za0001 string
+				var za0002 uint64
+				za0001, err = dc.ReadString()
+				if err != nil {
+					err = msgp.WrapError(err, "ActiveHeight")
+					return
+				}
+				za0002, err = dc.ReadUint64()
+				if err != nil {
+					err = msgp.WrapError(err, "ActiveHeight", za0001)
+					return
+				}
+				z.ActiveHeight[za0001] = za0002
+			}
+		default:
+			err = dc.Skip()
+			if err != nil {
+				err = msgp.WrapError(err)
+				return
+			}
+		}
+	}
+	return
+}
+
+// EncodeMsg implements msgp.Encodable
+func (z *PovVerifierState) EncodeMsg(en *msgp.Writer) (err error) {
+	// map header, size 3
+	// write "tv"
+	err = en.Append(0x83, 0xa2, 0x74, 0x76)
+	if err != nil {
+		return
+	}
+	err = en.WriteUint64(z.TotalVerify)
+	if err != nil {
+		err = msgp.WrapError(err, "TotalVerify")
+		return
+	}
+	// write "tr"
+	err = en.Append(0xa2, 0x74, 0x72)
+	if err != nil {
+		return
+	}
+	if z.TotalReward == nil {
+		err = en.WriteNil()
+		if err != nil {
+			return
+		}
+	} else {
+		err = en.WriteExtension(z.TotalReward)
+		if err != nil {
+			err = msgp.WrapError(err, "TotalReward")
+			return
+		}
+	}
+	// write "ah"
+	err = en.Append(0xa2, 0x61, 0x68)
+	if err != nil {
+		return
+	}
+	err = en.WriteMapHeader(uint32(len(z.ActiveHeight)))
+	if err != nil {
+		err = msgp.WrapError(err, "ActiveHeight")
+		return
+	}
+	for za0001, za0002 := range z.ActiveHeight {
+		err = en.WriteString(za0001)
+		if err != nil {
+			err = msgp.WrapError(err, "ActiveHeight")
+			return
+		}
+		err = en.WriteUint64(za0002)
+		if err != nil {
+			err = msgp.WrapError(err, "ActiveHeight", za0001)
+			return
+		}
+	}
+	return
+}
+
+// MarshalMsg implements msgp.Marshaler
+func (z *PovVerifierState) MarshalMsg(b []byte) (o []byte, err error) {
+	o = msgp.Require(b, z.Msgsize())
+	// map header, size 3
+	// string "tv"
+	o = append(o, 0x83, 0xa2, 0x74, 0x76)
+	o = msgp.AppendUint64(o, z.TotalVerify)
+	// string "tr"
+	o = append(o, 0xa2, 0x74, 0x72)
+	if z.TotalReward == nil {
+		o = msgp.AppendNil(o)
+	} else {
+		o, err = msgp.AppendExtension(o, z.TotalReward)
+		if err != nil {
+			err = msgp.WrapError(err, "TotalReward")
+			return
+		}
+	}
+	// string "ah"
+	o = append(o, 0xa2, 0x61, 0x68)
+	o = msgp.AppendMapHeader(o, uint32(len(z.ActiveHeight)))
+	for za0001, za0002 := range z.ActiveHeight {
+		o = msgp.AppendString(o, za0001)
+		o = msgp.AppendUint64(o, za0002)
+	}
+	return
+}
+
+// UnmarshalMsg implements msgp.Unmarshaler
+func (z *PovVerifierState) UnmarshalMsg(bts []byte) (o []byte, err error) {
+	var field []byte
+	_ = field
+	var zb0001 uint32
+	zb0001, bts, err = msgp.ReadMapHeaderBytes(bts)
+	if err != nil {
+		err = msgp.WrapError(err)
+		return
+	}
+	for zb0001 > 0 {
+		zb0001--
+		field, bts, err = msgp.ReadMapKeyZC(bts)
+		if err != nil {
+			err = msgp.WrapError(err)
+			return
+		}
+		switch msgp.UnsafeString(field) {
+		case "tv":
+			z.TotalVerify, bts, err = msgp.ReadUint64Bytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "TotalVerify")
+				return
+			}
+		case "tr":
+			if msgp.IsNil(bts) {
+				bts, err = msgp.ReadNilBytes(bts)
+				if err != nil {
+					return
+				}
+				z.TotalReward = nil
+			} else {
+				if z.TotalReward == nil {
+					z.TotalReward = new(BigNum)
+				}
+				bts, err = msgp.ReadExtensionBytes(bts, z.TotalReward)
+				if err != nil {
+					err = msgp.WrapError(err, "TotalReward")
+					return
+				}
+			}
+		case "ah":
+			var zb0002 uint32
+			zb0002, bts, err = msgp.ReadMapHeaderBytes(bts)
+			if err != nil {
+				err = msgp.WrapError(err, "ActiveHeight")
+				return
+			}
+			if z.ActiveHeight == nil {
+				z.ActiveHeight = make(map[string]uint64, zb0002)
+			} else if len(z.ActiveHeight) > 0 {
+				for key := range z.ActiveHeight {
+					delete(z.ActiveHeight, key)
+				}
+			}
+			for zb0002 > 0 {
+				var za0001 string
+				var za0002 uint64
+				zb0002--
+				za0001, bts, err = msgp.ReadStringBytes(bts)
+				if err != nil {
+					err = msgp.WrapError(err, "ActiveHeight")
+					return
+				}
+				za0002, bts, err = msgp.ReadUint64Bytes(bts)
+				if err != nil {
+					err = msgp.WrapError(err, "ActiveHeight", za0001)
+					return
+				}
+				z.ActiveHeight[za0001] = za0002
+			}
+		default:
+			bts, err = msgp.Skip(bts)
+			if err != nil {
+				err = msgp.WrapError(err)
+				return
+			}
+		}
+	}
+	o = bts
+	return
+}
+
+// Msgsize returns an upper bound estimate of the number of bytes occupied by the serialized message
+func (z *PovVerifierState) Msgsize() (s int) {
+	s = 1 + 3 + msgp.Uint64Size + 3
+	if z.TotalReward == nil {
+		s += msgp.NilSize
+	} else {
+		s += msgp.ExtensionPrefixSize + z.TotalReward.Len()
+	}
+	s += 3 + msgp.MapHeaderSize
+	if z.ActiveHeight != nil {
+		for za0001, za0002 := range z.ActiveHeight {
+			_ = za0002
+			s += msgp.StringPrefixSize + len(za0001) + msgp.Uint64Size
+		}
+	}
 	return
 }
