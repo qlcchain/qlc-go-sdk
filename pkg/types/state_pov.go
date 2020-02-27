@@ -171,3 +171,85 @@ func (rs *PovRepState) String() string {
 	return fmt.Sprintf("{Account:%s, Balance:%s, Vote:%s, Network:%s, Storage:%s, Oracle:%s, Total:%s, Status:%d, Height:%d}",
 		rs.Account, rs.Balance, rs.Vote, rs.Network, rs.Storage, rs.Oracle, rs.Total, rs.Status, rs.Height)
 }
+
+// Common Contract State, key value in trie for each contract
+// key = contract address
+type PovContractState struct {
+	StateHash Hash `msg:"sh,extension" json:"stateHash"`
+	CodeHash  Hash `msg:"ch,extension" json:"codeHash"`
+}
+
+func NewPovContractState() *PovContractState {
+	cs := new(PovContractState)
+	return cs
+}
+
+func (cs *PovContractState) Serialize() ([]byte, error) {
+	return cs.MarshalMsg(nil)
+}
+
+func (cs *PovContractState) Deserialize(text []byte) error {
+	_, err := cs.UnmarshalMsg(text)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+const (
+	PovPublishStatusInit     = 0
+	PovPublishStatusVerified = 1
+)
+
+// key = type + id + pubkey + sendBlockHash
+type PovPublishState struct {
+	OracleAccounts []Address `msg:"oas" json:"oracleAccounts"`
+	PublishHeight  uint64    `msg:"ph" json:"publishHeight"`
+	VerifiedHeight uint64    `msg:"vh" json:"verifiedHeight"`
+	VerifiedStatus int8      `msg:"vs" json:"verifiedStatus"`
+	BonusFee       *BigNum   `msg:"bf,extension" json:"bonusFee"`
+}
+
+func NewPovPublishState() *PovPublishState {
+	ps := new(PovPublishState)
+	ps.VerifiedStatus = PovPublishStatusInit
+	return ps
+}
+
+func (ps *PovPublishState) Serialize() ([]byte, error) {
+	return ps.MarshalMsg(nil)
+}
+
+func (ps *PovPublishState) Deserialize(text []byte) error {
+	_, err := ps.UnmarshalMsg(text)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// key = address
+type PovVerifierState struct {
+	TotalVerify  uint64            `msg:"tv" json:"totalVerify"`
+	TotalReward  *BigNum           `msg:"tr,extension" json:"totalReward"`
+	ActiveHeight map[string]uint64 `msg:"ah" json:"activeHeight"`
+}
+
+func NewPovVerifierState() *PovVerifierState {
+	vs := new(PovVerifierState)
+	vs.TotalReward = NewBigNumFromInt(0)
+	vs.ActiveHeight = make(map[string]uint64)
+	return vs
+}
+
+func (vs *PovVerifierState) Serialize() ([]byte, error) {
+	return vs.MarshalMsg(nil)
+}
+
+func (vs *PovVerifierState) Deserialize(text []byte) error {
+	_, err := vs.UnmarshalMsg(text)
+	if err != nil {
+		return err
+	}
+	return nil
+}
