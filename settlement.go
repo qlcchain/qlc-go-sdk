@@ -493,15 +493,16 @@ type SummaryRecord struct {
 }
 
 type CompareRecord struct {
-	PartyA *SummaryRecord `json:"partyA"`
-	PartyB *SummaryRecord `json:"partyB"`
+	PartyA   *SummaryRecord `json:"partyA"`
+	PartyB   *SummaryRecord `json:"partyB"`
+	Orphan   *SummaryRecord `json:"orphan"`
+	Matching *SummaryRecord `json:"matching"`
 }
 
 type SummaryResult struct {
 	Contract *SettlementContract       `json:"contract"`
 	Records  map[string]*CompareRecord `json:"records"`
-	PartyA   *SummaryRecord            `json:"partyA"`
-	PartyB   *SummaryRecord            `json:"partyB"`
+	Total    *CompareRecord            `json:"total"`
 }
 
 func (s *SettlementAPI) GetSummaryReport(addr *types.Address, start, end int64) (*SummaryResult, error) {
