@@ -110,6 +110,7 @@ func TestQLCClient_GenerateBlock(t *testing.T) {
 }
 
 func TestQLCClient_BlockConfirmedStatus(t *testing.T) {
+	t.Skip()
 	c, err := NewQLCClient("http://47.244.138.61:9735")
 	if err != nil {
 		t.Fatal(err)

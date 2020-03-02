@@ -62,9 +62,9 @@ func (s *SettlementAPI) GetCreateContractBlock(param *CreateContractParam, sign 
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetContractRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
+func (s *SettlementAPI) GetSettlementRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getContractRewardsBlock", send)
+	err := s.client.Call(&blk, "settlement_getSettlementRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -110,39 +110,9 @@ func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Sign
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetSignRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getSignRewardsBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-
 func (s *SettlementAPI) GetProcessCDRBlock(addr *types.Address, param *CDRParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "settlement_getProcessCDRBlock", addr, param)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-
-func (s *SettlementAPI) GetProcessCDRRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getProcessCDRRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -170,21 +140,6 @@ func (s *SettlementAPI) GetAddPreStopBlock(param *StopParam, sign Signature) (*t
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetAddPreStopRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getAddPreStopRewardsBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-
-}
 func (s *SettlementAPI) GetRemovePreStopBlock(param *StopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "settlement_getRemovePreStopBlock", param)
@@ -198,22 +153,6 @@ func (s *SettlementAPI) GetRemovePreStopBlock(param *StopParam, sign Signature) 
 		}
 	}
 	return &blk, nil
-
-}
-func (s *SettlementAPI) GetRemovePreStopRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getRemovePreStopRewardsBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-
 }
 
 func (s *SettlementAPI) GetUpdatePreStopBlock(param *UpdateStopParam, sign Signature) (*types.StateBlock, error) {
@@ -231,38 +170,9 @@ func (s *SettlementAPI) GetUpdatePreStopBlock(param *UpdateStopParam, sign Signa
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetUpdatePreStopRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getUpdatePreStopRewardsBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-
 func (s *SettlementAPI) GetAddNextStopBlock(param *StopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "settlement_getAddNextStopBlock", param)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-func (s *SettlementAPI) GetAddNextStopRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getAddNextStopRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -290,39 +200,9 @@ func (s *SettlementAPI) GetRemoveNextStopBlock(param *StopParam, sign Signature)
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetRemoveNextStopRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getRemoveNextStopRewardsBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-
 func (s *SettlementAPI) GetUpdateNextStopBlock(param *UpdateStopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "settlement_getUpdateNextStopBlock", param)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-
-func (s *SettlementAPI) GetUpdateNextStopRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getUpdateNextStopRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -355,30 +235,6 @@ func (s *SettlementAPI) GetTerminateContractBlock(param *TerminateParam, sign Si
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetTerminateRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getTerminateRewardsBlock", send)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
-}
-
-//go:generate go-enum -f=$GOFILE --marshal --names
-/*
-ENUM(
-ActiveStage1
-Activated
-DestroyStage1
-Destroyed
-)
-*/
 type ContractStatus int
 
 type SettlementContract struct {

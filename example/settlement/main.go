@@ -43,8 +43,8 @@ var (
 			UnitPrice:   0.023,
 			Currency:    "USD",
 		}},
-		StartDate: 1581388422,
-		EndDate:   1613356422,
+		StartDate: time.Now().Add(time.Second * 10).Unix(),
+		EndDate:   time.Now().AddDate(1, 0, 0).Unix(),
 	}
 )
 
@@ -123,6 +123,18 @@ func main() {
 				return
 			}
 			//printAllContract(client)
+			txHash := txBlk.GetHash()
+			if rxBlk, err := client.Settlement.GetSettlementRewardsBlock(&txHash, func(hash types.Hash) (signature types.Signature, err error) {
+				return pccwAccount.Sign(hash), nil
+			}); err != nil {
+				fmt.Println(err)
+				return
+			} else {
+				if err := processBlockAndWaitConfirmed(client, rxBlk); err != nil {
+					fmt.Println(err)
+					return
+				}
+			}
 
 			if contracts, err := client.Settlement.GetContractsAsPartyB(&cslAddr, 10, &offset); err != nil {
 				fmt.Println(err)
@@ -224,6 +236,19 @@ func main() {
 			fmt.Println(err)
 			return
 		}
+
+		txHash := blk.GetHash()
+		if rxBlk, err := client.Settlement.GetSettlementRewardsBlock(&txHash, func(hash types.Hash) (signature types.Signature, err error) {
+			return pccwAccount.Sign(hash), nil
+		}); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			if err := processBlockAndWaitConfirmed(client, rxBlk); err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
 	}
 
 	cdr2 := &qlcchain.CDRParam{
@@ -246,6 +271,19 @@ func main() {
 		if err := processBlockAndWaitConfirmed(client, blk); err != nil {
 			fmt.Println(err)
 			return
+		}
+
+		txHash := blk.GetHash()
+		if rxBlk, err := client.Settlement.GetSettlementRewardsBlock(&txHash, func(hash types.Hash) (signature types.Signature, err error) {
+			return cslAccount.Sign(hash), nil
+		}); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			if err := processBlockAndWaitConfirmed(client, rxBlk); err != nil {
+				fmt.Println(err)
+				return
+			}
 		}
 	}
 }
