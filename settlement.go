@@ -348,17 +348,20 @@ type SummaryRecord struct {
 	Result  float64 `json:"result"`
 }
 
+type MatchingRecord struct {
+	Orphan   SummaryRecord `json:"orphan"`
+	Matching SummaryRecord `json:"matching"`
+}
+
 type CompareRecord struct {
-	PartyA   *SummaryRecord `json:"partyA"`
-	PartyB   *SummaryRecord `json:"partyB"`
-	Orphan   *SummaryRecord `json:"orphan"`
-	Matching *SummaryRecord `json:"matching"`
+	PartyA MatchingRecord `json:"partyA"`
+	PartyB MatchingRecord `json:"partyB"`
 }
 
 type SummaryResult struct {
 	Contract *SettlementContract       `json:"contract"`
 	Records  map[string]*CompareRecord `json:"records"`
-	Total    *CompareRecord            `json:"total"`
+	Total    CompareRecord             `json:"total"`
 }
 
 func (s *SettlementAPI) GetSummaryReport(addr *types.Address, start, end int64) (*SummaryResult, error) {
