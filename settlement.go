@@ -283,6 +283,24 @@ func (s *SettlementAPI) GetContractsAsPartyB(addr *types.Address, count int, off
 	return r, nil
 }
 
+func (s *SettlementAPI) GetContractsByStatus(addr *types.Address, status string, count int, offset *int) ([]*SettlementContract, error) {
+	var r []*SettlementContract
+	err := s.client.Call(&r, "settlement_getContractsByStatus", addr, status, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GetExpiredContracts(addr *types.Address, count int, offset *int) ([]*SettlementContract, error) {
+	var r []*SettlementContract
+	err := s.client.Call(&r, "settlement_getExpiredContracts", addr, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
 type SendingStatus int
 type DLRStatus int
 
