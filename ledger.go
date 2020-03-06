@@ -800,3 +800,129 @@ func (r *BlockSubscription) removeChan(ch chan *types.StateBlock) {
 		}
 	}
 }
+
+func (l *LedgerApi) GenesisAddress() (*types.Address, error) {
+	var addr types.Address
+	err := l.client.Call(&addr, "ledger_genesisAddress")
+	if err != nil {
+		return nil, err
+	}
+	return &addr, nil
+}
+
+func (l *LedgerApi) GasAddress() (*types.Address, error) {
+	var addr types.Address
+	err := l.client.Call(&addr, "ledger_gasAddress")
+	if err != nil {
+		return nil, err
+	}
+	return &addr, nil
+}
+
+func (l *LedgerApi) ChainToken() (*types.Hash, error) {
+	var h types.Hash
+	err := l.client.Call(&h, "ledger_chainToken")
+	if err != nil {
+		return nil, err
+	}
+	return &h, nil
+}
+
+func (l *LedgerApi) GasToken() (*types.Hash, error) {
+	var h types.Hash
+	err := l.client.Call(&h, "ledger_gasToken")
+	if err != nil {
+		return nil, err
+	}
+	return &h, nil
+}
+
+func (l *LedgerApi) GenesisMintageBlock() (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_genesisMintageBlock")
+	if err != nil {
+		return nil, err
+	}
+	return &blk, nil
+}
+
+func (l *LedgerApi) GenesisMintageHash() (*types.Hash, error) {
+	var h types.Hash
+	err := l.client.Call(&h, "ledger_genesisMintageHash")
+	if err != nil {
+		return nil, err
+	}
+	return &h, nil
+}
+
+func (l *LedgerApi) GenesisBlock() (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_genesisBlock")
+	if err != nil {
+		return nil, err
+	}
+	return &blk, nil
+}
+
+func (l *LedgerApi) GenesisBlockHash() (*types.Hash, error) {
+	var h types.Hash
+	err := l.client.Call(&h, "ledger_genesisBlockHash")
+	if err != nil {
+		return nil, err
+	}
+	return &h, nil
+}
+
+func (l *LedgerApi) GasBlockHash() (*types.Hash, error) {
+	var h types.Hash
+	err := l.client.Call(&h, "ledger_gasBlockHash")
+	if err != nil {
+		return nil, err
+	}
+	return &h, nil
+}
+
+func (l *LedgerApi) GasMintageBlock() (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_gasMintageBlock")
+	if err != nil {
+		return nil, err
+	}
+	return &blk, nil
+}
+
+func (l *LedgerApi) GasBlock() (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := l.client.Call(&blk, "ledger_gasBlock")
+	if err != nil {
+		return nil, err
+	}
+	return &blk, nil
+}
+
+func (l *LedgerApi) IsGenesisBlock() (*bool, error) {
+	var b bool
+	err := l.client.Call(&b, "ledger_isGenesisBlock")
+	if err != nil {
+		return nil, err
+	}
+	return &b, nil
+}
+
+func (l *LedgerApi) IsGenesisToken() (*bool, error) {
+	var b bool
+	err := l.client.Call(&b, "ledger_isGenesisToken")
+	if err != nil {
+		return nil, err
+	}
+	return &b, nil
+}
+
+func (l *LedgerApi) AllGenesisBlocks() ([]*types.StateBlock, error) {
+	var blks []*types.StateBlock
+	err := l.client.Call(&blks, "ledger_allGenesisBlocks")
+	if err != nil {
+		return nil, err
+	}
+	return blks, nil
+}
