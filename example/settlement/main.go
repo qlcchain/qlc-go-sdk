@@ -10,7 +10,6 @@ import (
 	"time"
 
 	qlcchain "github.com/qlcchain/qlc-go-sdk"
-	"github.com/qlcchain/qlc-go-sdk/pkg/common"
 	"github.com/qlcchain/qlc-go-sdk/pkg/random"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
@@ -85,11 +84,14 @@ func main() {
 	//cslAccount := account()
 	fmt.Println(cslAccount.String())
 
-	if err = send(client, gasAccount, pccwAccount); err != nil {
+	token, _ := client.Ledger.GasToken()
+	fmt.Println(token.String())
+
+	if err = send(client, gasAccount, pccwAccount, token); err != nil {
 		fmt.Println(err)
 		return
 	}
-	if err := send(client, gasAccount, cslAccount); err != nil {
+	if err := send(client, gasAccount, cslAccount, token); err != nil {
 		fmt.Println(err)
 		return
 	}
@@ -98,8 +100,6 @@ func main() {
 	pccwAddr := pccwAccount.Address()
 	cslAddr := cslAccount.Address()
 
-	token := common.GasToken()
-	fmt.Println(token.String())
 	offset := 0
 
 	size := printAllContract(client)
@@ -302,8 +302,8 @@ func printAllContract(c *qlcchain.QLCClient) int {
 	}
 }
 
-func send(client *qlcchain.QLCClient, from, to *types.Account) error {
-	_, err := client.Ledger.TokenMeta(common.GasToken(), to.Address())
+func send(client *qlcchain.QLCClient, from, to *types.Account, token *types.Hash) error {
+	_, err := client.Ledger.TokenMeta(*token, to.Address())
 	if err != nil {
 		if txBlk, err := client.Ledger.GenerateSendBlock(&qlcchain.APISendBlockPara{
 			From:      from.Address(),

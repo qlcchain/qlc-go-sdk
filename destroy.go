@@ -61,8 +61,13 @@ func (param *APIDestroyParam) Verify(c *rpc.Client) (bool, error) {
 	if param.Previous.IsZero() {
 		return false, errors.New("invalid previous")
 	}
+	var gasToken types.Hash
+	err := c.Call(&gasToken, "ledger_gasToken")
+	if err != nil {
+		return false, err
+	}
 
-	if param.Token != GasToken(c) {
+	if param.Token != gasToken {
 		return false, errors.New("invalid token to be destroyed")
 	}
 
