@@ -218,6 +218,7 @@ func (s *SettlementAPI) GetUpdateNextStopBlock(param *UpdateStopParam, sign Sign
 type TerminateParam struct {
 	ContractAddress types.Address `json:"contractAddress"`
 	Address         types.Address `json:"address"`
+	Request         bool          `json:"request"`
 }
 
 func (s *SettlementAPI) GetTerminateContractBlock(param *TerminateParam, sign Signature) (*types.StateBlock, error) {
@@ -338,6 +339,24 @@ type CDRParam struct {
 
 func (z *CDRParam) ToHash() (types.Hash, error) {
 	return types.HashBytes(util.BE_Uint64ToBytes(z.Index), []byte(z.Sender), []byte(z.Destination))
+}
+
+func (s *SettlementAPI) GetNextStopNames(addr *types.Address) ([]string, error) {
+	var r []string
+	err := s.client.Call(&r, "settlement_getNextStopNames", addr)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GetPreStopNames(addr *types.Address) ([]string, error) {
+	var r []string
+	err := s.client.Call(&r, "settlement_getPreStopNames", addr)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 type SettlementCDR struct {
