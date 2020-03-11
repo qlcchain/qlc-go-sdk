@@ -284,6 +284,24 @@ func (s *SettlementAPI) GetContractsAsPartyB(addr *types.Address, count int, off
 	return r, nil
 }
 
+func (s *SettlementAPI) GetContractAddressByPartyANextStop(addr *types.Address, stopName string) (*types.Address, error) {
+	var contractAddress types.Address
+	err := s.client.Call(&contractAddress, "settlement_getContractAddressByPartyANextStop", addr, stopName)
+	if err != nil {
+		return nil, err
+	}
+	return &contractAddress, nil
+}
+
+func (s *SettlementAPI) GetContractAddressByPartyBPreStop(addr *types.Address, stopName string) (*types.Address, error) {
+	var contractAddress types.Address
+	err := s.client.Call(&contractAddress, "settlement_getContractAddressByPartyBPreStop", addr, stopName)
+	if err != nil {
+		return nil, err
+	}
+	return &contractAddress, nil
+}
+
 func (s *SettlementAPI) GetContractsByStatus(addr *types.Address, status string, count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
 	err := s.client.Call(&r, "settlement_getContractsByStatus", addr, status, count, offset)
@@ -354,6 +372,15 @@ type CDRStatus struct {
 func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDRStatus, error) {
 	var r CDRStatus
 	err := s.client.Call(&r, "settlement_getCDRStatus", addr, hash)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *SettlementAPI) GetCDRStatusByCdrData(addr *types.Address, index uint64, sender, destination string) (*CDRStatus, error) {
+	var r CDRStatus
+	err := s.client.Call(&r, "settlement_getCDRStatusByCdrData", addr, index, sender, destination)
 	if err != nil {
 		return nil, err
 	}
