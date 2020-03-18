@@ -472,11 +472,115 @@ func (s *SettlementAPI) GenerateInvoicesByContract(addr *types.Address, start, e
 	return r, nil
 }
 
-func (s *SettlementAPI) GenerateMultiPartyInvoice(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
+func (s *SettlementAPI) GenerateMultiPartyInvoice(firstAddr, secondAddr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
-	err := s.client.Call(&r, "settlement_generateMultiPartyInvoice", addr, start, end)
+	err := s.client.Call(&r, "settlement_generateMultiPartyInvoice", firstAddr, secondAddr, start, end)
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
+}
+
+type MultiPartySummaryResult struct {
+	Contracts []*SettlementContract     `json:"contracts"`
+	Records   map[string]*CompareRecord `json:"records"`
+	Total     *CompareRecord            `json:"total"`
+}
+
+func (s *SettlementAPI) GenerateMultiPartySummaryReport(firstAddr, secondAddr *types.Address, start, end int64) (*MultiPartySummaryResult, error) {
+	var r MultiPartySummaryResult
+	err := s.client.Call(&r, "settlement_generateMultiPartySummaryReport", firstAddr, secondAddr, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+type Compensation struct {
+	Low  float32 `msg:"l" json:"low"`
+	High float32 `msg:"h" json:"high"`
+	Rate float32 `msg:"r" json:"rate"`
+}
+
+type SLAType int
+
+type SLA struct {
+	SLAType       SLAType         `json:"type"`
+	Priority      uint            `json:"priority"`
+	Value         float32         `json:"value"`
+	Compensations []*Compensation `json:"compensations,omitempty"`
+}
+
+type Asset struct {
+	Mcc         uint64 `json:"mcc"`
+	Mnc         uint64 `json:"mnc"`
+	TotalAmount uint64 `json:"totalAmount"`
+	SLAs        []*SLA `json:"sla,omitempty"`
+}
+
+type RegisterAssetParam struct {
+	Owner     Contractor `json:"owner"`
+	Assets    []*Asset   `json:"assets"`
+	StartDate int64      `json:"startDate"`
+	EndDate   int64      `json:"endDate"`
+	Status    string     `json:"status"`
+}
+
+func (s *SettlementAPI) GetRegisterAssetBlock(param *RegisterAssetParam, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "settlement_getRegisterAssetBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
+type AssetStatus int
+
+type APIAsset struct {
+	Asset
+	AssetID types.Hash `json:"assetID"`
+}
+
+type AssetParam struct {
+	Owner     Contractor    `json:"owner"`
+	Assets    []*APIAsset   `json:"assets"`
+	SignDate  int64         `json:"signDate"`
+	StartDate int64         `json:"startDate"`
+	EndDate   int64         `json:"endDate"`
+	Status    AssetStatus   `json:"status"`
+	Address   types.Address `json:"address"`
+}
+
+func (s *SettlementAPI) GetAllAssets(count int, offset *int) ([]*AssetParam, error) {
+	var r []*AssetParam
+	err := s.client.Call(&r, "settlement_getAllAssets", count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GetAssetsByOwner(owner *types.Address, count int, offset *int) ([]*AssetParam, error) {
+	var r []*AssetParam
+	err := s.client.Call(&r, "settlement_getAssetsByOwner", owner, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GetAsset(address types.Address) (*AssetParam, error) {
+	var r AssetParam
+	err := s.client.Call(&r, "settlement_getAsset", address)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
 }
