@@ -21,15 +21,6 @@ deps:
 	go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
 	go get -u github.com/goreleaser/goreleaser
 
-build:
-	@echo "package qlcchain" > $(shell pwd)/version.go
-	@echo  "">> $(shell pwd)/version.go
-	@echo "const GITREV = \""$(GITREV)"\"" >> $(shell pwd)/version.go
-	@echo "const VERSION = \""$(VERSION)"\"" >> $(shell pwd)/version.go
-	@echo "const BUILDTIME = \""$(BUILDTIME)"\"" >> $(shell pwd)/version.go
-	go build ${LDFLAGS} -v -i -o $(BUILDDIR)/$(ROBOTNAME) $(ROBOTOMAIN)
-	@echo "Build robot done."
-
 clean:
 	rm -rf $(BUILDDIR)/
 

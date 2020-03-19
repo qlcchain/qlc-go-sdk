@@ -15,7 +15,6 @@ type QLCClient struct {
 	Pledge     *PledgeApi
 	Rewards    *RewardsApi
 	Network    *NetApi
-	SMS        *SMSApi
 	Util       *UtilApi
 	Destroy    *DestroyApi
 	Debug      *DebugApi
@@ -44,7 +43,6 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		client:     client,
 		Account:    NewAccountAPI(client),
 		Ledger:     NewLedgerAPI(url, client),
-		SMS:        NewSMSAPI(client),
 		Contract:   NewContractAPI(client),
 		Mintage:    NewMintageAPI(client),
 		Pledge:     NewPledgeAPI(client),
