@@ -52,15 +52,6 @@ func main() {
 }
 ```
 
-## Build tag
-```
-// for testnet
-go build -tags testnet -o build/robot_testnet_example example/robot/main.go
-
-// for mainnet
-go build -o build/robot_example example/robot/main.go
-```
-
 ## [License](https://github.com/qlcchain/qlc-go-sdk/blob/master/LICENSE)
 
 MIT Copyright (c) 2019 QLC Chain
