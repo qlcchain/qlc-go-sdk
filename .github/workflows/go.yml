@@ -1,5 +1,5 @@
 name: Main workflow
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -30,7 +30,6 @@ jobs:
           fi
           go vet ./...
           go test ./... -covermode=atomic -coverprofile=coverage.txt
-          make clean build
 
       - name: Upload codecov coverage
         uses: codecov/codecov-action@v1.0.2
@@ -39,18 +38,3 @@ jobs:
           file: ./coverage.txt
           flags: unittests
           name: codecov-umbrella
-  
-  golangci-lint:
-    name: golangci-lint
-    runs-on: ubuntu-18.04
-    steps:
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 2
-
-      - name: Run golangci-lint with reviewdog
-        uses: reviewdog/action-golangci-lint@v1.1.7
-        with:
-          github_token: ${{ secrets.GH_TOKEN }}
-          golangci_lint_flags: "--config=./.golangci.yml"
