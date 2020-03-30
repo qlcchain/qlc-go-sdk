@@ -226,7 +226,7 @@ func main() {
 		NextStop:      "HKTCSL",
 	}
 
-	if blk, err := client.Settlement.GetProcessCDRBlock(&pccwAddr, cdr1, func(hash types.Hash) (signature types.Signature, err error) {
+	if blk, err := client.Settlement.GetProcessCDRBlock(&pccwAddr, []*qlcchain.CDRParam{cdr1}, func(hash types.Hash) (signature types.Signature, err error) {
 		return pccwAccount.Sign(hash), nil
 	}); err != nil {
 		fmt.Println(err)
@@ -262,7 +262,7 @@ func main() {
 		NextStop:      "",
 	}
 
-	if blk, err := client.Settlement.GetProcessCDRBlock(&cslAddr, cdr2, func(hash types.Hash) (signature types.Signature, err error) {
+	if blk, err := client.Settlement.GetProcessCDRBlock(&cslAddr, []*qlcchain.CDRParam{cdr2}, func(hash types.Hash) (signature types.Signature, err error) {
 		return cslAccount.Sign(hash), nil
 	}); err != nil {
 		fmt.Println(err)

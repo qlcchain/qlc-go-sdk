@@ -110,9 +110,9 @@ func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Sign
 	return &blk, nil
 }
 
-func (s *SettlementAPI) GetProcessCDRBlock(addr *types.Address, param *CDRParam, sign Signature) (*types.StateBlock, error) {
+func (s *SettlementAPI) GetProcessCDRBlock(addr *types.Address, params []*CDRParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getProcessCDRBlock", addr, param)
+	err := s.client.Call(&blk, "settlement_getProcessCDRBlock", addr, params)
 	if err != nil {
 		return nil, err
 	}
@@ -326,15 +326,15 @@ type DLRStatus int
 type SettlementStatus int
 
 type CDRParam struct {
-	ContractAddress types.Address `json:"contractAddress"`
-	Index           uint64        `json:"index" validate:"min=1"`
-	SmsDt           int64         `json:"smsDt" validate:"min=1"`
-	Sender          string        `json:"sender" validate:"nonzero"`
-	Destination     string        `json:"destination" validate:"nonzero"`
-	SendingStatus   SendingStatus `json:"sendingStatus" `
-	DlrStatus       DLRStatus     `json:"dlrStatus"`
-	PreStop         string        `json:"preStop" `
-	NextStop        string        `json:"nextStop" `
+	Index         uint64        `json:"index" validate:"min=1"`
+	SmsDt         int64         `json:"smsDt" validate:"min=1"`
+	Sender        string        `json:"sender" validate:"nonzero"`
+	Customer      string        `msg:"c" json:"customer"`
+	Destination   string        `json:"destination" validate:"nonzero"`
+	SendingStatus SendingStatus `json:"sendingStatus" `
+	DlrStatus     DLRStatus     `json:"dlrStatus"`
+	PreStop       string        `json:"preStop" `
+	NextStop      string        `json:"nextStop" `
 }
 
 func (z *CDRParam) ToHash() (types.Hash, error) {
