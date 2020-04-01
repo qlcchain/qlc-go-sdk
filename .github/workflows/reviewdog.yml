@@ -1,4 +1,4 @@
-name: Main workflow
+name: Reivew
 on: [pull_request]
 
 jobs:
