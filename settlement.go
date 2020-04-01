@@ -365,8 +365,9 @@ type SettlementCDR struct {
 }
 
 type CDRStatus struct {
-	Params map[string][]CDRParam `json:"params"`
-	Status SettlementStatus      `json:"status"`
+	Address *types.Address        `json:"contractAddress"`
+	Params  map[string][]CDRParam `json:"params"`
+	Status  SettlementStatus      `json:"status"`
 }
 
 func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDRStatus, error) {
@@ -390,6 +391,15 @@ func (s *SettlementAPI) GetCDRStatusByCdrData(addr *types.Address, index uint64,
 func (s *SettlementAPI) GetAllCDRStatus(addr *types.Address, count int, offset *int) ([]*CDRStatus, error) {
 	var r []*CDRStatus
 	err := s.client.Call(&r, "settlement_getAllCDRStatus", addr, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func (s *SettlementAPI) GetMultiPartyCDRStatus(firstAddr, secondAddr *types.Address, count int, offset *int) ([]*CDRStatus, error) {
+	var r []*CDRStatus
+	err := s.client.Call(&r, "settlement_getMultiPartyCDRStatus", firstAddr, secondAddr, count, offset)
 	if err != nil {
 		return nil, err
 	}
