@@ -93,3 +93,21 @@ func (m *MinerApi) GetRewardHistory(coinbase types.Address) (*MinerHistoryReward
 	}
 	return &rspData, nil
 }
+
+func (m *MinerApi) GetRewardData(param *RewardParam) ([]byte, error) {
+	var rspData []byte
+	err := m.client.Call(&rspData, "miner_getRewardData", param)
+	if err != nil {
+		return nil, err
+	}
+	return rspData, nil
+}
+
+func (m *MinerApi) UnpackRewardData(data []byte) (*RewardParam, error) {
+	var rspData RewardParam
+	err := m.client.Call(&rspData, "miner_unpackRewardData", data)
+	if err != nil {
+		return nil, err
+	}
+	return &rspData, nil
+}

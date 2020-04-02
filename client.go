@@ -22,6 +22,7 @@ type QLCClient struct {
 	Miner      *MinerApi
 	Rep        *RepApi
 	Settlement *SettlementAPI
+	Privacy    *PrivacyApi
 }
 
 func (c *QLCClient) Close() error {
@@ -55,6 +56,7 @@ func NewQLCClient(url string) (*QLCClient, error) {
 		Miner:      NewMinerAPI(client),
 		Rep:        NewRepAPI(client),
 		Settlement: NewSettlementAPI(client),
+		Privacy:    NewPrivacyAPI(client),
 	}, nil
 
 }

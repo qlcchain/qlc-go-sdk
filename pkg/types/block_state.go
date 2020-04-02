@@ -26,8 +26,14 @@ type StateBlock struct {
 	Timestamp      int64     `msg:"timestamp" json:"timestamp"`
 	Extra          Hash      `msg:"extra,extension" json:"extra,omitempty"`
 	Representative Address   `msg:"representative,extension" json:"representative"`
-	Work           Work      `msg:"work,extension" json:"work"`
-	Signature      Signature `msg:"signature,extension" json:"signature"`
+
+	PrivateFrom    string   `msg:"priFrom,extension,omitempty" json:"privateFrom,omitempty"`
+	PrivateFor     []string `msg:"priFor,extension,omitempty" json:"privateFor,omitempty"`
+	PrivateGroupID string   `msg:"priGid,extension,omitempty" json:"privateGroupID,omitempty"`
+	PrivateRawData []byte   `msg:"priRawData,omitempty" json:"privateRawData,omitempty"`
+
+	Work      Work      `msg:"work,extension" json:"work"`
+	Signature Signature `msg:"signature,extension" json:"signature"`
 }
 
 func (b *StateBlock) GetHash() Hash {
@@ -221,6 +227,13 @@ func (bs *StateBlockList) Deserialize(text []byte) error {
 		return err
 	}
 	return nil
+}
+
+func (b *StateBlock) IsPrivate() bool {
+	if len(b.PrivateFrom) > 0 {
+		return true
+	}
+	return false
 }
 
 //
