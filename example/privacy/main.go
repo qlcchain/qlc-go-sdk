@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
+	"time"
 
 	qlcchain "github.com/qlcchain/qlc-go-sdk"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
@@ -14,9 +15,11 @@ import (
 )
 
 var flagNodeUrl string
+var flagPriKey string
 
 func main() {
 	flag.StringVar(&flagNodeUrl, "nodeurl", "http://127.0.0.1:19735", "RPC URL of node")
+	flag.StringVar(&flagPriKey, "prikey", "", "private key of account")
 
 	flag.Parse()
 
@@ -30,9 +33,11 @@ func main() {
 
 	demoContractAbi(client)
 
-	demoMintageContract(client)
+	//demoMintageContract(client)
 
-	demoMinerContract(client)
+	//demoMinerContract(client)
+
+	demoPrivacyDemoKVContract(client)
 }
 
 func demoContractAbi(client *qlcchain.QLCClient) {
@@ -195,4 +200,80 @@ func demoMinerContract(client *qlcchain.QLCClient) {
 		return
 	}
 	fmt.Printf("GenerateSendBlock:\n%s\n", util.ToIndentString(contractRspBlk))
+}
+
+func demoPrivacyDemoKVContract(client *qlcchain.QLCClient) {
+	fmt.Println("============ demoPrivacyDemoKVContract ============")
+	if flagPriKey == "" {
+		fmt.Println("invalid flagPriKey")
+		return
+	}
+
+	pkBytes, err := hex.DecodeString(flagPriKey)
+	if err != nil {
+		fmt.Println("DecodeString flagPriKey", err)
+		return
+	}
+
+	demoAcc := types.NewAccount(pkBytes)
+
+	/*
+		{"type":"function","name":"PrivacyDemoKVSet","inputs":[
+			{"name":"key","type":"bytes"},
+			{"name":"value","type":"bytes"}
+		]}
+	*/
+	k1 := util.RandomFixedString(32)
+	v1 := util.RandomFixedString(32)
+	fmt.Printf("KV: %s %s\n", k1, v1)
+
+	paraStrList := []string{
+		hex.EncodeToString([]byte(k1)),
+		hex.EncodeToString([]byte(v1)),
+	}
+	fmt.Printf("paraStrList: %s\n", paraStrList)
+
+	contractRspData, err := client.Contract.PackChainContractData(types.PrivacyDemoKVAddress, "PrivacyDemoKVSet", paraStrList)
+	if err != nil {
+		fmt.Println("PackChainContractData", err)
+		return
+	}
+	fmt.Printf("PackChainContractData:\n%s\n", hex.EncodeToString(contractRspData))
+
+	contractSendPara := qlcchain.ContractSendBlockPara{
+		Address:   demoAcc.Address(),
+		To:        types.PrivacyDemoKVAddress,
+		TokenName: "QLC",
+		Amount:    types.NewBalance(0),
+		Data:      contractRspData,
+
+		PrivateFrom: "Gku7ej/GNhXUKEOD61vUoqYQWLD2yCaOFLwLhpsvCjM=",           // party-a1 pubkey
+		PrivateFor:  []string{"foUgsdsHGzA9bO5TCwOoeRnx+HHhVwhz+vRIDAZFjD8="}, // party-b1 pubkey
+	}
+	contractRspBlk, err := client.Contract.GenerateSendBlock(&contractSendPara)
+	if err != nil {
+		fmt.Println("GenerateSendBlock", err)
+		return
+	}
+
+	blkHash := contractRspBlk.GetHash()
+	contractRspBlk.Signature = demoAcc.Sign(blkHash)
+
+	fmt.Printf("GenerateSendBlock:\n%s, %s\n", blkHash, util.ToIndentString(contractRspBlk))
+
+	rspHash, err := client.Ledger.Process(contractRspBlk)
+	if err != nil {
+		fmt.Println("Process", err)
+		return
+	}
+	fmt.Printf("Process:\n%s\n", rspHash)
+
+	time.Sleep(3 * time.Second)
+
+	retV1, err := client.Privacy.GetDemoKV([]byte(k1))
+	if err != nil {
+		fmt.Println("GetDemoKV", err)
+		return
+	}
+	fmt.Printf("GetDemoKV:\n%s\n", string(retV1))
 }

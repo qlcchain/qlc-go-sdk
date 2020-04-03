@@ -178,6 +178,20 @@ func JoinBytes(data ...[]byte) []byte {
 	return newData
 }
 
+func RandomFixedBytes(length int) []byte {
+	if length == 0 {
+		return nil
+	}
+	rand.Seed(time.Now().UnixNano())
+
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = byte(rand.Intn(256))
+	}
+
+	return b
+}
+
 func RandomFixedString(length int) string {
 	if length == 0 {
 		return ""

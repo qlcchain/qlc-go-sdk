@@ -2,6 +2,8 @@ package qlcchain
 
 import (
 	rpc "github.com/qlcchain/jsonrpc2"
+
+	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type PrivacyDistributeParam struct {
@@ -21,7 +23,7 @@ func NewPrivacyAPI(c *rpc.Client) *PrivacyApi {
 }
 
 // DistributeRawPayload push private raw data to parties
-func (p *PovApi) DistributeRawPayload(param *PrivacyDistributeParam) ([]byte, error) {
+func (p *PrivacyApi) DistributeRawPayload(param *PrivacyDistributeParam) ([]byte, error) {
 	var rspData []byte
 	err := p.client.Call(&rspData, "privacy_distributeRawPayload")
 	if err != nil {
@@ -31,9 +33,29 @@ func (p *PovApi) DistributeRawPayload(param *PrivacyDistributeParam) ([]byte, er
 }
 
 // GetRawPayload return private raw data by enclave key
-func (p *PovApi) GetRawPayload(enclaveKey []byte) ([]byte, error) {
+func (p *PrivacyApi) GetRawPayload(enclaveKey []byte) ([]byte, error) {
 	var rspData []byte
 	err := p.client.Call(&rspData, "privacy_getRawPayload")
+	if err != nil {
+		return nil, err
+	}
+	return rspData, nil
+}
+
+// GetBlockPrivatePayload return private raw data by block hash
+func (p *PrivacyApi) GetBlockPrivatePayload(blockHash types.Hash) ([]byte, error) {
+	var rspData []byte
+	err := p.client.Call(&rspData, "privacy_getBlockPrivatePayload")
+	if err != nil {
+		return nil, err
+	}
+	return rspData, nil
+}
+
+// GetDemoKV returns KV in PrivacyKV contract (just for demo in testnet)
+func (p *PrivacyApi) GetDemoKV(key []byte) ([]byte, error) {
+	var rspData []byte
+	err := p.client.Call(&rspData, "privacy_getDemoKV", key)
 	if err != nil {
 		return nil, err
 	}
