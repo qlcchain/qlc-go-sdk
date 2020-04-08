@@ -328,8 +328,9 @@ type SettlementStatus int
 type CDRParam struct {
 	Index         uint64        `json:"index" validate:"min=1"`
 	SmsDt         int64         `json:"smsDt" validate:"min=1"`
+	Account       string        `json:"account"`
 	Sender        string        `json:"sender" validate:"nonzero"`
-	Customer      string        `msg:"c" json:"customer"`
+	Customer      string        `json:"customer"`
 	Destination   string        `json:"destination" validate:"nonzero"`
 	SendingStatus SendingStatus `json:"sendingStatus" `
 	DlrStatus     DLRStatus     `json:"dlrStatus"`
@@ -447,6 +448,36 @@ func (s *SettlementAPI) GetSummaryReport(addr *types.Address, start, end int64) 
 	return &r, nil
 }
 
+// GetSummaryReportByAccount generate summary report by PCCWG account
+// @param addr settlement contract address
+// @param account PCCWG account
+// @param start report start date (UTC unix time)
+// @param end report end data (UTC unix time)
+// @return summary report if error not exist
+func (s *SettlementAPI) GetSummaryReportByAccount(addr *types.Address, account string, start, end int64) (*SummaryResult, error) {
+	var r SummaryResult
+	err := s.client.Call(&r, "settlement_getSummaryReportByAccount", addr, account, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+// GetSummaryReportByCustomer generate summary report by PCCWG customer name
+// @param addr settlement contract address
+// @param customer PCCWG customer name
+// @param start report start date (UTC unix time)
+// @param end report end data (UTC unix time)
+// @return summary report if error not exist
+func (s *SettlementAPI) GetSummaryReportByCustomer(addr *types.Address, customer string, start, end int64) (*SummaryResult, error) {
+	var r SummaryResult
+	err := s.client.Call(&r, "settlement_getSummaryReportByCustomer", addr, customer, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
 type InvoiceRecord struct {
 	Address                  types.Address `json:"contractAddress"`
 	StartDate                int64         `json:"startDate"`
@@ -467,6 +498,36 @@ type InvoiceRecord struct {
 func (s *SettlementAPI) GenerateInvoices(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
 	err := s.client.Call(&r, "settlement_generateInvoices", addr, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// GenerateInvoicesByAccount generate invoice by PCCWG account
+// @param addr settlement contract address
+// @param account PCCWG account
+// @param start report start date (UTC unix time)
+// @param end report end data (UTC unix time)
+// @return settlement invoice
+func (s *SettlementAPI) GenerateInvoicesByAccount(addr *types.Address, account string, start, end int64) ([]*InvoiceRecord, error) {
+	var r []*InvoiceRecord
+	err := s.client.Call(&r, "settlement_generateInvoicesByAccount", addr, account, start, end)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+// GenerateInvoicesByCustomer generate invoice by PCCWG customer name
+// @param addr settlement contract address
+// @param customer PCCWG customer name
+// @param start report start date (UTC unix time)
+// @param end report end data (UTC unix time)
+// @return settlement invoice
+func (s *SettlementAPI) GenerateInvoicesByCustomer(addr *types.Address, customer string, start, end int64) ([]*InvoiceRecord, error) {
+	var r []*InvoiceRecord
+	err := s.client.Call(&r, "settlement_generateInvoicesByCustomer", addr, customer, start, end)
 	if err != nil {
 		return nil, err
 	}
