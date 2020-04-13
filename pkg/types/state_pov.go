@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+//go:generate msgp
 type PovAccountState struct {
 	Account     Address          `msg:"a,extension" json:"account"`
 	Balance     Balance          `msg:"b,extension" json:"balance"`

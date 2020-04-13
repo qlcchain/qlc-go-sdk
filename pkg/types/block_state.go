@@ -1,6 +1,7 @@
 package types
 
 import (
+	"bytes"
 	"encoding/json"
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
@@ -26,11 +27,63 @@ type StateBlock struct {
 	Timestamp      int64     `msg:"timestamp" json:"timestamp"`
 	Extra          Hash      `msg:"extra,extension" json:"extra,omitempty"`
 	Representative Address   `msg:"representative,extension" json:"representative"`
-	Work           Work      `msg:"work,extension" json:"work"`
-	Signature      Signature `msg:"signature,extension" json:"signature"`
+
+	PrivateFrom    string   `msg:"priFrom,omitempty" json:"privateFrom,omitempty"`
+	PrivateFor     []string `msg:"priFor,omitempty" json:"privateFor,omitempty"`
+	PrivateGroupID string   `msg:"priGid,omitempty" json:"privateGroupID,omitempty"`
+
+	Work      Work      `msg:"work,extension" json:"work"`
+	Signature Signature `msg:"signature,extension" json:"signature"`
+}
+
+func (b *StateBlock) BuildHashData() []byte {
+	buf := new(bytes.Buffer)
+
+	// fields for public txs
+	buf.WriteByte(byte(b.Type))
+	buf.Write(b.Token[:])
+	buf.Write(b.Address[:])
+	buf.Write(b.Balance.Bytes())
+	buf.Write(b.Vote.Bytes())
+	buf.Write(b.Network.Bytes())
+	buf.Write(b.Storage.Bytes())
+	buf.Write(b.Oracle.Bytes())
+	buf.Write(b.Previous[:])
+	buf.Write(b.Link[:])
+	buf.Write(b.Sender)
+	buf.Write(b.Receiver)
+	buf.Write(b.Message[:])
+	buf.Write(b.Data)
+	buf.Write(util.BE_Int2Bytes(b.Timestamp))
+	buf.Write(util.BE_Uint64ToBytes(b.PoVHeight))
+	buf.Write(b.Extra[:])
+	buf.Write(b.Representative[:])
+
+	// additional fields for private txs
+	if len(b.PrivateFrom) > 0 {
+		buf.WriteString(b.PrivateFrom)
+	}
+	if len(b.PrivateFor) > 0 {
+		for _, pf := range b.PrivateFor {
+			if len(pf) > 0 {
+				buf.WriteString(pf)
+			}
+		}
+	}
+	if len(b.PrivateGroupID) > 0 {
+		buf.WriteString(b.PrivateGroupID)
+	}
+
+	return buf.Bytes()
 }
 
 func (b *StateBlock) GetHash() Hash {
+	data := b.BuildHashData()
+	hash := HashData(data)
+	return hash
+}
+
+func (b *StateBlock) GetHashWithoutPrivacy() Hash {
 	t := []byte{byte(b.Type)}
 	hash, _ := HashBytes(t, b.Token[:], b.Address[:], b.Balance.Bytes(), b.Vote.Bytes(), b.Network.Bytes(),
 		b.Storage.Bytes(), b.Oracle.Bytes(), b.Previous[:], b.Link[:], b.Sender, b.Receiver, b.Message[:], b.Data,
@@ -207,6 +260,13 @@ func (b *StateBlock) Clone() *StateBlock {
 	bytes, _ := b.Serialize()
 	_ = clone.Deserialize(bytes)
 	return &clone
+}
+
+func (b *StateBlock) IsPrivate() bool {
+	if len(b.PrivateFrom) > 0 {
+		return true
+	}
+	return false
 }
 
 type StateBlockList []*StateBlock
