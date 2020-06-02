@@ -238,6 +238,22 @@ func (s *DoDSettlementAPI) GetChangeOrderBlock(param *DoDSettleChangeOrderParam,
 	}
 	return &blk, nil
 }
+
+func (s *DoDSettlementAPI) GetChangeOrderRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "DoDSettlement_getChangeOrderRewardBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
 func (s *DoDSettlementAPI) GetTerminateOrderBlock(param *DoDSettleTerminateOrderParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "DoDSettlement_getTerminateOrderBlock", param)
