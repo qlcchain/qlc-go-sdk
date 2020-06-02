@@ -321,6 +321,7 @@ type DoDSettleOrderLifeTrack struct {
 	Time          int64                  `json:"time" msg:"t"`
 	Hash          types.Hash             `json:"hash" msg:"h,extension"`
 }
+
 type DoDSettleOrderInfo struct {
 	Buyer         *DoDSettleUser              `json:"buyer" msg:"b"`
 	Seller        *DoDSettleUser              `json:"seller" msg:"s"`
@@ -331,6 +332,7 @@ type DoDSettleOrderInfo struct {
 	Connections   []*DoDSettleConnectionParam `json:"connections" msg:"c"`
 	Track         []*DoDSettleOrderLifeTrack  `json:"track" msg:"t"`
 }
+
 type DoDSettleDisconnectInfo struct {
 	OrderId      string  `json:"orderId,omitempty" msg:"oi"`
 	QuoteId      string  `json:"quoteId,omitempty" msg:"q"`
@@ -339,12 +341,14 @@ type DoDSettleDisconnectInfo struct {
 	Currency     string  `json:"currency,omitempty" msg:"cr"`
 	DisconnectAt int64   `json:"disconnectAt,omitempty" msg:"d"`
 }
+
 type DoDSettleConnectionLifeTrack struct {
 	OrderType DoDSettleOrderType               `json:"orderType,omitempty" msg:"ot"`
 	OrderId   string                           `json:"orderId,omitempty" msg:"oi"`
 	Time      int64                            `json:"time,omitempty" msg:"t"`
 	Changed   *DoDSettleConnectionDynamicParam `json:"changed,omitempty" msg:"c"`
 }
+
 type DoDSettleConnectionInfo struct {
 	DoDSettleConnectionStaticParam
 	Active     *DoDSettleConnectionDynamicParam   `json:"active" msg:"ac"`
@@ -352,24 +356,29 @@ type DoDSettleConnectionInfo struct {
 	Disconnect *DoDSettleDisconnectInfo           `json:"disconnect" msg:"dis"`
 	Track      []*DoDSettleConnectionLifeTrack    `json:"track" msg:"t"`
 }
+
 type DoDPendingRequestRsp struct {
 	Hash  types.Hash          `json:"hash"`
 	Order *DoDSettleOrderInfo `json:"order"`
 }
+
 type DoDSettleProductWithActiveInfo struct {
 	ProductId string `json:"productId"`
 	Active    bool   `json:"active"`
 }
+
 type DoDPendingResourceCheckInfo struct {
 	SendHash   types.Hash                        `json:"sendHash"`
 	OrderId    string                            `json:"orderId"`
 	InternalId types.Hash                        `json:"internalId"`
 	Products   []*DoDSettleProductWithActiveInfo `json:"products"`
 }
+
 type DoDPlacingOrderInfo struct {
 	InternalId types.Hash          `json:"internalId"`
 	OrderInfo  *DoDSettleOrderInfo `json:"orderInfo"`
 }
+
 type DoDSettleInvoiceConnDynamic struct {
 	DoDSettleConnectionDynamicParam
 	InvoiceStartTime    int64   `json:"invoiceStartTime,omitempty"`
@@ -379,17 +388,20 @@ type DoDSettleInvoiceConnDynamic struct {
 	InvoiceUnitCount    int     `json:"invoiceUnitCount,omitempty"`
 	Amount              float64 `json:"amount"`
 }
+
 type DoDSettleInvoiceConnDetail struct {
 	ConnectionAmount float64 `json:"connectionAmount"`
 	DoDSettleConnectionStaticParam
 	Usage []*DoDSettleInvoiceConnDynamic `json:"usage"`
 }
+
 type DoDSettleInvoiceOrderDetail struct {
 	OrderId         string                        `json:"orderId"`
 	ConnectionCount int                           `json:"connectionCount"`
 	OrderAmount     float64                       `json:"orderAmount"`
 	Connections     []*DoDSettleInvoiceConnDetail `json:"connections"`
 }
+
 type DoDSettleOrderInvoice struct {
 	TotalConnectionCount int                          `json:"totalConnectionCount"`
 	TotalAmount          float64                      `json:"totalAmount"`
@@ -400,6 +412,7 @@ type DoDSettleOrderInvoice struct {
 	Seller               *DoDSettleUser               `json:"seller"`
 	Order                *DoDSettleInvoiceOrderDetail `json:"order"`
 }
+
 type DoDSettleBuyerInvoice struct {
 	OrderCount           int                            `json:"orderCount"`
 	TotalConnectionCount int                            `json:"totalConnectionCount"`
@@ -411,6 +424,7 @@ type DoDSettleBuyerInvoice struct {
 	Seller               *DoDSettleUser                 `json:"seller"`
 	Orders               []*DoDSettleInvoiceOrderDetail `json:"orders"`
 }
+
 type DoDSettleProductInvoice struct {
 	TotalAmount float64                     `json:"totalAmount"`
 	Currency    string                      `json:"currency"`
@@ -420,10 +434,12 @@ type DoDSettleProductInvoice struct {
 	Seller      *DoDSettleUser              `json:"seller"`
 	Connection  *DoDSettleInvoiceConnDetail `json:"connection"`
 }
+
 type DoDSettleProduct struct {
 	Seller    types.Address `json:"seller" msg:"s,extension"`
 	ProductId string        `json:"productId,omitempty" msg:"p"`
 }
+
 type DoDSettleOrder struct {
 	Seller  types.Address `json:"seller" msg:"s,extension"`
 	OrderId string        `json:"orderId,omitempty" msg:"o"`
@@ -437,6 +453,7 @@ func (s *DoDSettlementAPI) GetOrderInfoBySellerAndOrderId(seller types.Address, 
 	}
 	return &r, nil
 }
+
 func (s *DoDSettlementAPI) GetOrderInfoByInternalId(internalId string) (*DoDSettleOrderInfo, error) {
 	var r DoDSettleOrderInfo
 	err := s.client.Call(&r, "DoDSettlement_getOrderInfoByInternalId", internalId)
@@ -445,6 +462,7 @@ func (s *DoDSettlementAPI) GetOrderInfoByInternalId(internalId string) (*DoDSett
 	}
 	return &r, nil
 }
+
 func (s *DoDSettlementAPI) GetConnectionInfoBySellerAndProductId(seller types.Address, productId string) (*DoDSettleConnectionInfo, error) {
 	var r DoDSettleConnectionInfo
 	err := s.client.Call(&r, "DoDSettlement_getConnectionInfoBySellerAndProductId", seller, productId)
@@ -453,6 +471,7 @@ func (s *DoDSettlementAPI) GetConnectionInfoBySellerAndProductId(seller types.Ad
 	}
 	return &r, nil
 }
+
 func (s *DoDSettlementAPI) GetPendingRequest(address types.Address) ([]*DoDPendingRequestRsp, error) {
 	var r []*DoDPendingRequestRsp
 	err := s.client.Call(&r, "DoDSettlement_getPendingRequest", address)
@@ -461,6 +480,7 @@ func (s *DoDSettlementAPI) GetPendingRequest(address types.Address) ([]*DoDPendi
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*DoDPendingResourceCheckInfo, error) {
 	var r []*DoDPendingResourceCheckInfo
 	err := s.client.Call(&r, "DoDSettlement_getPendingResourceCheck", address)
@@ -469,6 +489,7 @@ func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*Do
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address) ([]*DoDPlacingOrderInfo, error) {
 	var r []*DoDPlacingOrderInfo
 	err := s.client.Call(&r, "DoDSettlement_getPlacingOrder", buyer, seller)
@@ -477,6 +498,7 @@ func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address) ([]*DoDP
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetProductIdListByAddress(address types.Address) ([]*DoDSettleProduct, error) {
 	var r []*DoDSettleProduct
 	err := s.client.Call(&r, "DoDSettlement_getProductIdListByAddress", address)
@@ -485,6 +507,7 @@ func (s *DoDSettlementAPI) GetProductIdListByAddress(address types.Address) ([]*
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetOrderIdListByAddress(address types.Address) ([]*DoDSettleOrder, error) {
 	var r []*DoDSettleOrder
 	err := s.client.Call(&r, "DoDSettlement_getOrderIdListByAddress", address)
@@ -493,6 +516,7 @@ func (s *DoDSettlementAPI) GetOrderIdListByAddress(address types.Address) ([]*Do
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetProductIdListByAddressAndSeller(address, seller types.Address) ([]*DoDSettleOrder, error) {
 	var r []*DoDSettleOrder
 	err := s.client.Call(&r, "DoDSettlement_getProductIdListByAddressAndSeller", address, seller)
@@ -501,6 +525,7 @@ func (s *DoDSettlementAPI) GetProductIdListByAddressAndSeller(address, seller ty
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetOrderIdListByAddressAndSeller(address, seller types.Address) ([]*DoDSettleOrder, error) {
 	var r []*DoDSettleOrder
 	err := s.client.Call(&r, "DoDSettlement_getOrderIdListByAddressAndSeller", address, seller)
@@ -509,6 +534,7 @@ func (s *DoDSettlementAPI) GetOrderIdListByAddressAndSeller(address, seller type
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GenerateInvoiceByOrderId(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleOrderInvoice, error) {
 	var r DoDSettleOrderInvoice
 	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByOrderId", seller, orderId, start, end, flight, split)
@@ -517,6 +543,7 @@ func (s *DoDSettlementAPI) GenerateInvoiceByOrderId(seller types.Address, orderI
 	}
 	return &r, nil
 }
+
 func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleBuyerInvoice, error) {
 	var r DoDSettleBuyerInvoice
 	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByBuyer", seller, orderId, start, end, flight, split)
@@ -525,6 +552,7 @@ func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller types.Address, orderId 
 	}
 	return &r, nil
 }
+
 func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleProductInvoice, error) {
 	var r DoDSettleProductInvoice
 	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByProductId", seller, orderId, start, end, flight, split)
@@ -532,4 +560,33 @@ func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orde
 		return nil, err
 	}
 	return &r, nil
+}
+
+type DoDSettleProductItem struct {
+	ProductId      string `json:"productId" msg:"p"`
+	BuyerProductId string `json:"buyerProductId" msg:"b"`
+}
+
+type DoDSettleUpdateOrderInfoParam struct {
+	Buyer      types.Address           `json:"buyer" msg:"-"`
+	InternalId types.Hash              `json:"internalId,omitempty" msg:"i,extension"`
+	OrderId    string                  `json:"orderId,omitempty" msg:"oi"`
+	ProductIds []*DoDSettleProductItem `json:"productIds" msg:"pis"`
+	Status     DoDSettleOrderState     `json:"status,omitempty" msg:"s"`
+	FailReason string                  `json:"failReason,omitempty" msg:"fr"`
+}
+
+func (s *DoDSettlementAPI) GetUpdateOrderInfoBlock(param *DoDSettleUpdateOrderInfoParam, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "DoDSettlement_getUpdateOrderInfoBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
 }
