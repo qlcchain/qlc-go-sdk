@@ -181,7 +181,7 @@ type DoDSettleResourceReadyParam struct {
 
 func (s *DoDSettlementAPI) GetCreateOrderBlock(param *DoDSettleCreateOrderParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getCreateOrderBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getCreateOrderBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +196,7 @@ func (s *DoDSettlementAPI) GetCreateOrderBlock(param *DoDSettleCreateOrderParam,
 
 func (s *DoDSettlementAPI) GetCreateOrderRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getCreateOrderRewardBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getCreateOrderRewardBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ func (s *DoDSettlementAPI) GetCreateOrderRewardBlock(param *DoDSettleResponsePar
 
 func (s *DoDSettlementAPI) GetUpdateOrderInfoRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getUpdateOrderInfoRewardBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getUpdateOrderInfoRewardBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func (s *DoDSettlementAPI) GetUpdateOrderInfoRewardBlock(param *DoDSettleRespons
 
 func (s *DoDSettlementAPI) GetChangeOrderBlock(param *DoDSettleChangeOrderParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getChangeOrderBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getChangeOrderBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -240,7 +240,7 @@ func (s *DoDSettlementAPI) GetChangeOrderBlock(param *DoDSettleChangeOrderParam,
 }
 func (s *DoDSettlementAPI) GetTerminateOrderBlock(param *DoDSettleTerminateOrderParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getTerminateOrderBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getTerminateOrderBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -255,7 +255,7 @@ func (s *DoDSettlementAPI) GetTerminateOrderBlock(param *DoDSettleTerminateOrder
 
 func (s *DoDSettlementAPI) GetTerminateOrderRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getTerminateOrderRewardBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getTerminateOrderRewardBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -270,7 +270,7 @@ func (s *DoDSettlementAPI) GetTerminateOrderRewardBlock(param *DoDSettleResponse
 
 func (s *DoDSettlementAPI) GetResourceReadyBlock(param *DoDSettleResourceReadyParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getResourceReadyBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getResourceReadyBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +285,7 @@ func (s *DoDSettlementAPI) GetResourceReadyBlock(param *DoDSettleResourceReadyPa
 
 func (s *DoDSettlementAPI) GetResourceReadyRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodsettlement_getResourceReadyRewardBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getResourceReadyRewardBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -415,7 +415,7 @@ type DoDSettleOrder struct {
 
 func (s *DoDSettlementAPI) GetOrderInfoBySellerAndOrderId(seller types.Address, orderId string) (*DoDSettleOrderInfo, error) {
 	var r DoDSettleOrderInfo
-	err := s.client.Call(&r, "dodsettlement_getOrderInfoBySellerAndOrderId", seller, orderId)
+	err := s.client.Call(&r, "DoDSettlement_getOrderInfoBySellerAndOrderId", seller, orderId)
 	if err != nil {
 		return nil, err
 	}
@@ -423,7 +423,7 @@ func (s *DoDSettlementAPI) GetOrderInfoBySellerAndOrderId(seller types.Address, 
 }
 func (s *DoDSettlementAPI) GetOrderInfoByInternalId(internalId string) (*DoDSettleOrderInfo, error) {
 	var r DoDSettleOrderInfo
-	err := s.client.Call(&r, "dodsettlement_getOrderInfoByInternalId", internalId)
+	err := s.client.Call(&r, "DoDSettlement_getOrderInfoByInternalId", internalId)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +431,7 @@ func (s *DoDSettlementAPI) GetOrderInfoByInternalId(internalId string) (*DoDSett
 }
 func (s *DoDSettlementAPI) GetConnectionInfoBySellerAndProductId(seller types.Address, productId string) (*DoDSettleConnectionInfo, error) {
 	var r DoDSettleConnectionInfo
-	err := s.client.Call(&r, "dodsettlement_getConnectionInfoBySellerAndProductId", seller, productId)
+	err := s.client.Call(&r, "DoDSettlement_getConnectionInfoBySellerAndProductId", seller, productId)
 	if err != nil {
 		return nil, err
 	}
@@ -439,7 +439,7 @@ func (s *DoDSettlementAPI) GetConnectionInfoBySellerAndProductId(seller types.Ad
 }
 func (s *DoDSettlementAPI) GetPendingRequest(address types.Address) ([]*DoDPendingRequestRsp, error) {
 	var r []*DoDPendingRequestRsp
-	err := s.client.Call(&r, "dodsettlement_getPendingRequest", address)
+	err := s.client.Call(&r, "DoDSettlement_getPendingRequest", address)
 	if err != nil {
 		return nil, err
 	}
@@ -447,7 +447,7 @@ func (s *DoDSettlementAPI) GetPendingRequest(address types.Address) ([]*DoDPendi
 }
 func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*DoDPendingResourceCheckInfo, error) {
 	var r []*DoDPendingResourceCheckInfo
-	err := s.client.Call(&r, "dodsettlement_getPendingResourceCheck", address)
+	err := s.client.Call(&r, "DoDSettlement_getPendingResourceCheck", address)
 	if err != nil {
 		return nil, err
 	}
@@ -455,7 +455,7 @@ func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*Do
 }
 func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address) ([]*DoDPlacingOrderInfo, error) {
 	var r []*DoDPlacingOrderInfo
-	err := s.client.Call(&r, "dodsettlement_getPlacingOrder", buyer, seller)
+	err := s.client.Call(&r, "DoDSettlement_getPlacingOrder", buyer, seller)
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +463,7 @@ func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address) ([]*DoDP
 }
 func (s *DoDSettlementAPI) GetProductIdListByAddress(address types.Address) ([]*DoDSettleProduct, error) {
 	var r []*DoDSettleProduct
-	err := s.client.Call(&r, "dodsettlement_getProductIdListByAddress", address)
+	err := s.client.Call(&r, "DoDSettlement_getProductIdListByAddress", address)
 	if err != nil {
 		return nil, err
 	}
@@ -471,7 +471,7 @@ func (s *DoDSettlementAPI) GetProductIdListByAddress(address types.Address) ([]*
 }
 func (s *DoDSettlementAPI) GetOrderIdListByAddress(address types.Address) ([]*DoDSettleOrder, error) {
 	var r []*DoDSettleOrder
-	err := s.client.Call(&r, "dodsettlement_getOrderIdListByAddress", address)
+	err := s.client.Call(&r, "DoDSettlement_getOrderIdListByAddress", address)
 	if err != nil {
 		return nil, err
 	}
@@ -479,7 +479,7 @@ func (s *DoDSettlementAPI) GetOrderIdListByAddress(address types.Address) ([]*Do
 }
 func (s *DoDSettlementAPI) GetProductIdListByAddressAndSeller(address, seller types.Address) ([]*DoDSettleOrder, error) {
 	var r []*DoDSettleOrder
-	err := s.client.Call(&r, "dodsettlement_getProductIdListByAddressAndSeller", address, seller)
+	err := s.client.Call(&r, "DoDSettlement_getProductIdListByAddressAndSeller", address, seller)
 	if err != nil {
 		return nil, err
 	}
@@ -487,7 +487,7 @@ func (s *DoDSettlementAPI) GetProductIdListByAddressAndSeller(address, seller ty
 }
 func (s *DoDSettlementAPI) GetOrderIdListByAddressAndSeller(address, seller types.Address) ([]*DoDSettleOrder, error) {
 	var r []*DoDSettleOrder
-	err := s.client.Call(&r, "dodsettlement_getOrderIdListByAddressAndSeller", address, seller)
+	err := s.client.Call(&r, "DoDSettlement_getOrderIdListByAddressAndSeller", address, seller)
 	if err != nil {
 		return nil, err
 	}
@@ -495,7 +495,7 @@ func (s *DoDSettlementAPI) GetOrderIdListByAddressAndSeller(address, seller type
 }
 func (s *DoDSettlementAPI) GenerateInvoiceByOrderId(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleOrderInvoice, error) {
 	var r DoDSettleOrderInvoice
-	err := s.client.Call(&r, "dodsettlement_generateInvoiceByOrderId", seller, orderId, start, end, flight, split)
+	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByOrderId", seller, orderId, start, end, flight, split)
 	if err != nil {
 		return nil, err
 	}
@@ -503,7 +503,7 @@ func (s *DoDSettlementAPI) GenerateInvoiceByOrderId(seller types.Address, orderI
 }
 func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleBuyerInvoice, error) {
 	var r DoDSettleBuyerInvoice
-	err := s.client.Call(&r, "dodsettlement_generateInvoiceByBuyer", seller, orderId, start, end, flight, split)
+	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByBuyer", seller, orderId, start, end, flight, split)
 	if err != nil {
 		return nil, err
 	}
@@ -511,7 +511,7 @@ func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller types.Address, orderId 
 }
 func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleProductInvoice, error) {
 	var r DoDSettleProductInvoice
-	err := s.client.Call(&r, "dodsettlement_generateInvoiceByProductId", seller, orderId, start, end, flight, split)
+	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByProductId", seller, orderId, start, end, flight, split)
 	if err != nil {
 		return nil, err
 	}
