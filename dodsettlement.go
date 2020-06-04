@@ -122,19 +122,20 @@ type DoDSettleConnectionParam struct {
 }
 
 type DoDSettleConnectionStaticParam struct {
-	ItemId         string `json:"itemId,omitempty" msg:"ii"`
-	BuyerProductId string `json:"buyerProductId,omitempty" msg:"bp"`
-	ProductId      string `json:"productId,omitempty" msg:"pi"`
-	SrcCompanyName string `json:"srcCompanyName,omitempty" msg:"scn"`
-	SrcRegion      string `json:"srcRegion,omitempty" msg:"sr"`
-	SrcCity        string `json:"srcCity,omitempty" msg:"sc"`
-	SrcDataCenter  string `json:"srcDataCenter,omitempty" msg:"sdc"`
-	SrcPort        string `json:"srcPort,omitempty" msg:"sp"`
-	DstCompanyName string `json:"dstCompanyName,omitempty" msg:"dcn"`
-	DstRegion      string `json:"dstRegion,omitempty" msg:"dr"`
-	DstCity        string `json:"dstCity,omitempty" msg:"dc"`
-	DstDataCenter  string `json:"dstDataCenter,omitempty" msg:"ddc"`
-	DstPort        string `json:"dstPort,omitempty" msg:"dp"`
+	ItemId            string `json:"itemId,omitempty" msg:"ii"`
+	BuyerProductId    string `json:"buyerProductId,omitempty" msg:"bp"`
+	ProductOfferingId string `json:"productOfferingId,omitempty" msg:"po"`
+	ProductId         string `json:"productId,omitempty" msg:"pi"`
+	SrcCompanyName    string `json:"srcCompanyName,omitempty" msg:"scn"`
+	SrcRegion         string `json:"srcRegion,omitempty" msg:"sr"`
+	SrcCity           string `json:"srcCity,omitempty" msg:"sc"`
+	SrcDataCenter     string `json:"srcDataCenter,omitempty" msg:"sdc"`
+	SrcPort           string `json:"srcPort,omitempty" msg:"sp"`
+	DstCompanyName    string `json:"dstCompanyName,omitempty" msg:"dcn"`
+	DstRegion         string `json:"dstRegion,omitempty" msg:"dr"`
+	DstCity           string `json:"dstCity,omitempty" msg:"dc"`
+	DstDataCenter     string `json:"dstDataCenter,omitempty" msg:"ddc"`
+	DstPort           string `json:"dstPort,omitempty" msg:"dp"`
 }
 
 type DoDSettleConnectionDynamicParam struct {
@@ -354,14 +355,19 @@ type DoDPlacingOrderInfo struct {
 	InternalId types.Hash          `json:"internalId"`
 	OrderInfo  *DoDSettleOrderInfo `json:"orderInfo"`
 }
+type DoDPlacingOrderResp struct {
+	TotalOrders int                    `json:"totalOrders"`
+	OrderList   []*DoDPlacingOrderInfo `json:"orderList"`
+}
 type DoDSettleInvoiceConnDynamic struct {
 	DoDSettleConnectionDynamicParam
-	InvoiceStartTime    int64   `json:"invoiceStartTime,omitempty"`
-	InvoiceStartTimeStr string  `json:"invoiceStartTimeStr,omitempty"`
-	InvoiceEndTime      int64   `json:"invoiceEndTime,omitempty"`
-	InvoiceEndTimeStr   string  `json:"invoiceEndTimeStr,omitempty"`
-	InvoiceUnitCount    int     `json:"invoiceUnitCount,omitempty"`
-	Amount              float64 `json:"amount"`
+	InvoiceStartTime    int64              `json:"invoiceStartTime,omitempty"`
+	InvoiceStartTimeStr string             `json:"invoiceStartTimeStr,omitempty"`
+	InvoiceEndTime      int64              `json:"invoiceEndTime,omitempty"`
+	InvoiceEndTimeStr   string             `json:"invoiceEndTimeStr,omitempty"`
+	InvoiceUnitCount    int                `json:"invoiceUnitCount,omitempty"`
+	OrderType           DoDSettleOrderType `json:"orderType,omitempty"`
+	Amount              float64            `json:"amount"`
 }
 type DoDSettleInvoiceConnDetail struct {
 	ConnectionAmount float64 `json:"connectionAmount"`
@@ -412,6 +418,14 @@ type DoDSettleOrder struct {
 	Seller  types.Address `json:"seller" msg:"s,extension"`
 	OrderId string        `json:"orderId,omitempty" msg:"o"`
 }
+type DoDSettlementOrderInfoResp struct {
+	OrderInfo   []*DoDSettleOrderInfo `json:"orderInfo"`
+	TotalOrders int                   `json:"totalOrders"`
+}
+type DoDSettlementProductInfoResp struct {
+	ProductInfo   []*DoDSettleConnectionInfo `json:"productInfo"`
+	TotalProducts int                        `json:"totalProducts"`
+}
 
 func (s *DoDSettlementAPI) GetOrderInfoBySellerAndOrderId(seller types.Address, orderId string) (*DoDSettleOrderInfo, error) {
 	var r DoDSettleOrderInfo
@@ -453,13 +467,13 @@ func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*Do
 	}
 	return r, nil
 }
-func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address) ([]*DoDPlacingOrderInfo, error) {
-	var r []*DoDPlacingOrderInfo
-	err := s.client.Call(&r, "DoDSettlement_getPlacingOrder", buyer, seller)
+func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address, count, offset int) (*DoDPlacingOrderResp, error) {
+	var r DoDPlacingOrderResp
+	err := s.client.Call(&r, "DoDSettlement_getPlacingOrder", buyer, seller, count, offset)
 	if err != nil {
 		return nil, err
 	}
-	return r, nil
+	return &r, nil
 }
 func (s *DoDSettlementAPI) GetProductIdListByAddress(address types.Address) ([]*DoDSettleProduct, error) {
 	var r []*DoDSettleProduct
@@ -512,6 +526,78 @@ func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller types.Address, orderId 
 func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleProductInvoice, error) {
 	var r DoDSettleProductInvoice
 	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByProductId", seller, orderId, start, end, flight, split)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *DoDSettlementAPI) GetOrderCountByAddress(address types.Address) int {
+	var len int
+	err := s.client.Call(&len, "DoDSettlement_getOrderCountByAddress", address)
+	if err != nil {
+		return 0
+	}
+	return len
+}
+
+func (s *DoDSettlementAPI) GetOrderInfoByAddress(address types.Address, count, offset int) (*DoDSettlementOrderInfoResp, error) {
+	var r DoDSettlementOrderInfoResp
+	err := s.client.Call(&r, "DoDSettlement_getOrderInfoByAddress", address, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *DoDSettlementAPI) GetOrderCountByAddressAndSeller(address, seller types.Address) int {
+	var len int
+	err := s.client.Call(&len, "DoDSettlement_getOrderCountByAddressAndSeller", address, seller)
+	if err != nil {
+		return 0
+	}
+	return len
+}
+
+func (s *DoDSettlementAPI) GetOrderInfoByAddressAndSeller(address, seller types.Address, count, offset int) (*DoDSettlementOrderInfoResp, error) {
+	var r DoDSettlementOrderInfoResp
+	err := s.client.Call(&r, "DoDSettlement_getOrderInfoByAddressAndSeller", address, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *DoDSettlementAPI) GetProductCountByAddress(address types.Address) int {
+	var len int
+	err := s.client.Call(&len, "DoDSettlement_getProductCountByAddress", address)
+	if err != nil {
+		return 0
+	}
+	return len
+}
+
+func (s *DoDSettlementAPI) GetProductInfoByAddress(address types.Address, count, offset int) (*DoDSettlementProductInfoResp, error) {
+	var r DoDSettlementProductInfoResp
+	err := s.client.Call(&r, "DoDSettlement_getProductInfoByAddress", address, count, offset)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (s *DoDSettlementAPI) GetProductCountByAddressAndSeller(address, seller types.Address) int {
+	var len int
+	err := s.client.Call(&len, "DoDSettlement_getProductCountByAddressAndSeller", address, seller)
+	if err != nil {
+		return 0
+	}
+	return len
+}
+
+func (s *DoDSettlementAPI) GetProductInfoByAddressAndSeller(address, seller types.Address, count, offset int) (*DoDSettlementProductInfoResp, error) {
+	var r DoDSettlementProductInfoResp
+	err := s.client.Call(&r, "DoDSettlement_getProductInfoByAddress", address, count, offset)
 	if err != nil {
 		return nil, err
 	}
