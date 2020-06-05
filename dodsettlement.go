@@ -379,10 +379,12 @@ type DoDPlacingOrderInfo struct {
 	InternalId types.Hash          `json:"internalId"`
 	OrderInfo  *DoDSettleOrderInfo `json:"orderInfo"`
 }
+
 type DoDPlacingOrderResp struct {
 	TotalOrders int                    `json:"totalOrders"`
 	OrderList   []*DoDPlacingOrderInfo `json:"orderList"`
 }
+
 type DoDSettleInvoiceConnDynamic struct {
 	DoDSettleConnectionDynamicParam
 	InvoiceStartTime    int64              `json:"invoiceStartTime,omitempty"`
@@ -502,9 +504,11 @@ func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*Do
 	}
 	return r, nil
 }
+
 func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address, count, offset int) (*DoDPlacingOrderResp, error) {
 	var r DoDPlacingOrderResp
 	err := s.client.Call(&r, "DoDSettlement_getPlacingOrder", buyer, seller, count, offset)
+
 	if err != nil {
 		return nil, err
 	}
