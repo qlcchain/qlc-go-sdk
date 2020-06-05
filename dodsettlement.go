@@ -508,7 +508,6 @@ func (s *DoDSettlementAPI) GetPendingResourceCheck(address types.Address) ([]*Do
 func (s *DoDSettlementAPI) GetPlacingOrder(buyer, seller types.Address, count, offset int) (*DoDPlacingOrderResp, error) {
 	var r DoDPlacingOrderResp
 	err := s.client.Call(&r, "DoDSettlement_getPlacingOrder", buyer, seller, count, offset)
-
 	if err != nil {
 		return nil, err
 	}
