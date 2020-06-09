@@ -122,7 +122,6 @@ type DoDSettleConnectionParam struct {
 }
 
 type DoDSettleConnectionStaticParam struct {
-	ItemId            string `json:"itemId,omitempty" msg:"ii"`
 	BuyerProductId    string `json:"buyerProductId,omitempty" msg:"bp"`
 	ProductOfferingId string `json:"productOfferingId,omitempty" msg:"po"`
 	ProductId         string `json:"productId,omitempty" msg:"pi"`
@@ -140,8 +139,9 @@ type DoDSettleConnectionStaticParam struct {
 
 type DoDSettleConnectionDynamicParam struct {
 	OrderId        string                `json:"orderId,omitempty" msg:"oi"`
-	OrderItemId    string                `json:"orderItemId,omitempty" msg:"oii"`
 	InternalId     string                `json:"internalId,omitempty" msg:"-"`
+	ItemId         string                `json:"itemId,omitempty" msg:"ii"`
+	OrderItemId    string                `json:"orderItemId,omitempty" msg:"oii"`
 	QuoteId        string                `json:"quoteId,omitempty" msg:"q"`
 	QuoteItemId    string                `json:"quoteItemId,omitempty" msg:"qi"`
 	ConnectionName string                `json:"connectionName,omitempty" msg:"cn"`
@@ -176,10 +176,15 @@ type DoDSettleChangeOrderParam struct {
 	Seller      *DoDSettleUser                    `json:"seller" msg:"s"`
 	Connections []*DoDSettleChangeConnectionParam `json:"connections" msg:"c"`
 }
-type DoDSettleResourceReadyParam struct {
-	Address    types.Address `json:"address" msg:"-"`
-	InternalId types.Hash    `json:"internalId" msg:"i,extension"`
-	ProductId  []string      `json:"productId" msg:"p"`
+type DoDSettleProductInfo struct {
+	OrderItemId string `json:"orderItemId" msg:"oii"`
+	ProductId   string `json:"productId" msg:"pi"`
+	Active      bool   `json:"active" msg:"a"`
+}
+type DoDSettleUpdateProductInfoParam struct {
+	Address     types.Address           `json:"address" msg:"-"`
+	OrderId     string                  `json:"orderId" msg:"oi"`
+	ProductInfo []*DoDSettleProductInfo `json:"productInfo" msg:"p"`
 }
 
 func (s *DoDSettlementAPI) GetCreateOrderBlock(param *DoDSettleCreateOrderParam, sign Signature) (*types.StateBlock, error) {
@@ -287,9 +292,9 @@ func (s *DoDSettlementAPI) GetTerminateOrderRewardBlock(param *DoDSettleResponse
 	return &blk, nil
 }
 
-func (s *DoDSettlementAPI) GetResourceReadyBlock(param *DoDSettleResourceReadyParam, sign Signature) (*types.StateBlock, error) {
+func (s *DoDSettlementAPI) GetUpdateProductInfoBlock(param *DoDSettleUpdateProductInfoParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "DoDSettlement_getResourceReadyBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getUpdateProductInfoBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -302,9 +307,9 @@ func (s *DoDSettlementAPI) GetResourceReadyBlock(param *DoDSettleResourceReadyPa
 	return &blk, nil
 }
 
-func (s *DoDSettlementAPI) GetResourceReadyRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
+func (s *DoDSettlementAPI) GetUpdateProductInfoRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "DoDSettlement_getResourceReadyRewardBlock", param)
+	err := s.client.Call(&blk, "DoDSettlement_getUpdateProductInfoRewardBlock", param)
 	if err != nil {
 		return nil, err
 	}
