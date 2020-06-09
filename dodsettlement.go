@@ -378,10 +378,10 @@ type DoDSettleProductWithActiveInfo struct {
 }
 
 type DoDPendingResourceCheckInfo struct {
-	SendHash   types.Hash                        `json:"sendHash"`
-	OrderId    string                            `json:"orderId"`
-	InternalId types.Hash                        `json:"internalId"`
-	Products   []*DoDSettleProductWithActiveInfo `json:"products"`
+	SendHash   types.Hash              `json:"sendHash"`
+	OrderId    string                  `json:"orderId"`
+	InternalId types.Hash              `json:"internalId"`
+	Products   []*DoDSettleProductInfo `json:"products"`
 }
 
 type DoDPlacingOrderInfo struct {
