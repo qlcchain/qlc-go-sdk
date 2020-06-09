@@ -585,19 +585,18 @@ func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orde
 	return &r, nil
 }
 
-type DoDSettleProductItem struct {
-	ProductId      string `json:"productId" msg:"p"`
-	BuyerProductId string `json:"buyerProductId" msg:"b"`
-	OrderItemId    string `json:"orderItemId" msg:"o"`
+type DoDSettleOrderItem struct {
+	ItemId      string `json:"itemId" msg:"i"`
+	OrderItemId string `json:"orderItemId" msg:"o"`
 }
 
 type DoDSettleUpdateOrderInfoParam struct {
-	Buyer      types.Address           `json:"buyer" msg:"-"`
-	InternalId types.Hash              `json:"internalId,omitempty" msg:"i,extension"`
-	OrderId    string                  `json:"orderId,omitempty" msg:"oi"`
-	ProductIds []*DoDSettleProductItem `json:"productIds" msg:"pis"`
-	Status     DoDSettleOrderState     `json:"status,omitempty" msg:"s"`
-	FailReason string                  `json:"failReason,omitempty" msg:"fr"`
+	Buyer       types.Address         `json:"buyer" msg:"-"`
+	InternalId  types.Hash            `json:"internalId,omitempty" msg:"i,extension"`
+	OrderId     string                `json:"orderId,omitempty" msg:"oi"`
+	OrderItemId []*DoDSettleOrderItem `json:"orderItemId" msg:"oii"`
+	Status      DoDSettleOrderState   `json:"status,omitempty" msg:"s"`
+	FailReason  string                `json:"failReason,omitempty" msg:"fr"`
 }
 
 func (s *DoDSettlementAPI) GetUpdateOrderInfoBlock(param *DoDSettleUpdateOrderInfoParam, sign Signature) (*types.StateBlock, error) {
