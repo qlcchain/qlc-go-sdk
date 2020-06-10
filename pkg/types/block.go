@@ -123,3 +123,7 @@ func (e BlockType) MarshalJSON() ([]byte, error) {
 func (e BlockType) Equal(t BlockType) bool {
 	return byte(e) == byte(t)
 }
+
+func BlockTypeFromStr(s string) BlockType {
+	return parseString(s)
+}
