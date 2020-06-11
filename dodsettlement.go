@@ -508,10 +508,12 @@ type DoDSettleOrder struct {
 	Seller  types.Address `json:"seller" msg:"s,extension"`
 	OrderId string        `json:"orderId,omitempty" msg:"o"`
 }
+
 type DoDSettlementOrderInfoResp struct {
 	OrderInfo   []*DoDSettleOrderInfo `json:"orderInfo"`
 	TotalOrders int                   `json:"totalOrders"`
 }
+
 type DoDSettlementProductInfoResp struct {
 	ProductInfo   []*DoDSettleConnectionInfo `json:"productInfo"`
 	TotalProducts int                        `json:"totalProducts"`
