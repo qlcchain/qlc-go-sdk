@@ -111,11 +111,6 @@ terminate
 */
 type DoDSettleOrderType int
 
-type DoDSettleCreateOrderParam struct {
-	Buyer       *DoDSettleUser              `json:"buyer" msg:"b"`
-	Seller      *DoDSettleUser              `json:"seller" msg:"s"`
-	Connections []*DoDSettleConnectionParam `json:"connections,omitempty" msg:"c"`
-}
 type DoDSettleConnectionParam struct {
 	DoDSettleConnectionStaticParam
 	DoDSettleConnectionDynamicParam
@@ -158,33 +153,71 @@ type DoDSettleConnectionDynamicParam struct {
 	EndTime        int64                 `json:"endTime" msg:"et"`
 	EndTimeStr     string                `json:"endTimeStr,omitempty" msg:"-"`
 }
+
+type ContractPrivacyParam struct {
+	PrivateFrom    string   `json:"privateFrom"`
+	PrivateFor     []string `json:"privateFor"`
+	PrivateGroupID string   `json:"privateGroupID"`
+}
+
+type DoDSettleCreateOrderParam struct {
+	ContractPrivacyParam
+	Buyer       *DoDSettleUser              `json:"buyer" msg:"b"`
+	Seller      *DoDSettleUser              `json:"seller" msg:"s"`
+	Connections []*DoDSettleConnectionParam `json:"connections,omitempty" msg:"c"`
+}
+
 type DoDSettleResponseParam struct {
+	ContractPrivacyParam
 	RequestHash types.Hash              `json:"requestHash" msg:"-"`
 	Action      DoDSettleResponseAction `json:"action" msg:"c"`
 }
+
 type DoDSettleChangeConnectionParam struct {
 	ProductId string `json:"productId" msg:"p"`
 	DoDSettleConnectionDynamicParam
 }
+
 type DoDSettleTerminateOrderParam struct {
+	ContractPrivacyParam
 	Buyer       *DoDSettleUser                    `json:"buyer" msg:"b"`
 	Seller      *DoDSettleUser                    `json:"seller" msg:"s"`
 	Connections []*DoDSettleChangeConnectionParam `json:"connections" msg:"c"`
 }
+
 type DoDSettleChangeOrderParam struct {
+	ContractPrivacyParam
 	Buyer       *DoDSettleUser                    `json:"buyer" msg:"b"`
 	Seller      *DoDSettleUser                    `json:"seller" msg:"s"`
 	Connections []*DoDSettleChangeConnectionParam `json:"connections" msg:"c"`
 }
+
 type DoDSettleProductInfo struct {
 	OrderItemId string `json:"orderItemId" msg:"oii"`
 	ProductId   string `json:"productId" msg:"pi"`
 	Active      bool   `json:"active" msg:"a"`
 }
+
 type DoDSettleUpdateProductInfoParam struct {
+	ContractPrivacyParam
 	Address     types.Address           `json:"address" msg:"-"`
 	OrderId     string                  `json:"orderId" msg:"oi"`
 	ProductInfo []*DoDSettleProductInfo `json:"productInfo" msg:"p"`
+}
+
+type DoDSettleOrderItem struct {
+	ItemId      string `json:"itemId" msg:"i"`
+	OrderItemId string `json:"orderItemId" msg:"o"`
+}
+
+type DoDSettleUpdateOrderInfoParam struct {
+	ContractPrivacyParam
+	Buyer       types.Address         `json:"buyer" msg:"-"`
+	InternalId  types.Hash            `json:"internalId,omitempty" msg:"i,extension"`
+	OrderId     string                `json:"orderId,omitempty" msg:"oi"`
+	OrderItemId []*DoDSettleOrderItem `json:"orderItemId" msg:"oii"`
+	Status      DoDSettleOrderState   `json:"status,omitempty" msg:"s"`
+	FailReason  string                `json:"failReason,omitempty" msg:"fr"`
 }
 
 func (s *DoDSettlementAPI) GetCreateOrderBlock(param *DoDSettleCreateOrderParam, sign Signature) (*types.StateBlock, error) {
@@ -205,6 +238,21 @@ func (s *DoDSettlementAPI) GetCreateOrderBlock(param *DoDSettleCreateOrderParam,
 func (s *DoDSettlementAPI) GetCreateOrderRewardBlock(param *DoDSettleResponseParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
 	err := s.client.Call(&blk, "DoDSettlement_getCreateOrderRewardBlock", param)
+	if err != nil {
+		return nil, err
+	}
+	if sign != nil {
+		blk.Signature, err = sign(blk.GetHash())
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &blk, nil
+}
+
+func (s *DoDSettlementAPI) GetUpdateOrderInfoBlock(param *DoDSettleUpdateOrderInfoParam, sign Signature) (*types.StateBlock, error) {
+	var blk types.StateBlock
+	err := s.client.Call(&blk, "DoDSettlement_getUpdateOrderInfoBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -460,10 +508,12 @@ type DoDSettleOrder struct {
 	Seller  types.Address `json:"seller" msg:"s,extension"`
 	OrderId string        `json:"orderId,omitempty" msg:"o"`
 }
+
 type DoDSettlementOrderInfoResp struct {
 	OrderInfo   []*DoDSettleOrderInfo `json:"orderInfo"`
 	TotalOrders int                   `json:"totalOrders"`
 }
+
 type DoDSettlementProductInfoResp struct {
 	ProductInfo   []*DoDSettleConnectionInfo `json:"productInfo"`
 	TotalProducts int                        `json:"totalProducts"`
@@ -584,35 +634,6 @@ func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orde
 		return nil, err
 	}
 	return &r, nil
-}
-
-type DoDSettleOrderItem struct {
-	ItemId      string `json:"itemId" msg:"i"`
-	OrderItemId string `json:"orderItemId" msg:"o"`
-}
-
-type DoDSettleUpdateOrderInfoParam struct {
-	Buyer       types.Address         `json:"buyer" msg:"-"`
-	InternalId  types.Hash            `json:"internalId,omitempty" msg:"i,extension"`
-	OrderId     string                `json:"orderId,omitempty" msg:"oi"`
-	OrderItemId []*DoDSettleOrderItem `json:"orderItemId" msg:"oii"`
-	Status      DoDSettleOrderState   `json:"status,omitempty" msg:"s"`
-	FailReason  string                `json:"failReason,omitempty" msg:"fr"`
-}
-
-func (s *DoDSettlementAPI) GetUpdateOrderInfoBlock(param *DoDSettleUpdateOrderInfoParam, sign Signature) (*types.StateBlock, error) {
-	var blk types.StateBlock
-	err := s.client.Call(&blk, "DoDSettlement_getUpdateOrderInfoBlock", param)
-	if err != nil {
-		return nil, err
-	}
-	if sign != nil {
-		blk.Signature, err = sign(blk.GetHash())
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &blk, nil
 }
 
 func (s *DoDSettlementAPI) GetOrderCountByAddress(address types.Address) int {
