@@ -537,7 +537,7 @@ func (s *DoDSettlementAPI) GetOrderInfoByInternalId(internalId string) (*DoDSett
 	return &r, nil
 }
 
-func (s *DoDSettlementAPI) GetConnectionInfoBySellerAndProductId(seller types.Address, productId string) (*DoDSettleConnectionInfo, error) {
+func (s *DoDSettlementAPI) GetProductInfoBySellerAndProductId(seller types.Address, productId string) (*DoDSettleConnectionInfo, error) {
 	var r DoDSettleConnectionInfo
 	err := s.client.Call(&r, "DoDSettlement_getConnectionInfoBySellerAndProductId", seller, productId)
 	if err != nil {
@@ -637,12 +637,12 @@ func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orde
 }
 
 func (s *DoDSettlementAPI) GetOrderCountByAddress(address types.Address) int {
-	var len int
-	err := s.client.Call(&len, "DoDSettlement_getOrderCountByAddress", address)
+	var length int
+	err := s.client.Call(&length, "DoDSettlement_getOrderCountByAddress", address)
 	if err != nil {
 		return 0
 	}
-	return len
+	return length
 }
 
 func (s *DoDSettlementAPI) GetOrderInfoByAddress(address types.Address, count, offset int) (*DoDSettlementOrderInfoResp, error) {
@@ -655,12 +655,12 @@ func (s *DoDSettlementAPI) GetOrderInfoByAddress(address types.Address, count, o
 }
 
 func (s *DoDSettlementAPI) GetOrderCountByAddressAndSeller(address, seller types.Address) int {
-	var len int
-	err := s.client.Call(&len, "DoDSettlement_getOrderCountByAddressAndSeller", address, seller)
+	var length int
+	err := s.client.Call(&length, "DoDSettlement_getOrderCountByAddressAndSeller", address, seller)
 	if err != nil {
 		return 0
 	}
-	return len
+	return length
 }
 
 func (s *DoDSettlementAPI) GetOrderInfoByAddressAndSeller(address, seller types.Address, count, offset int) (*DoDSettlementOrderInfoResp, error) {
@@ -673,12 +673,12 @@ func (s *DoDSettlementAPI) GetOrderInfoByAddressAndSeller(address, seller types.
 }
 
 func (s *DoDSettlementAPI) GetProductCountByAddress(address types.Address) int {
-	var len int
-	err := s.client.Call(&len, "DoDSettlement_getProductCountByAddress", address)
+	var length int
+	err := s.client.Call(&length, "DoDSettlement_getProductCountByAddress", address)
 	if err != nil {
 		return 0
 	}
-	return len
+	return length
 }
 
 func (s *DoDSettlementAPI) GetProductInfoByAddress(address types.Address, count, offset int) (*DoDSettlementProductInfoResp, error) {
@@ -691,12 +691,12 @@ func (s *DoDSettlementAPI) GetProductInfoByAddress(address types.Address, count,
 }
 
 func (s *DoDSettlementAPI) GetProductCountByAddressAndSeller(address, seller types.Address) int {
-	var len int
-	err := s.client.Call(&len, "DoDSettlement_getProductCountByAddressAndSeller", address, seller)
+	var length int
+	err := s.client.Call(&length, "DoDSettlement_getProductCountByAddressAndSeller", address, seller)
 	if err != nil {
 		return 0
 	}
-	return len
+	return length
 }
 
 func (s *DoDSettlementAPI) GetProductInfoByAddressAndSeller(address, seller types.Address, count, offset int) (*DoDSettlementProductInfoResp, error) {
@@ -706,4 +706,13 @@ func (s *DoDSettlementAPI) GetProductInfoByAddressAndSeller(address, seller type
 		return nil, err
 	}
 	return &r, nil
+}
+
+func (s *DoDSettlementAPI) GetInternalIdByOrderId(seller types.Address, orderId string) (types.Hash, error) {
+	var r types.Hash
+	err := s.client.Call(&r, "DoDSettlement_getInternalIdByOrderId", seller, orderId)
+	if err != nil {
+		return types.ZeroHash, err
+	}
+	return r, nil
 }
