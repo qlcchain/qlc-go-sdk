@@ -618,18 +618,18 @@ func (s *DoDSettlementAPI) GenerateInvoiceByOrderId(seller types.Address, orderI
 	return &r, nil
 }
 
-func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleBuyerInvoice, error) {
+func (s *DoDSettlementAPI) GenerateInvoiceByBuyer(seller, buyer types.Address, start, end int64, flight, split bool) (*DoDSettleBuyerInvoice, error) {
 	var r DoDSettleBuyerInvoice
-	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByBuyer", seller, orderId, start, end, flight, split)
+	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByBuyer", seller, buyer, start, end, flight, split)
 	if err != nil {
 		return nil, err
 	}
 	return &r, nil
 }
 
-func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, orderId string, start, end int64, flight, split bool) (*DoDSettleProductInvoice, error) {
+func (s *DoDSettlementAPI) GenerateInvoiceByProductId(seller types.Address, productId string, start, end int64, flight, split bool) (*DoDSettleProductInvoice, error) {
 	var r DoDSettleProductInvoice
-	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByProductId", seller, orderId, start, end, flight, split)
+	err := s.client.Call(&r, "DoDSettlement_generateInvoiceByProductId", seller, productId, start, end, flight, split)
 	if err != nil {
 		return nil, err
 	}
