@@ -539,7 +539,7 @@ func (s *DoDSettlementAPI) GetOrderInfoByInternalId(internalId string) (*DoDSett
 
 func (s *DoDSettlementAPI) GetProductInfoBySellerAndProductId(seller types.Address, productId string) (*DoDSettleConnectionInfo, error) {
 	var r DoDSettleConnectionInfo
-	err := s.client.Call(&r, "DoDSettlement_getConnectionInfoBySellerAndProductId", seller, productId)
+	err := s.client.Call(&r, "DoDSettlement_getProductInfoBySellerAndProductId", seller, productId)
 	if err != nil {
 		return nil, err
 	}
