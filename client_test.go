@@ -3,6 +3,7 @@ package qlcchain
 import (
 	"encoding/hex"
 	"fmt"
+	"log"
 	"math/big"
 	"testing"
 	"time"
@@ -132,4 +133,26 @@ func TestQLCClient_BlockConfirmedStatus(t *testing.T) {
 	if !r {
 		t.Fatal("block not confirmed")
 	}
+}
+
+func TestNewQLCClient_Subscribe(t *testing.T) {
+	t.Skip()
+	c, err := NewQLCClient("ws://47.244.138.61:9736")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.client.Close()
+	povCh := make(chan *PovApiHeader)
+	sb, err := c.Pov.SubscribeNewBlock(povCh)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(sb.subscribeID)
+	for {
+		select {
+		case blk := <-povCh:
+			log.Println(time.Now().String(), blk.GetHash())
+		}
+	}
+
 }
