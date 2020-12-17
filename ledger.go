@@ -22,6 +22,9 @@ type APIBlock struct {
 	TokenName string        `json:"tokenName"`
 	Amount    types.Balance `json:"amount"`
 	Hash      types.Hash    `json:"hash"`
+
+	PovConfirmHeight uint64 `json:"povConfirmHeight"`
+	PovConfirmCount  uint64 `json:"povConfirmCount"`
 }
 
 type APIAccount struct {
