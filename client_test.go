@@ -158,6 +158,7 @@ func TestNewQLCClient_Subscribe(t *testing.T) {
 }
 
 func TestNewQLCClient(t *testing.T) {
+	t.Skip()
 	c, err := NewQLCClient("ws://127.0.0.1:29736")
 	if err != nil {
 		t.Fatal(err)
@@ -165,7 +166,7 @@ func TestNewQLCClient(t *testing.T) {
 	defer c.client.Close()
 	for {
 		r, err := c.Ledger.BlocksCount()
-		fmt.Println("xxx", r, err)
+		fmt.Println("result: ", r, err)
 		time.Sleep(2 * time.Second)
 	}
 }

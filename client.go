@@ -89,34 +89,22 @@ func (c *QLCClient) wsConnected() {
 		log.Fatal(err)
 	}
 	if u.Scheme == "ws" || u.Scheme == "wss" {
-		cTicker := time.NewTicker(1 * time.Second)
-		for {
-			select {
-			case <-cTicker.C:
-				_, err := c.Ledger.Tokens()
-				if err == nil {
-					go c.wsConnectedPing()
+		go func() {
+			cTicker := time.NewTicker(5 * time.Second)
+			for {
+				select {
+				case <-cTicker.C:
+					_, err := c.Ledger.Tokens()
+					if err != nil {
+						client, err := rpc.Dial(c.endpoint)
+						if err == nil {
+							c.client = client
+						}
+					}
+				case <-c.ctx.Done():
 					return
 				}
 			}
-		}
-	}
-}
-
-func (c *QLCClient) wsConnectedPing() {
-	cTicker := time.NewTicker(5 * time.Second)
-	for {
-		select {
-		case <-cTicker.C:
-			_, err := c.Ledger.Tokens()
-			if err != nil {
-				client, err := rpc.Dial(c.endpoint)
-				if err == nil {
-					c.client = client
-				}
-			}
-		case <-c.ctx.Done():
-			return
-		}
+		}()
 	}
 }
