@@ -21,7 +21,6 @@ import (
 	"strconv"
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/ed25519/internal/edwards25519"
-
 	"golang.org/x/crypto/blake2b"
 )
 

@@ -11,11 +11,11 @@ import (
 )
 
 type DestroyApi struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
 // NewDestroyAPI creates destroy module for client
-func NewDestroyAPI(c *rpc.Client) *DestroyApi {
+func NewDestroyAPI(c *QLCClient) *DestroyApi {
 	return &DestroyApi{client: c}
 }
 
@@ -95,7 +95,7 @@ func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (
 	}
 
 	param.Sign = signature
-	if b, err := param.Verify(b.client); err != nil {
+	if b, err := param.Verify(b.client.getClient()); err != nil {
 		return nil, err
 	} else if !b {
 		return nil, errors.New("invalid sign")
@@ -103,7 +103,7 @@ func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (
 
 	param.Sign = signature
 	var r types.StateBlock
-	err = b.client.Call(&r, "destroy_getSendBlock", param)
+	err = b.client.getClient().Call(&r, "destroy_getSendBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (b *DestroyApi) GetSendBlock(param *APIDestroyParam, sign SignatureParam) (
 // GetRewardBlock returns contract reward block by  destory contract send
 func (b *DestroyApi) GetRewardsBlock(send *types.Hash) (*types.StateBlock, error) {
 	var r types.StateBlock
-	err := b.client.Call(&r, "destroy_getRewardsBlock", send)
+	err := b.client.getClient().Call(&r, "destroy_getRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func (b *DestroyApi) GetRewardsBlock(send *types.Hash) (*types.StateBlock, error
 // GetTotalDestroyInfo returns total amount of qgas destroyed
 func (b *DestroyApi) GetTotalDestroyInfo(addr *types.Address) (types.Balance, error) {
 	var r types.Balance
-	err := b.client.Call(&r, "destroy_getTotalDestroyInfo", addr)
+	err := b.client.getClient().Call(&r, "destroy_getTotalDestroyInfo", addr)
 	if err != nil {
 		return types.ZeroBalance, err
 	}
@@ -133,7 +133,7 @@ func (b *DestroyApi) GetTotalDestroyInfo(addr *types.Address) (types.Balance, er
 // GetDestroyInfoDetail returns detail info of qgas destroyed
 func (b *DestroyApi) GetDestroyInfoDetail(addr *types.Address) ([]*APIDestroyInfo, error) {
 	var r []*APIDestroyInfo
-	err := b.client.Call(&r, "destroy_getDestroyInfoDetail", addr)
+	err := b.client.getClient().Call(&r, "destroy_getDestroyInfoDetail", addr)
 	if err != nil {
 		return nil, err
 	}

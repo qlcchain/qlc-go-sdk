@@ -15,13 +15,11 @@ import (
 	"fmt"
 	"math/big"
 
-	"gitlab.com/samli88/go-x11-hash"
-	"golang.org/x/crypto/scrypt"
-
-	"github.com/tinylib/msgp/msgp"
-	"golang.org/x/crypto/blake2b"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
+	"github.com/tinylib/msgp/msgp"
+	"gitlab.com/samli88/go-x11-hash"
+	"golang.org/x/crypto/blake2b"
+	"golang.org/x/crypto/scrypt"
 )
 
 func init() {

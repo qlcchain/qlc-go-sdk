@@ -24,7 +24,7 @@ func Hash() types.Hash {
 
 func TestQLCClient_GenerateBlock(t *testing.T) {
 	t.Skip()
-	c, err := NewQLCClient("ws://127.0.0.1:19736")
+	c, err := NewQLCClient("ws://127.0.0.1:29736")
 	//client, err := NewQLCClient("http://47.244.138.61:9735")
 	if err != nil {
 		t.Fatal(err)
@@ -137,7 +137,7 @@ func TestQLCClient_BlockConfirmedStatus(t *testing.T) {
 
 func TestNewQLCClient_Subscribe(t *testing.T) {
 	t.Skip()
-	c, err := NewQLCClient("ws://47.244.138.61:9736")
+	c, err := NewQLCClient("ws://127.0.0.1:29736")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -155,4 +155,18 @@ func TestNewQLCClient_Subscribe(t *testing.T) {
 		}
 	}
 
+}
+
+func TestNewQLCClient(t *testing.T) {
+	t.Skip()
+	c, err := NewQLCClient("ws://127.0.0.1:29736")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.client.Close()
+	for {
+		r, err := c.Ledger.BlocksCount()
+		fmt.Println("result: ", r, err)
+		time.Sleep(2 * time.Second)
+	}
 }

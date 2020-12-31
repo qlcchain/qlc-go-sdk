@@ -3,13 +3,11 @@ package qlcchain
 import (
 	"math/big"
 
-	rpc "github.com/qlcchain/jsonrpc2"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type MinerApi struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
 type RewardParam struct {
@@ -40,14 +38,14 @@ type MinerHistoryRewardInfo struct {
 }
 
 // NewMinerAPI creates miner module for client
-func NewMinerAPI(c *rpc.Client) *MinerApi {
+func NewMinerAPI(c *QLCClient) *MinerApi {
 	return &MinerApi{client: c}
 }
 
 // MinerAvailRewardInfo returns miner available reward info
 func (m *MinerApi) GetAvailRewardInfo(coinbase types.Address) (*MinerAvailRewardInfo, error) {
 	var rspData MinerAvailRewardInfo
-	err := m.client.Call(&rspData, "miner_getAvailRewardInfo", coinbase)
+	err := m.client.getClient().Call(&rspData, "miner_getAvailRewardInfo", coinbase)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +55,7 @@ func (m *MinerApi) GetAvailRewardInfo(coinbase types.Address) (*MinerAvailReward
 // GetRewardSendBlock returns miner contract send block
 func (m *MinerApi) GetRewardSendBlock(param *RewardParam) (*types.StateBlock, error) {
 	var rspData types.StateBlock
-	err := m.client.Call(&rspData, "miner_getRewardSendBlock", param)
+	err := m.client.getClient().Call(&rspData, "miner_getRewardSendBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +65,7 @@ func (m *MinerApi) GetRewardSendBlock(param *RewardParam) (*types.StateBlock, er
 // GetRewardSendBlock returns miner contract reward block
 func (m *MinerApi) GetRewardRecvBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var rspData types.StateBlock
-	err := m.client.Call(&rspData, "miner_getRewardRecvBlock", input)
+	err := m.client.getClient().Call(&rspData, "miner_getRewardRecvBlock", input)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +75,7 @@ func (m *MinerApi) GetRewardRecvBlock(input *types.StateBlock) (*types.StateBloc
 // GetRewardRecvBlockBySendHash returns miner contract reward block
 func (m *MinerApi) GetRewardRecvBlockBySendHash(sendHash types.Hash) (*types.StateBlock, error) {
 	var rspData types.StateBlock
-	err := m.client.Call(&rspData, "miner_getRewardRecvBlockBySendHash", sendHash)
+	err := m.client.getClient().Call(&rspData, "miner_getRewardRecvBlockBySendHash", sendHash)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +85,7 @@ func (m *MinerApi) GetRewardRecvBlockBySendHash(sendHash types.Hash) (*types.Sta
 // GetRewardHistory returns miner history reward info
 func (m *MinerApi) GetRewardHistory(coinbase types.Address) (*MinerHistoryRewardInfo, error) {
 	var rspData MinerHistoryRewardInfo
-	err := m.client.Call(&rspData, "miner_getRewardHistory", coinbase)
+	err := m.client.getClient().Call(&rspData, "miner_getRewardHistory", coinbase)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +94,7 @@ func (m *MinerApi) GetRewardHistory(coinbase types.Address) (*MinerHistoryReward
 
 func (m *MinerApi) GetRewardData(param *RewardParam) ([]byte, error) {
 	var rspData []byte
-	err := m.client.Call(&rspData, "miner_getRewardData", param)
+	err := m.client.getClient().Call(&rspData, "miner_getRewardData", param)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +103,7 @@ func (m *MinerApi) GetRewardData(param *RewardParam) ([]byte, error) {
 
 func (m *MinerApi) UnpackRewardData(data []byte) (*RewardParam, error) {
 	var rspData RewardParam
-	err := m.client.Call(&rspData, "miner_unpackRewardData", data)
+	err := m.client.getClient().Call(&rspData, "miner_unpackRewardData", data)
 	if err != nil {
 		return nil, err
 	}

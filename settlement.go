@@ -1,16 +1,15 @@
 package qlcchain
 
 import (
-	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 type SettlementAPI struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
-func NewSettlementAPI(c *rpc.Client) *SettlementAPI {
+func NewSettlementAPI(c *QLCClient) *SettlementAPI {
 	return &SettlementAPI{
 		client: c,
 	}
@@ -40,7 +39,7 @@ type CreateContractParam struct {
 
 func (s *SettlementAPI) ToAddress(param *CreateContractParam) (types.Address, error) {
 	var r types.Address
-	err := s.client.Call(&r, "settlement_toAddress", param)
+	err := s.client.getClient().Call(&r, "settlement_toAddress", param)
 	if err != nil {
 		return types.ZeroAddress, err
 	}
@@ -49,7 +48,7 @@ func (s *SettlementAPI) ToAddress(param *CreateContractParam) (types.Address, er
 
 func (s *SettlementAPI) GetCreateContractBlock(param *CreateContractParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getCreateContractBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getCreateContractBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +63,7 @@ func (s *SettlementAPI) GetCreateContractBlock(param *CreateContractParam, sign 
 
 func (s *SettlementAPI) GetSettlementRewardsBlock(send *types.Hash, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getSettlementRewardsBlock", send)
+	err := s.client.getClient().Call(&blk, "settlement_getSettlementRewardsBlock", send)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +96,7 @@ type UpdateStopParam struct {
 
 func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getSignContractBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getSignContractBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +111,7 @@ func (s *SettlementAPI) GetSignContractBlock(param *SignContractParam, sign Sign
 
 func (s *SettlementAPI) GetProcessCDRBlock(addr *types.Address, params []*CDRParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getProcessCDRBlock", addr, params)
+	err := s.client.getClient().Call(&blk, "settlement_getProcessCDRBlock", addr, params)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +126,7 @@ func (s *SettlementAPI) GetProcessCDRBlock(addr *types.Address, params []*CDRPar
 
 func (s *SettlementAPI) GetAddPreStopBlock(param *StopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getAddPreStopBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getAddPreStopBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +141,7 @@ func (s *SettlementAPI) GetAddPreStopBlock(param *StopParam, sign Signature) (*t
 
 func (s *SettlementAPI) GetRemovePreStopBlock(param *StopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getRemovePreStopBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getRemovePreStopBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +156,7 @@ func (s *SettlementAPI) GetRemovePreStopBlock(param *StopParam, sign Signature) 
 
 func (s *SettlementAPI) GetUpdatePreStopBlock(param *UpdateStopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getUpdatePreStopBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getUpdatePreStopBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +171,7 @@ func (s *SettlementAPI) GetUpdatePreStopBlock(param *UpdateStopParam, sign Signa
 
 func (s *SettlementAPI) GetAddNextStopBlock(param *StopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getAddNextStopBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getAddNextStopBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +186,7 @@ func (s *SettlementAPI) GetAddNextStopBlock(param *StopParam, sign Signature) (*
 
 func (s *SettlementAPI) GetRemoveNextStopBlock(param *StopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getRemoveNextStopBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getRemoveNextStopBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +201,7 @@ func (s *SettlementAPI) GetRemoveNextStopBlock(param *StopParam, sign Signature)
 
 func (s *SettlementAPI) GetUpdateNextStopBlock(param *UpdateStopParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getUpdateNextStopBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getUpdateNextStopBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +222,7 @@ type TerminateParam struct {
 
 func (s *SettlementAPI) GetTerminateContractBlock(param *TerminateParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getTerminateContractBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getTerminateContractBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +249,7 @@ type SettlementContract struct {
 
 func (s *SettlementAPI) GetAllContracts(count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
-	err := s.client.Call(&r, "settlement_getAllContracts", count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getAllContracts", count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -259,7 +258,7 @@ func (s *SettlementAPI) GetAllContracts(count int, offset *int) ([]*SettlementCo
 
 func (s *SettlementAPI) GetContractsByAddress(addr *types.Address, count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
-	err := s.client.Call(&r, "settlement_getContractsByAddress", addr, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getContractsByAddress", addr, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +267,7 @@ func (s *SettlementAPI) GetContractsByAddress(addr *types.Address, count int, of
 
 func (s *SettlementAPI) GetContractsAsPartyA(addr *types.Address, count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
-	err := s.client.Call(&r, "settlement_getContractsAsPartyA", addr, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getContractsAsPartyA", addr, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +276,7 @@ func (s *SettlementAPI) GetContractsAsPartyA(addr *types.Address, count int, off
 
 func (s *SettlementAPI) GetContractsAsPartyB(addr *types.Address, count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
-	err := s.client.Call(&r, "settlement_getContractsAsPartyB", addr, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getContractsAsPartyB", addr, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -286,7 +285,7 @@ func (s *SettlementAPI) GetContractsAsPartyB(addr *types.Address, count int, off
 
 func (s *SettlementAPI) GetContractAddressByPartyANextStop(addr *types.Address, stopName string) (*types.Address, error) {
 	var contractAddress types.Address
-	err := s.client.Call(&contractAddress, "settlement_getContractAddressByPartyANextStop", addr, stopName)
+	err := s.client.getClient().Call(&contractAddress, "settlement_getContractAddressByPartyANextStop", addr, stopName)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +294,7 @@ func (s *SettlementAPI) GetContractAddressByPartyANextStop(addr *types.Address, 
 
 func (s *SettlementAPI) GetContractAddressByPartyBPreStop(addr *types.Address, stopName string) (*types.Address, error) {
 	var contractAddress types.Address
-	err := s.client.Call(&contractAddress, "settlement_getContractAddressByPartyBPreStop", addr, stopName)
+	err := s.client.getClient().Call(&contractAddress, "settlement_getContractAddressByPartyBPreStop", addr, stopName)
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +303,7 @@ func (s *SettlementAPI) GetContractAddressByPartyBPreStop(addr *types.Address, s
 
 func (s *SettlementAPI) GetContractsByStatus(addr *types.Address, status string, count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
-	err := s.client.Call(&r, "settlement_getContractsByStatus", addr, status, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getContractsByStatus", addr, status, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -313,7 +312,7 @@ func (s *SettlementAPI) GetContractsByStatus(addr *types.Address, status string,
 
 func (s *SettlementAPI) GetExpiredContracts(addr *types.Address, count int, offset *int) ([]*SettlementContract, error) {
 	var r []*SettlementContract
-	err := s.client.Call(&r, "settlement_getExpiredContracts", addr, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getExpiredContracts", addr, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -344,7 +343,7 @@ func (z *CDRParam) ToHash() (types.Hash, error) {
 
 func (s *SettlementAPI) GetNextStopNames(addr *types.Address) ([]string, error) {
 	var r []string
-	err := s.client.Call(&r, "settlement_getNextStopNames", addr)
+	err := s.client.getClient().Call(&r, "settlement_getNextStopNames", addr)
 	if err != nil {
 		return nil, err
 	}
@@ -353,7 +352,7 @@ func (s *SettlementAPI) GetNextStopNames(addr *types.Address) ([]string, error) 
 
 func (s *SettlementAPI) GetPreStopNames(addr *types.Address) ([]string, error) {
 	var r []string
-	err := s.client.Call(&r, "settlement_getPreStopNames", addr)
+	err := s.client.getClient().Call(&r, "settlement_getPreStopNames", addr)
 	if err != nil {
 		return nil, err
 	}
@@ -373,7 +372,7 @@ type CDRStatus struct {
 
 func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDRStatus, error) {
 	var r CDRStatus
-	err := s.client.Call(&r, "settlement_getCDRStatus", addr, hash)
+	err := s.client.getClient().Call(&r, "settlement_getCDRStatus", addr, hash)
 	if err != nil {
 		return nil, err
 	}
@@ -382,7 +381,7 @@ func (s *SettlementAPI) GetCDRStatus(addr *types.Address, hash types.Hash) (*CDR
 
 func (s *SettlementAPI) GetCDRStatusByCdrData(addr *types.Address, index uint64, sender, destination string) (*CDRStatus, error) {
 	var r CDRStatus
-	err := s.client.Call(&r, "settlement_getCDRStatusByCdrData", addr, index, sender, destination)
+	err := s.client.getClient().Call(&r, "settlement_getCDRStatusByCdrData", addr, index, sender, destination)
 	if err != nil {
 		return nil, err
 	}
@@ -391,7 +390,7 @@ func (s *SettlementAPI) GetCDRStatusByCdrData(addr *types.Address, index uint64,
 
 func (s *SettlementAPI) GetAllCDRStatus(addr *types.Address, count int, offset *int) ([]*CDRStatus, error) {
 	var r []*CDRStatus
-	err := s.client.Call(&r, "settlement_getAllCDRStatus", addr, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getAllCDRStatus", addr, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -400,7 +399,7 @@ func (s *SettlementAPI) GetAllCDRStatus(addr *types.Address, count int, offset *
 
 func (s *SettlementAPI) GetMultiPartyCDRStatus(firstAddr, secondAddr *types.Address, count int, offset *int) ([]*CDRStatus, error) {
 	var r []*CDRStatus
-	err := s.client.Call(&r, "settlement_getMultiPartyCDRStatus", firstAddr, secondAddr, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getMultiPartyCDRStatus", firstAddr, secondAddr, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -409,7 +408,7 @@ func (s *SettlementAPI) GetMultiPartyCDRStatus(firstAddr, secondAddr *types.Addr
 
 func (s *SettlementAPI) GetCDRStatusByDate(addr *types.Address, start, end int64, count int, offset *int) ([]*CDRStatus, error) {
 	var r []*CDRStatus
-	err := s.client.Call(&r, "settlement_getCDRStatusByDate", addr, start, end, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getCDRStatusByDate", addr, start, end, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -441,7 +440,7 @@ type SummaryResult struct {
 
 func (s *SettlementAPI) GetSummaryReport(addr *types.Address, start, end int64) (*SummaryResult, error) {
 	var r SummaryResult
-	err := s.client.Call(&r, "settlement_getSummaryReport", addr, start, end)
+	err := s.client.getClient().Call(&r, "settlement_getSummaryReport", addr, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +455,7 @@ func (s *SettlementAPI) GetSummaryReport(addr *types.Address, start, end int64) 
 // @return summary report if error not exist
 func (s *SettlementAPI) GetSummaryReportByAccount(addr *types.Address, account string, start, end int64) (*SummaryResult, error) {
 	var r SummaryResult
-	err := s.client.Call(&r, "settlement_getSummaryReportByAccount", addr, account, start, end)
+	err := s.client.getClient().Call(&r, "settlement_getSummaryReportByAccount", addr, account, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -471,7 +470,7 @@ func (s *SettlementAPI) GetSummaryReportByAccount(addr *types.Address, account s
 // @return summary report if error not exist
 func (s *SettlementAPI) GetSummaryReportByCustomer(addr *types.Address, customer string, start, end int64) (*SummaryResult, error) {
 	var r SummaryResult
-	err := s.client.Call(&r, "settlement_getSummaryReportByCustomer", addr, customer, start, end)
+	err := s.client.getClient().Call(&r, "settlement_getSummaryReportByCustomer", addr, customer, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -497,7 +496,7 @@ type InvoiceRecord struct {
 
 func (s *SettlementAPI) GenerateInvoices(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
-	err := s.client.Call(&r, "settlement_generateInvoices", addr, start, end)
+	err := s.client.getClient().Call(&r, "settlement_generateInvoices", addr, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -512,7 +511,7 @@ func (s *SettlementAPI) GenerateInvoices(addr *types.Address, start, end int64) 
 // @return settlement invoice
 func (s *SettlementAPI) GenerateInvoicesByAccount(addr *types.Address, account string, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
-	err := s.client.Call(&r, "settlement_generateInvoicesByAccount", addr, account, start, end)
+	err := s.client.getClient().Call(&r, "settlement_generateInvoicesByAccount", addr, account, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -527,7 +526,7 @@ func (s *SettlementAPI) GenerateInvoicesByAccount(addr *types.Address, account s
 // @return settlement invoice
 func (s *SettlementAPI) GenerateInvoicesByCustomer(addr *types.Address, customer string, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
-	err := s.client.Call(&r, "settlement_generateInvoicesByCustomer", addr, customer, start, end)
+	err := s.client.getClient().Call(&r, "settlement_generateInvoicesByCustomer", addr, customer, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -536,7 +535,7 @@ func (s *SettlementAPI) GenerateInvoicesByCustomer(addr *types.Address, customer
 
 func (s *SettlementAPI) GenerateInvoicesByContract(addr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
-	err := s.client.Call(&r, "settlement_generateInvoicesByContract", addr, start, end)
+	err := s.client.getClient().Call(&r, "settlement_generateInvoicesByContract", addr, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -545,7 +544,7 @@ func (s *SettlementAPI) GenerateInvoicesByContract(addr *types.Address, start, e
 
 func (s *SettlementAPI) GenerateMultiPartyInvoice(firstAddr, secondAddr *types.Address, start, end int64) ([]*InvoiceRecord, error) {
 	var r []*InvoiceRecord
-	err := s.client.Call(&r, "settlement_generateMultiPartyInvoice", firstAddr, secondAddr, start, end)
+	err := s.client.getClient().Call(&r, "settlement_generateMultiPartyInvoice", firstAddr, secondAddr, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -560,7 +559,7 @@ type MultiPartySummaryResult struct {
 
 func (s *SettlementAPI) GenerateMultiPartySummaryReport(firstAddr, secondAddr *types.Address, start, end int64) (*MultiPartySummaryResult, error) {
 	var r MultiPartySummaryResult
-	err := s.client.Call(&r, "settlement_generateMultiPartySummaryReport", firstAddr, secondAddr, start, end)
+	err := s.client.getClient().Call(&r, "settlement_generateMultiPartySummaryReport", firstAddr, secondAddr, start, end)
 	if err != nil {
 		return nil, err
 	}
@@ -599,7 +598,7 @@ type RegisterAssetParam struct {
 
 func (s *SettlementAPI) GetRegisterAssetBlock(param *RegisterAssetParam, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "settlement_getRegisterAssetBlock", param)
+	err := s.client.getClient().Call(&blk, "settlement_getRegisterAssetBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -631,7 +630,7 @@ type AssetParam struct {
 
 func (s *SettlementAPI) GetAllAssets(count int, offset *int) ([]*AssetParam, error) {
 	var r []*AssetParam
-	err := s.client.Call(&r, "settlement_getAllAssets", count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getAllAssets", count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -640,7 +639,7 @@ func (s *SettlementAPI) GetAllAssets(count int, offset *int) ([]*AssetParam, err
 
 func (s *SettlementAPI) GetAssetsByOwner(owner *types.Address, count int, offset *int) ([]*AssetParam, error) {
 	var r []*AssetParam
-	err := s.client.Call(&r, "settlement_getAssetsByOwner", owner, count, offset)
+	err := s.client.getClient().Call(&r, "settlement_getAssetsByOwner", owner, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -649,7 +648,7 @@ func (s *SettlementAPI) GetAssetsByOwner(owner *types.Address, count int, offset
 
 func (s *SettlementAPI) GetAsset(address types.Address) (*AssetParam, error) {
 	var r AssetParam
-	err := s.client.Call(&r, "settlement_getAsset", address)
+	err := s.client.getClient().Call(&r, "settlement_getAsset", address)
 	if err != nil {
 		return nil, err
 	}

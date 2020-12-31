@@ -3,13 +3,11 @@ package qlcchain
 import (
 	"math/big"
 
-	rpc "github.com/qlcchain/jsonrpc2"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type RepApi struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
 type RepRewardParam struct {
@@ -40,14 +38,14 @@ type RepHistoryRewardInfo struct {
 }
 
 // NewRepAPI creates representative module for client
-func NewRepAPI(c *rpc.Client) *RepApi {
+func NewRepAPI(c *QLCClient) *RepApi {
 	return &RepApi{client: c}
 }
 
 // GetAvailRewardInfo returns representative available reward info
 func (r *RepApi) GetAvailRewardInfo(account types.Address) (*RepAvailRewardInfo, error) {
 	var rspData RepAvailRewardInfo
-	err := r.client.Call(&rspData, "rep_getAvailRewardInfo", account)
+	err := r.client.getClient().Call(&rspData, "rep_getAvailRewardInfo", account)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +55,7 @@ func (r *RepApi) GetAvailRewardInfo(account types.Address) (*RepAvailRewardInfo,
 // GetRewardSendBlock returns representative contract send block
 func (r *RepApi) GetRewardSendBlock(param *RepRewardParam) (*types.StateBlock, error) {
 	var rspData types.StateBlock
-	err := r.client.Call(&rspData, "rep_getRewardSendBlock", param)
+	err := r.client.getClient().Call(&rspData, "rep_getRewardSendBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +65,7 @@ func (r *RepApi) GetRewardSendBlock(param *RepRewardParam) (*types.StateBlock, e
 // GetRewardSendBlock returns representative contract reward block
 func (r *RepApi) GetRewardRecvBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var rspData types.StateBlock
-	err := r.client.Call(&rspData, "rep_getRewardRecvBlock", input)
+	err := r.client.getClient().Call(&rspData, "rep_getRewardRecvBlock", input)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +75,7 @@ func (r *RepApi) GetRewardRecvBlock(input *types.StateBlock) (*types.StateBlock,
 // GetRewardRecvBlockBySendHash returns representative contract reward block
 func (r *RepApi) GetRewardRecvBlockBySendHash(sendHash types.Hash) (*types.StateBlock, error) {
 	var rspData types.StateBlock
-	err := r.client.Call(&rspData, "rep_getRewardRecvBlockBySendHash", sendHash)
+	err := r.client.getClient().Call(&rspData, "rep_getRewardRecvBlockBySendHash", sendHash)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +85,7 @@ func (r *RepApi) GetRewardRecvBlockBySendHash(sendHash types.Hash) (*types.State
 // GetRewardHistory returns representative history reward info
 func (r *RepApi) GetRewardHistory(account types.Address) (*RepHistoryRewardInfo, error) {
 	var rspData RepHistoryRewardInfo
-	err := r.client.Call(&rspData, "rep_getRewardHistory", account)
+	err := r.client.getClient().Call(&rspData, "rep_getRewardHistory", account)
 	if err != nil {
 		return nil, err
 	}

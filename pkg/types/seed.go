@@ -15,7 +15,6 @@ import (
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/ed25519"
 	"github.com/qlcchain/qlc-go-sdk/pkg/random"
-
 	"github.com/tinylib/msgp/msgp"
 	"golang.org/x/crypto/blake2b"
 )

@@ -5,14 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	rpc "github.com/qlcchain/jsonrpc2"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type PovApi struct {
 	url    string
-	client *rpc.Client
+	client *QLCClient
 }
 
 type PovApiStatus struct {
@@ -189,7 +187,7 @@ type PovApiSubmitWork struct {
 }
 
 // NewPovAPI creates pov module for client
-func NewPovAPI(url string, c *rpc.Client) *PovApi {
+func NewPovAPI(url string, c *QLCClient) *PovApi {
 	return &PovApi{url: url, client: c}
 }
 
@@ -197,7 +195,7 @@ func NewPovAPI(url string, c *rpc.Client) *PovApi {
 // If node is in pov syncing, will return error
 func (p *PovApi) GetPovStatus() (*PovApiStatus, error) {
 	var rspData PovApiStatus
-	err := p.client.Call(&rspData, "pov_getPovStatus")
+	err := p.client.getClient().Call(&rspData, "pov_getPovStatus")
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +206,7 @@ func (p *PovApi) GetPovStatus() (*PovApiStatus, error) {
 // If node is in pov syncing, will return error
 func (p *PovApi) GetFittestHeader(gap uint64) (*PovApiHeader, error) {
 	var rspData PovApiHeader
-	err := p.client.Call(&rspData, "pov_getFittestHeader", gap)
+	err := p.client.getClient().Call(&rspData, "pov_getFittestHeader", gap)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +216,7 @@ func (p *PovApi) GetFittestHeader(gap uint64) (*PovApiHeader, error) {
 // GetLatestHeader returns latest pov header info
 func (p *PovApi) GetLatestHeader() (*PovApiHeader, error) {
 	var rspData PovApiHeader
-	err := p.client.Call(&rspData, "pov_getLatestHeader")
+	err := p.client.getClient().Call(&rspData, "pov_getLatestHeader")
 	if err != nil {
 		return nil, err
 	}
@@ -228,7 +226,7 @@ func (p *PovApi) GetLatestHeader() (*PovApiHeader, error) {
 // GetHeaderByHeight returns pov header info by height
 func (p *PovApi) GetHeaderByHeight(height uint64) (*PovApiHeader, error) {
 	var rspData PovApiHeader
-	err := p.client.Call(&rspData, "pov_getHeaderByHeight", height)
+	err := p.client.getClient().Call(&rspData, "pov_getHeaderByHeight", height)
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +236,7 @@ func (p *PovApi) GetHeaderByHeight(height uint64) (*PovApiHeader, error) {
 // GetHeaderByHash returns pov header info by hash
 func (p *PovApi) GetHeaderByHash(blockHash types.Hash) (*PovApiHeader, error) {
 	var rspData PovApiHeader
-	err := p.client.Call(&rspData, "pov_getHeaderByHash", blockHash)
+	err := p.client.getClient().Call(&rspData, "pov_getHeaderByHash", blockHash)
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +246,7 @@ func (p *PovApi) GetHeaderByHash(blockHash types.Hash) (*PovApiHeader, error) {
 // BatchGetHeadersByHeight returns a lots of pov headers info by range
 func (p *PovApi) BatchGetHeadersByHeight(height uint64, count uint64, asc bool) (*PovApiBatchHeader, error) {
 	var rspData PovApiBatchHeader
-	err := p.client.Call(&rspData, "pov_batchGetHeadersByHeight", height, count, asc)
+	err := p.client.getClient().Call(&rspData, "pov_batchGetHeadersByHeight", height, count, asc)
 	if err != nil {
 		return nil, err
 	}
@@ -258,7 +256,7 @@ func (p *PovApi) BatchGetHeadersByHeight(height uint64, count uint64, asc bool) 
 // GetLatestBlock returns latest pov block info
 func (p *PovApi) GetLatestBlock(txOffset uint32, txLimit uint32) (*PovApiBlock, error) {
 	var rspData PovApiBlock
-	err := p.client.Call(&rspData, "pov_getLatestBlock", txOffset, txLimit)
+	err := p.client.getClient().Call(&rspData, "pov_getLatestBlock", txOffset, txLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +266,7 @@ func (p *PovApi) GetLatestBlock(txOffset uint32, txLimit uint32) (*PovApiBlock, 
 // GetBlockByHash returns pov block info by hash
 func (p *PovApi) GetBlockByHash(blockHash types.Hash, txOffset uint32, txLimit uint32) (*PovApiBlock, error) {
 	var rspData PovApiBlock
-	err := p.client.Call(&rspData, "pov_getBlockByHash", blockHash, txOffset, txLimit)
+	err := p.client.getClient().Call(&rspData, "pov_getBlockByHash", blockHash, txOffset, txLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -278,7 +276,7 @@ func (p *PovApi) GetBlockByHash(blockHash types.Hash, txOffset uint32, txLimit u
 // GetBlockByHeight returns pov block info by height
 func (p *PovApi) GetBlockByHeight(height uint64, txOffset uint32, txLimit uint32) (*PovApiBlock, error) {
 	var rspData PovApiBlock
-	err := p.client.Call(&rspData, "pov_getBlockByHeight", height, txOffset, txLimit)
+	err := p.client.getClient().Call(&rspData, "pov_getBlockByHeight", height, txOffset, txLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -288,7 +286,7 @@ func (p *PovApi) GetBlockByHeight(height uint64, txOffset uint32, txLimit uint32
 // GetTransaction returns pov tx lookup info by tx hash
 func (p *PovApi) GetTransaction(txHash types.Hash) (*PovApiTxLookup, error) {
 	var rspData PovApiTxLookup
-	err := p.client.Call(&rspData, "pov_getTransaction", txHash)
+	err := p.client.getClient().Call(&rspData, "pov_getTransaction", txHash)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +296,7 @@ func (p *PovApi) GetTransaction(txHash types.Hash) (*PovApiTxLookup, error) {
 // GetTransactionByBlockHashAndIndex returns pov tx lookup info by block hash and tx index
 func (p *PovApi) GetTransactionByBlockHashAndIndex(blockHash types.Hash, index uint32) (*PovApiTxLookup, error) {
 	var rspData PovApiTxLookup
-	err := p.client.Call(&rspData, "pov_getTransactionByBlockHashAndIndex", blockHash, index)
+	err := p.client.getClient().Call(&rspData, "pov_getTransactionByBlockHashAndIndex", blockHash, index)
 	if err != nil {
 		return nil, err
 	}
@@ -308,7 +306,7 @@ func (p *PovApi) GetTransactionByBlockHashAndIndex(blockHash types.Hash, index u
 // GetTransactionByBlockHeightAndIndex returns pov tx lookup info by block height and tx index
 func (p *PovApi) GetTransactionByBlockHeightAndIndex(height uint64, index uint32) (*PovApiTxLookup, error) {
 	var rspData PovApiTxLookup
-	err := p.client.Call(&rspData, "pov_getTransactionByBlockHeightAndIndex", height, index)
+	err := p.client.getClient().Call(&rspData, "pov_getTransactionByBlockHeightAndIndex", height, index)
 	if err != nil {
 		return nil, err
 	}
@@ -318,7 +316,7 @@ func (p *PovApi) GetTransactionByBlockHeightAndIndex(height uint64, index uint32
 // GetLatestAccountState returns pov account state in latest block
 func (p *PovApi) GetLatestAccountState(address types.Address) (*PovApiState, error) {
 	var rspData PovApiState
-	err := p.client.Call(&rspData, "pov_getLatestAccountState", address)
+	err := p.client.getClient().Call(&rspData, "pov_getLatestAccountState", address)
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +326,7 @@ func (p *PovApi) GetLatestAccountState(address types.Address) (*PovApiState, err
 // GetAccountStateByBlockHash returns pov account state by block hash
 func (p *PovApi) GetAccountStateByBlockHash(address types.Address, blockHash types.Hash) (*PovApiState, error) {
 	var rspData PovApiState
-	err := p.client.Call(&rspData, "pov_getAccountStateByBlockHash", address, blockHash)
+	err := p.client.getClient().Call(&rspData, "pov_getAccountStateByBlockHash", address, blockHash)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +336,7 @@ func (p *PovApi) GetAccountStateByBlockHash(address types.Address, blockHash typ
 // GetAccountStateByBlockHeight returns pov account state by block height
 func (p *PovApi) GetAccountStateByBlockHeight(address types.Address, height uint64) (*PovApiState, error) {
 	var rspData PovApiState
-	err := p.client.Call(&rspData, "pov_getAccountStateByBlockHeight", address, height)
+	err := p.client.getClient().Call(&rspData, "pov_getAccountStateByBlockHeight", address, height)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +346,7 @@ func (p *PovApi) GetAccountStateByBlockHeight(address types.Address, height uint
 // GetHashInfo returns pov network hash info
 func (p *PovApi) GetHashInfo(height uint64, lookup uint64) (*PovApiHashInfo, error) {
 	var rspData PovApiHashInfo
-	err := p.client.Call(&rspData, "pov_getHashInfo", height, lookup)
+	err := p.client.getClient().Call(&rspData, "pov_getHashInfo", height, lookup)
 	if err != nil {
 		return nil, err
 	}
@@ -358,7 +356,7 @@ func (p *PovApi) GetHashInfo(height uint64, lookup uint64) (*PovApiHashInfo, err
 // GetMiningInfo returns pov mining info
 func (p *PovApi) GetMiningInfo() (*PovApiGetMiningInfo, error) {
 	var rspData PovApiGetMiningInfo
-	err := p.client.Call(&rspData, "pov_getMiningInfo")
+	err := p.client.getClient().Call(&rspData, "pov_getMiningInfo")
 	if err != nil {
 		return nil, err
 	}
@@ -368,7 +366,7 @@ func (p *PovApi) GetMiningInfo() (*PovApiGetMiningInfo, error) {
 // GetMinerStats returns pov miner statistic
 func (p *PovApi) GetMinerStats(addrs []types.Address) (*PovMinerStats, error) {
 	var rspData PovMinerStats
-	err := p.client.Call(&rspData, "pov_getMinerStats", addrs)
+	err := p.client.getClient().Call(&rspData, "pov_getMinerStats", addrs)
 	if err != nil {
 		return nil, err
 	}
@@ -378,7 +376,7 @@ func (p *PovApi) GetMinerStats(addrs []types.Address) (*PovMinerStats, error) {
 // GetMinerDayStat returns pov miner day statistic
 func (p *PovApi) GetMinerDayStat(dayIndex int) (*types.PovMinerDayStat, error) {
 	var rspData types.PovMinerDayStat
-	err := p.client.Call(&rspData, "pov_getMinerDayStat", dayIndex)
+	err := p.client.getClient().Call(&rspData, "pov_getMinerDayStat", dayIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +386,7 @@ func (p *PovApi) GetMinerDayStat(dayIndex int) (*types.PovMinerDayStat, error) {
 // GetMinerDayStatByHeight returns pov miner day statistic
 func (p *PovApi) GetMinerDayStatByHeight(height uint64) (*types.PovMinerDayStat, error) {
 	var rspData types.PovMinerDayStat
-	err := p.client.Call(&rspData, "pov_getMinerDayStatByHeight", height)
+	err := p.client.getClient().Call(&rspData, "pov_getMinerDayStatByHeight", height)
 	if err != nil {
 		return nil, err
 	}
@@ -398,7 +396,7 @@ func (p *PovApi) GetMinerDayStatByHeight(height uint64) (*types.PovMinerDayStat,
 // GetDiffDayStat returns pov difficulty day statistic
 func (p *PovApi) GetDiffDayStat(dayIndex int) (*types.PovDiffDayStat, error) {
 	var rspData types.PovDiffDayStat
-	err := p.client.Call(&rspData, "pov_getDiffDayStat", dayIndex)
+	err := p.client.getClient().Call(&rspData, "pov_getDiffDayStat", dayIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -408,7 +406,7 @@ func (p *PovApi) GetDiffDayStat(dayIndex int) (*types.PovDiffDayStat, error) {
 // GetDiffDayStatByHeight returns pov difficulty day statistic
 func (p *PovApi) GetDiffDayStatByHeight(height uint64) (*types.PovDiffDayStat, error) {
 	var rspData types.PovDiffDayStat
-	err := p.client.Call(&rspData, "pov_getDiffDayStatByHeight", height)
+	err := p.client.getClient().Call(&rspData, "pov_getDiffDayStatByHeight", height)
 	if err != nil {
 		return nil, err
 	}
@@ -418,7 +416,7 @@ func (p *PovApi) GetDiffDayStatByHeight(height uint64) (*types.PovDiffDayStat, e
 // GetRepStats returns pov rep statistic
 func (p *PovApi) GetRepStats(addrs []types.Address) (*PovRepStats, error) {
 	var rspData PovRepStats
-	err := p.client.Call(&rspData, "pov_getRepStats", addrs)
+	err := p.client.getClient().Call(&rspData, "pov_getRepStats", addrs)
 	if err != nil {
 		return nil, err
 	}
@@ -428,7 +426,7 @@ func (p *PovApi) GetRepStats(addrs []types.Address) (*PovRepStats, error) {
 // GetLastNHourInfo returns pov last n hour statistic
 func (p *PovApi) GetLastNHourInfo(endHeight uint64, timeSpan uint32) (*PovApiGetLastNHourInfo, error) {
 	var rspData PovApiGetLastNHourInfo
-	err := p.client.Call(&rspData, "pov_getLastNHourInfo", endHeight, timeSpan)
+	err := p.client.getClient().Call(&rspData, "pov_getLastNHourInfo", endHeight, timeSpan)
 	if err != nil {
 		return nil, err
 	}
@@ -439,7 +437,7 @@ func (p *PovApi) GetLastNHourInfo(endHeight uint64, timeSpan uint32) (*PovApiGet
 // If node is in pov syncing, will return error
 func (p *PovApi) GetWork(minerAddr types.Address, algoName string) (*PovApiGetWork, error) {
 	var rspData PovApiGetWork
-	err := p.client.Call(&rspData, "pov_getWork", minerAddr, algoName)
+	err := p.client.getClient().Call(&rspData, "pov_getWork", minerAddr, algoName)
 	if err != nil {
 		return nil, err
 	}
@@ -449,7 +447,7 @@ func (p *PovApi) GetWork(minerAddr types.Address, algoName string) (*PovApiGetWo
 // SubmitWork sumbits new block work to node
 // If node is in pov syncing, will return error
 func (p *PovApi) SubmitWork(work *PovApiSubmitWork) error {
-	err := p.client.Call(nil, "pov_submitWork", work)
+	err := p.client.getClient().Call(nil, "pov_submitWork", work)
 	if err != nil {
 		return err
 	}
