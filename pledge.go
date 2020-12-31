@@ -3,12 +3,11 @@ package qlcchain
 import (
 	"math/big"
 
-	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type PledgeApi struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
 type PledgeParam struct {
@@ -36,14 +35,14 @@ type NEP5PledgeInfo struct {
 }
 
 // NewPledgeAPI creates pledge module for client
-func NewPledgeAPI(c *rpc.Client) *PledgeApi {
+func NewPledgeAPI(c *QLCClient) *PledgeApi {
 	return &PledgeApi{client: c}
 }
 
 // GetMintageData returns pledge data by pledge parameters
 func (p *PledgeApi) GetPledgeData(param *PledgeParam) ([]byte, error) {
 	var r []byte
-	err := p.client.Call(&r, "pledge_getPledgeData", param)
+	err := p.client.getClient().Call(&r, "pledge_getPledgeData", param)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +52,7 @@ func (p *PledgeApi) GetPledgeData(param *PledgeParam) ([]byte, error) {
 // GetPledgeBlock returns pledge block by pledge parameters
 func (p *PledgeApi) GetPledgeBlock(param *PledgeParam) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "pledge_getPledgeBlock", param)
+	err := p.client.getClient().Call(&sb, "pledge_getPledgeBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +62,7 @@ func (p *PledgeApi) GetPledgeBlock(param *PledgeParam) (*types.StateBlock, error
 // GetPledgeRewordBlock returns pledge reward block by pledge block
 func (p *PledgeApi) GetPledgeRewordBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "pledge_getPledgeRewardBlock", input)
+	err := p.client.getClient().Call(&sb, "pledge_getPledgeRewardBlock", input)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +72,7 @@ func (p *PledgeApi) GetPledgeRewordBlock(input *types.StateBlock) (*types.StateB
 // GetWithdrawPledgeData returns withdraw pledge data by withdraw parameters
 func (p *PledgeApi) GetWithdrawPledgeData(param *WithdrawPledgeParam) ([]byte, error) {
 	var r []byte
-	err := p.client.Call(&r, "pledge_getWithdrawPledgeData", param)
+	err := p.client.getClient().Call(&r, "pledge_getWithdrawPledgeData", param)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +82,7 @@ func (p *PledgeApi) GetWithdrawPledgeData(param *WithdrawPledgeParam) ([]byte, e
 // GetWithdrawPledgeBlock returns withdraw pledge block by withdraw parameters
 func (p *PledgeApi) GetWithdrawPledgeBlock(param *WithdrawPledgeParam) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "pledge_getWithdrawPledgeBlock", param)
+	err := p.client.getClient().Call(&sb, "pledge_getWithdrawPledgeBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +92,7 @@ func (p *PledgeApi) GetWithdrawPledgeBlock(param *WithdrawPledgeParam) (*types.S
 // GetWithdrawRewardBlock returns withdraw reward block by pledge block
 func (p *PledgeApi) GetWithdrawRewardBlock(input *types.StateBlock) (*types.StateBlock, error) {
 	var sb types.StateBlock
-	err := p.client.Call(&sb, "pledge_getWithdrawRewardBlock", input)
+	err := p.client.getClient().Call(&sb, "pledge_getWithdrawRewardBlock", input)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +101,7 @@ func (p *PledgeApi) GetWithdrawRewardBlock(input *types.StateBlock) (*types.Stat
 
 func (p *PledgeApi) SearchAllPledgeInfo() ([]*NEP5PledgeInfo, error) {
 	var r []*NEP5PledgeInfo
-	err := p.client.Call(&r, "pledge_getAllPledgeInfo")
+	err := p.client.getClient().Call(&r, "pledge_getAllPledgeInfo")
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +110,7 @@ func (p *PledgeApi) SearchAllPledgeInfo() ([]*NEP5PledgeInfo, error) {
 
 func (p *PledgeApi) SearchPledgeInfo(param *WithdrawPledgeParam) ([]*NEP5PledgeInfo, error) {
 	var r []*NEP5PledgeInfo
-	err := p.client.Call(&r, "pledge_getPledgeInfo", param)
+	err := p.client.getClient().Call(&r, "pledge_getPledgeInfo", param)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +119,7 @@ func (p *PledgeApi) SearchPledgeInfo(param *WithdrawPledgeParam) ([]*NEP5PledgeI
 
 func (p *PledgeApi) GetPledgeInfoWithNEP5TxId(param *WithdrawPledgeParam) (*NEP5PledgeInfo, error) {
 	var r NEP5PledgeInfo
-	err := p.client.Call(&r, "pledge_getPledgeInfoWithNEP5TxId", param)
+	err := p.client.getClient().Call(&r, "pledge_getPledgeInfoWithNEP5TxId", param)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +128,7 @@ func (p *PledgeApi) GetPledgeInfoWithNEP5TxId(param *WithdrawPledgeParam) (*NEP5
 
 func (p *PledgeApi) GetTotalPledgeAmount() (*big.Int, error) {
 	r := new(big.Int)
-	err := p.client.Call(r, "pledge_getTotalPledgeAmount")
+	err := p.client.getClient().Call(r, "pledge_getTotalPledgeAmount")
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +146,7 @@ type PledgeInfo struct {
 
 func (p *PledgeApi) ParsePledgeInfo(data []byte) (*PledgeInfo, error) {
 	var r PledgeInfo
-	err := p.client.Call(&r, "pledge_parsePledgeInfo", data)
+	err := p.client.getClient().Call(&r, "pledge_parsePledgeInfo", data)
 	if err != nil {
 		return nil, err
 	}

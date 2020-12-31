@@ -1,17 +1,15 @@
 package qlcchain
 
 import (
-	rpc "github.com/qlcchain/jsonrpc2"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	_ "github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
 
 type DoDBillingAPI struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
-func NewDoDBillingApi(c *rpc.Client) *DoDBillingAPI {
+func NewDoDBillingApi(c *QLCClient) *DoDBillingAPI {
 	return &DoDBillingAPI{
 		client: c,
 	}
@@ -29,7 +27,7 @@ type DoDAccount struct {
 
 func (s *DoDBillingAPI) GetDodBillingSetAccountBlock(param *DoDAccount, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodbilling_getSetAccountBlock", param)
+	err := s.client.getClient().Call(&blk, "dodbilling_getSetAccountBlock", param)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +69,7 @@ type DoDConnection struct {
 
 func (s *DoDBillingAPI) GetDodBillingSetServiceBlock(param *DoDAccount, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := s.client.Call(&blk, "dodbilling_getSetServiceBlock", param)
+	err := s.client.getClient().Call(&blk, "dodbilling_getSetServiceBlock", param)
 	if err != nil {
 		return nil, err
 	}

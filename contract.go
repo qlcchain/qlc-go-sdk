@@ -1,7 +1,6 @@
 package qlcchain
 
 import (
-	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
@@ -23,18 +22,18 @@ type ContractRewardBlockPara struct {
 }
 
 type ContractApi struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
 // NewContractAPI creates contract module for client
-func NewContractAPI(c *rpc.Client) *ContractApi {
+func NewContractAPI(c *QLCClient) *ContractApi {
 	return &ContractApi{client: c}
 }
 
 // GetAbiByContractAddress return contract abi by contract address
 func (c *ContractApi) GetAbiByContractAddress(address types.Address) (string, error) {
 	var r string
-	err := c.client.Call(&r, "contract_getAbiByContractAddress", address)
+	err := c.client.getClient().Call(&r, "contract_getAbiByContractAddress", address)
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +48,7 @@ func (c *ContractApi) ContractAddressList() []types.Address {
 // PackContractData parse a ABI interface and pack the given method name to conform the ABI.
 func (c *ContractApi) PackContractData(abiStr string, methodName string, params []string) ([]byte, error) {
 	var r []byte
-	err := c.client.Call(&r, "contract_packContractData", abiStr, methodName, params)
+	err := c.client.getClient().Call(&r, "contract_packContractData", abiStr, methodName, params)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +58,7 @@ func (c *ContractApi) PackContractData(abiStr string, methodName string, params 
 // PackChainContractData pack the given method name to conform the ABI for chain contract.
 func (c *ContractApi) PackChainContractData(contractAddress types.Address, methodName string, params []string) ([]byte, error) {
 	var r []byte
-	err := c.client.Call(&r, "contract_packChainContractData", contractAddress, methodName, params)
+	err := c.client.getClient().Call(&r, "contract_packChainContractData", contractAddress, methodName, params)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +68,7 @@ func (c *ContractApi) PackChainContractData(contractAddress types.Address, metho
 // GenerateSendBlock return new generated ContractSend block
 func (c *ContractApi) GenerateSendBlock(para *ContractSendBlockPara) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := c.client.Call(&blk, "contract_generateSendBlock", para)
+	err := c.client.getClient().Call(&blk, "contract_generateSendBlock", para)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +78,7 @@ func (c *ContractApi) GenerateSendBlock(para *ContractSendBlockPara) (*types.Sta
 // GenerateRewardBlock return new generated ContractReward block
 func (c *ContractApi) GenerateRewardBlock(para *ContractRewardBlockPara) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := c.client.Call(&blk, "contract_generateRewardBlock", para)
+	err := c.client.getClient().Call(&blk, "contract_generateRewardBlock", para)
 	if err != nil {
 		return nil, err
 	}

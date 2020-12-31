@@ -3,9 +3,8 @@ package types
 import (
 	"encoding/hex"
 
-	"github.com/tinylib/msgp/msgp"
-
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
+	"github.com/tinylib/msgp/msgp"
 )
 
 type HexBytes []byte

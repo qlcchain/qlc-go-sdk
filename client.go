@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"sync"
 	"time"
 
 	rpc "github.com/qlcchain/jsonrpc2"
@@ -32,6 +33,8 @@ type QLCClient struct {
 	ctx           context.Context
 	cancel        context.CancelFunc
 	endpoint      string
+	isWsConnected bool
+	mutex         sync.RWMutex
 }
 
 func (c *QLCClient) Close() error {
@@ -53,27 +56,30 @@ func NewQLCClient(endpoint string) (*QLCClient, error) {
 
 	c := &QLCClient{
 		client:        client,
-		Account:       NewAccountAPI(client),
-		Ledger:        NewLedgerAPI(endpoint, client),
-		Contract:      NewContractAPI(client),
-		Mintage:       NewMintageAPI(client),
-		Pledge:        NewPledgeAPI(client),
-		Rewards:       NewRewardAPI(client),
-		Network:       NewNetAPI(client),
-		Util:          NewUtilAPI(client),
-		Destroy:       NewDestroyAPI(client),
-		Debug:         NewDebugAPI(client),
-		Pov:           NewPovAPI(endpoint, client),
-		Miner:         NewMinerAPI(client),
-		Rep:           NewRepAPI(client),
-		Settlement:    NewSettlementAPI(client),
-		Privacy:       NewPrivacyAPI(client),
-		DoDBilling:    NewDoDBillingApi(client),
-		DoDSettlement: NewDoDSettlementAPI(client),
 		ctx:           ctx,
 		cancel:        cancel,
 		endpoint:      endpoint,
+		isWsConnected: isWsConnected(endpoint),
+		mutex:         sync.RWMutex{},
 	}
+	c.Account = NewAccountAPI(c)
+	c.Ledger = NewLedgerAPI(endpoint, c)
+	c.Contract = NewContractAPI(c)
+	c.Mintage = NewMintageAPI(c)
+	c.Pledge = NewPledgeAPI(c)
+	c.Rewards = NewRewardAPI(c)
+	c.Network = NewNetAPI(c)
+	c.Util = NewUtilAPI(c)
+	c.Destroy = NewDestroyAPI(c)
+	c.Debug = NewDebugAPI(c)
+	c.Pov = NewPovAPI(endpoint, c)
+	c.Miner = NewMinerAPI(c)
+	c.Rep = NewRepAPI(c)
+	c.Settlement = NewSettlementAPI(c)
+	c.Privacy = NewPrivacyAPI(c)
+	c.DoDBilling = NewDoDBillingApi(c)
+	c.DoDSettlement = NewDoDSettlementAPI(c)
+
 	c.wsConnected()
 	return c, nil
 }
@@ -84,22 +90,21 @@ func (c *QLCClient) Version() string {
 }
 
 func (c *QLCClient) wsConnected() {
-	u, err := url.Parse(c.endpoint)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if u.Scheme == "ws" || u.Scheme == "wss" {
+	if c.isWsConnected {
 		go func() {
 			cTicker := time.NewTicker(5 * time.Second)
 			for {
 				select {
 				case <-cTicker.C:
-					_, err := c.Ledger.Tokens()
+					_, err := c.Ledger.ChainToken()
 					if err != nil {
+						c.mutex.Lock()
+						c.client.Close()
 						client, err := rpc.Dial(c.endpoint)
 						if err == nil {
 							c.client = client
 						}
+						c.mutex.Unlock()
 					}
 				case <-c.ctx.Done():
 					return
@@ -107,4 +112,25 @@ func (c *QLCClient) wsConnected() {
 			}
 		}()
 	}
+}
+
+func (c *QLCClient) getClient() *rpc.Client {
+	if c.isWsConnected {
+		c.mutex.RLock()
+		defer c.mutex.RUnlock()
+		return c.client
+	} else {
+		return c.client
+	}
+}
+
+func isWsConnected(endpoint string) bool {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if u.Scheme == "ws" || u.Scheme == "wss" {
+		return true
+	}
+	return false
 }

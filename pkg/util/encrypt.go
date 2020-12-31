@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/crypto"
-
 	"golang.org/x/crypto/scrypt"
 )
 

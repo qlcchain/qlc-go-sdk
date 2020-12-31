@@ -14,7 +14,6 @@ import (
 
 	"github.com/qlcchain/qlc-go-sdk/pkg/ed25519"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
-
 	"github.com/tinylib/msgp/msgp"
 )
 

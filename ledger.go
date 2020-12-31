@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"sync"
 
-	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 	"github.com/qlcchain/qlc-go-sdk/pkg/util"
 )
@@ -14,7 +13,7 @@ import (
 type LedgerApi struct {
 	url        string
 	subscribes map[types.Address]*BlockSubscription
-	client     *rpc.Client
+	client     *QLCClient
 }
 
 type APIBlock struct {
@@ -91,7 +90,7 @@ type APISendBlockPara struct {
 }
 
 // NewLedgerAPI creates ledger module for client
-func NewLedgerAPI(url string, c *rpc.Client) *LedgerApi {
+func NewLedgerAPI(url string, c *QLCClient) *LedgerApi {
 	return &LedgerApi{
 		url:    url,
 		client: c,
@@ -109,7 +108,7 @@ func (l *LedgerApi) Stop() {
 // AccountBlocksCount returns number of blocks for a specific account of chain
 func (l *LedgerApi) AccountBlocksCount(address types.Address) (int64, error) {
 	var count int64
-	err := l.client.Call(&count, "ledger_accountBlocksCount", address)
+	err := l.client.getClient().Call(&count, "ledger_accountBlocksCount", address)
 	if err != nil {
 		return 0, err
 	}
@@ -120,7 +119,7 @@ func (l *LedgerApi) AccountBlocksCount(address types.Address) (int64, error) {
 // count is number of blocks to return, and offset is index of block where to start
 func (l *LedgerApi) AccountHistoryTopn(address types.Address, count int, offset int) ([]*APIBlock, error) {
 	var blocks []*APIBlock
-	err := l.client.Call(&blocks, "ledger_accountHistoryTopn", address, count, offset)
+	err := l.client.getClient().Call(&blocks, "ledger_accountHistoryTopn", address, count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +130,7 @@ func (l *LedgerApi) AccountHistoryTopn(address types.Address, count int, offset 
 // If account not found, will return error
 func (l *LedgerApi) AccountInfo(address types.Address) (*APIAccount, error) {
 	var aa APIAccount
-	err := l.client.Call(&aa, "ledger_accountInfo", address)
+	err := l.client.getClient().Call(&aa, "ledger_accountInfo", address)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +141,7 @@ func (l *LedgerApi) AccountInfo(address types.Address) (*APIAccount, error) {
 // If account not found, will return error
 func (l *LedgerApi) AccountRepresentative(address types.Address) (types.Address, error) {
 	var addr types.Address
-	err := l.client.Call(&addr, "ledger_accountRepresentative", address)
+	err := l.client.getClient().Call(&addr, "ledger_accountRepresentative", address)
 	if err != nil {
 		return types.ZeroAddress, err
 	}
@@ -154,7 +153,7 @@ func (l *LedgerApi) AccountRepresentative(address types.Address) (types.Address,
 // If account not found, will return error
 func (l *LedgerApi) AccountVotingWeight(address types.Address) (types.Balance, error) {
 	var amount types.Balance
-	err := l.client.Call(&amount, "ledger_accountRepresentative", address)
+	err := l.client.getClient().Call(&amount, "ledger_accountRepresentative", address)
 	if err != nil {
 		return types.ZeroBalance, err
 	}
@@ -164,7 +163,7 @@ func (l *LedgerApi) AccountVotingWeight(address types.Address) (types.Balance, e
 // AccountsBalance returns balance and pending(amount that has not yet been received) for each account
 func (l *LedgerApi) AccountsBalance(addresses []types.Address) (map[types.Address]map[string]*APIAccountsBalance, error) {
 	var r map[types.Address]map[string]*APIAccountsBalance
-	err := l.client.Call(&r, "ledger_accountsBalance", addresses)
+	err := l.client.getClient().Call(&r, "ledger_accountsBalance", addresses)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +173,7 @@ func (l *LedgerApi) AccountsBalance(addresses []types.Address) (map[types.Addres
 // AccountsFrontiers returns frontier info for each token of account
 func (l *LedgerApi) AccountsFrontiers(addresses []types.Address) (map[types.Address]map[string]types.Hash, error) {
 	var r map[types.Address]map[string]types.Hash
-	err := l.client.Call(&r, "ledger_accountsFrontiers", addresses)
+	err := l.client.getClient().Call(&r, "ledger_accountsFrontiers", addresses)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +184,7 @@ func (l *LedgerApi) AccountsFrontiers(addresses []types.Address) (map[types.Addr
 // maximum number of pending for each account return is n, and if n set to -1, will return all pending for each account
 func (l *LedgerApi) AccountsPending(addresses []types.Address, n int) (map[types.Address][]*APIPending, error) {
 	var r map[types.Address][]*APIPending
-	err := l.client.Call(&r, "ledger_accountsPending", addresses, n)
+	err := l.client.getClient().Call(&r, "ledger_accountsPending", addresses, n)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +194,7 @@ func (l *LedgerApi) AccountsPending(addresses []types.Address, n int) (map[types
 // AccountsCount returns total number of accounts of chain
 func (l *LedgerApi) AccountsCount() (uint64, error) {
 	var count uint64
-	err := l.client.Call(&count, "ledger_accountsCount")
+	err := l.client.getClient().Call(&count, "ledger_accountsCount")
 	if err != nil {
 		return 0, err
 	}
@@ -206,7 +205,7 @@ func (l *LedgerApi) AccountsCount() (uint64, error) {
 // count is number of accounts to return, and offset is index of account where to start
 func (l *LedgerApi) Accounts(count int, offset int) ([]types.Address, error) {
 	var r []types.Address
-	err := l.client.Call(&r, "ledger_accounts", count, offset)
+	err := l.client.getClient().Call(&r, "ledger_accounts", count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -216,7 +215,7 @@ func (l *LedgerApi) Accounts(count int, offset int) ([]types.Address, error) {
 // BlockAccount accepts a block hash, and returns account of block owner
 func (l *LedgerApi) BlockAccount(hash types.Hash) (types.Address, error) {
 	var address types.Address
-	err := l.client.Call(&address, "ledger_blockAccount", hash)
+	err := l.client.getClient().Call(&address, "ledger_blockAccount", hash)
 	if err != nil {
 		return types.ZeroAddress, err
 	}
@@ -231,7 +230,7 @@ func (l *LedgerApi) BlockHash(block types.StateBlock) types.Hash {
 // BlocksCount returns the number of blocks(include smartcontract block) and unchecked blocks of chain
 func (l *LedgerApi) BlocksCount() (map[string]uint64, error) {
 	var r map[string]uint64
-	err := l.client.Call(&r, "ledger_blocksCount")
+	err := l.client.getClient().Call(&r, "ledger_blocksCount")
 	if err != nil {
 		return nil, err
 	}
@@ -241,7 +240,7 @@ func (l *LedgerApi) BlocksCount() (map[string]uint64, error) {
 // BlocksCountByType returns number of blocks by type of chain
 func (l *LedgerApi) BlocksCountByType() (map[string]uint64, error) {
 	var r map[string]uint64
-	err := l.client.Call(&r, "ledger_blocksCountByType")
+	err := l.client.getClient().Call(&r, "ledger_blocksCountByType")
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +250,7 @@ func (l *LedgerApi) BlocksCountByType() (map[string]uint64, error) {
 // Return block confirmed status, if block confirmed，return `true`，otherwise return `false`
 func (l *LedgerApi) BlockConfirmedStatus(hash types.Hash) (bool, error) {
 	var r bool
-	err := l.client.Call(&r, "ledger_blockConfirmedStatus", hash)
+	err := l.client.getClient().Call(&r, "ledger_blockConfirmedStatus", hash)
 	if err != nil {
 		return false, err
 	}
@@ -274,7 +273,7 @@ func (l *LedgerApi) BlockInfo(hash types.Hash) (*APIBlock, error) {
 // BlocksInfo accepts blocks hash list, and returns block info for each hash
 func (l *LedgerApi) BlocksInfo(hash []types.Hash) ([]*APIBlock, error) {
 	var ab []*APIBlock
-	err := l.client.Call(&ab, "ledger_blocksInfo", hash)
+	err := l.client.getClient().Call(&ab, "ledger_blocksInfo", hash)
 	if err != nil {
 		return nil, err
 	}
@@ -285,7 +284,7 @@ func (l *LedgerApi) BlocksInfo(hash []types.Hash) ([]*APIBlock, error) {
 // count is number of blocks to return, and offset is index of block where to start
 func (l *LedgerApi) Blocks(count int, offset int) ([]*APIBlock, error) {
 	var r []*APIBlock
-	err := l.client.Call(&r, "ledger_blocks", count, offset)
+	err := l.client.getClient().Call(&r, "ledger_blocks", count, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -295,7 +294,7 @@ func (l *LedgerApi) Blocks(count int, offset int) ([]*APIBlock, error) {
 // Return confirmed account detail info , include each token in the account
 func (l *LedgerApi) ConfirmedAccountInfo(address types.Address) (*APIAccount, error) {
 	var aa APIAccount
-	err := l.client.Call(&aa, "ledger_confirmedAccountInfo", address)
+	err := l.client.getClient().Call(&aa, "ledger_confirmedAccountInfo", address)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +305,7 @@ func (l *LedgerApi) ConfirmedAccountInfo(address types.Address) (*APIAccount, er
 // maximum number of blocks hash to return is n, and if n set to -1, will return blocks hash to the open block
 func (l *LedgerApi) Chain(hash types.Hash, n int) ([]types.Hash, error) {
 	var r []types.Hash
-	err := l.client.Call(&r, "ledger_chain", hash, n)
+	err := l.client.getClient().Call(&r, "ledger_chain", hash, n)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +315,7 @@ func (l *LedgerApi) Chain(hash types.Hash, n int) ([]types.Hash, error) {
 // Delegators accepts a representative account, and returns its delegator and each delegator's balance
 func (l *LedgerApi) Delegators(hash types.Address) ([]*APIAccountBalance, error) {
 	var r []*APIAccountBalance
-	err := l.client.Call(&r, "ledger_delegators", hash)
+	err := l.client.getClient().Call(&r, "ledger_delegators", hash)
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +325,7 @@ func (l *LedgerApi) Delegators(hash types.Address) ([]*APIAccountBalance, error)
 // DelegatorsCount gets number of delegators for specific representative account
 func (l *LedgerApi) DelegatorsCount(hash types.Address) (int64, error) {
 	var count int64
-	err := l.client.Call(&count, "ledger_delegatorsCount", hash)
+	err := l.client.getClient().Call(&count, "ledger_delegatorsCount", hash)
 	if err != nil {
 		return 0, err
 	}
@@ -356,7 +355,7 @@ func phoneNumberSeri(number string) []byte {
 // GenerateSendBlock returns send block by transaction parameter, sign is a function to sign the block
 func (l *LedgerApi) GenerateSendBlock(para *APISendBlockPara, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_generateSendBlock", para)
+	err := l.client.getClient().Call(&blk, "ledger_generateSendBlock", para)
 	if err != nil {
 		return nil, err
 	}
@@ -381,7 +380,7 @@ func (l *LedgerApi) GenerateAndProcessSendBlock(para *APISendBlockPara, sign Sig
 // GenerateReceiveBlock returns receive block by send block, sign is a function to sign the block
 func (l *LedgerApi) GenerateReceiveBlock(txBlock *types.StateBlock, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_generateReceiveBlock", txBlock)
+	err := l.client.getClient().Call(&blk, "ledger_generateReceiveBlock", txBlock)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +405,7 @@ func (l *LedgerApi) GenerateAndProcessReceiveBlock(txBlock *types.StateBlock, si
 // GenerateReceiveBlockByHash returns receive block by send block hash, sign is a function to sign the block
 func (l *LedgerApi) GenerateReceiveBlockByHash(txHash types.Hash, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_generateReceiveBlockByHash", txHash)
+	err := l.client.getClient().Call(&blk, "ledger_generateReceiveBlockByHash", txHash)
 	if err != nil {
 		return nil, err
 	}
@@ -431,7 +430,7 @@ func (l *LedgerApi) GenerateAndProcessReceiveBlockByHash(txHash types.Hash, sign
 // GenerateChangeBlock returns change block by account and new representative address, sign is a function to sign the block
 func (l *LedgerApi) GenerateChangeBlock(account, representative types.Address, sign Signature) (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_generateChangeBlock", account, representative)
+	err := l.client.getClient().Call(&blk, "ledger_generateChangeBlock", account, representative)
 	if err != nil {
 		return nil, err
 	}
@@ -456,7 +455,7 @@ func (l *LedgerApi) GenerateAndProcessChangeBlock(account, representative types.
 // Process checks block base info , updates info of chain for the block ,and broadcasts block
 func (l *LedgerApi) Process(block *types.StateBlock) (types.Hash, error) {
 	var hash types.Hash
-	err := l.client.Call(&hash, "ledger_process", block)
+	err := l.client.getClient().Call(&hash, "ledger_process", block)
 	if err != nil {
 		return types.ZeroHash, err
 	}
@@ -494,7 +493,7 @@ func (l *LedgerApi) Process(block *types.StateBlock) (types.Hash, error) {
 // Pendings returns pending transaction list on chain
 func (l *LedgerApi) Pendings() ([]*APIPending, error) {
 	var r []*APIPending
-	err := l.client.Call(&r, "ledger_pendings")
+	err := l.client.getClient().Call(&r, "ledger_pendings")
 	if err != nil {
 		return nil, err
 	}
@@ -504,7 +503,7 @@ func (l *LedgerApi) Pendings() ([]*APIPending, error) {
 // Performance returns performance time
 func (l *LedgerApi) Performance() ([]*types.PerformanceTime, error) {
 	var r []*types.PerformanceTime
-	err := l.client.Call(&r, "ledger_performance")
+	err := l.client.getClient().Call(&r, "ledger_performance")
 	if err != nil {
 		return nil, err
 	}
@@ -531,7 +530,7 @@ func (l *LedgerApi) Pending(address types.Address, hash types.Hash) (*APIPending
 // will sorting representative balance in descending order
 func (l *LedgerApi) Representatives(sorting bool) ([]*APIRepresentative, error) {
 	var r []*APIRepresentative
-	err := l.client.Call(&r, "ledger_representatives", sorting)
+	err := l.client.getClient().Call(&r, "ledger_representatives", sorting)
 	if err != nil {
 		return nil, err
 	}
@@ -555,7 +554,7 @@ func (l *LedgerApi) TokenMeta(hash types.Hash, address types.Address) (*APIToken
 // Tokens return all token info of chain
 func (l *LedgerApi) Tokens() ([]*types.TokenInfo, error) {
 	var r []*types.TokenInfo
-	err := l.client.Call(&r, "ledger_tokens")
+	err := l.client.getClient().Call(&r, "ledger_tokens")
 	if err != nil {
 		return nil, err
 	}
@@ -565,7 +564,7 @@ func (l *LedgerApi) Tokens() ([]*types.TokenInfo, error) {
 // TransactionsCount returns the number of blocks(not include smartcontract block) and unchecked blocks of chain
 func (l *LedgerApi) TransactionsCount() (map[string]uint64, error) {
 	var r map[string]uint64
-	err := l.client.Call(&r, "ledger_transactionsCount")
+	err := l.client.getClient().Call(&r, "ledger_transactionsCount")
 	if err != nil {
 		return nil, err
 	}
@@ -575,7 +574,7 @@ func (l *LedgerApi) TransactionsCount() (map[string]uint64, error) {
 // TokenInfoById returns token info by token id
 func (l *LedgerApi) TokenInfoById(tokenId types.Hash) (*ApiTokenInfo, error) {
 	var at ApiTokenInfo
-	err := l.client.Call(&at, "ledger_tokenInfoById", tokenId)
+	err := l.client.getClient().Call(&at, "ledger_tokenInfoById", tokenId)
 	if err != nil {
 		return nil, err
 	}
@@ -585,7 +584,7 @@ func (l *LedgerApi) TokenInfoById(tokenId types.Hash) (*ApiTokenInfo, error) {
 // TokenInfoById returns token info by token name
 func (l *LedgerApi) TokenInfoByName(tokenName string) (*ApiTokenInfo, error) {
 	var at ApiTokenInfo
-	err := l.client.Call(&at, "ledger_tokenInfoByName", tokenName)
+	err := l.client.getClient().Call(&at, "ledger_tokenInfoByName", tokenName)
 	if err != nil {
 		return nil, err
 	}
@@ -806,7 +805,7 @@ func (r *BlockSubscription) removeChan(ch chan *types.StateBlock) {
 
 func (l *LedgerApi) GenesisAddress() (*types.Address, error) {
 	var addr types.Address
-	err := l.client.Call(&addr, "ledger_genesisAddress")
+	err := l.client.getClient().Call(&addr, "ledger_genesisAddress")
 	if err != nil {
 		return nil, err
 	}
@@ -815,7 +814,7 @@ func (l *LedgerApi) GenesisAddress() (*types.Address, error) {
 
 func (l *LedgerApi) GasAddress() (*types.Address, error) {
 	var addr types.Address
-	err := l.client.Call(&addr, "ledger_gasAddress")
+	err := l.client.getClient().Call(&addr, "ledger_gasAddress")
 	if err != nil {
 		return nil, err
 	}
@@ -824,7 +823,7 @@ func (l *LedgerApi) GasAddress() (*types.Address, error) {
 
 func (l *LedgerApi) ChainToken() (*types.Hash, error) {
 	var h types.Hash
-	err := l.client.Call(&h, "ledger_chainToken")
+	err := l.client.getClient().Call(&h, "ledger_chainToken")
 	if err != nil {
 		return nil, err
 	}
@@ -833,7 +832,7 @@ func (l *LedgerApi) ChainToken() (*types.Hash, error) {
 
 func (l *LedgerApi) GasToken() (*types.Hash, error) {
 	var h types.Hash
-	err := l.client.Call(&h, "ledger_gasToken")
+	err := l.client.getClient().Call(&h, "ledger_gasToken")
 	if err != nil {
 		return nil, err
 	}
@@ -842,7 +841,7 @@ func (l *LedgerApi) GasToken() (*types.Hash, error) {
 
 func (l *LedgerApi) GenesisMintageBlock() (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_genesisMintageBlock")
+	err := l.client.getClient().Call(&blk, "ledger_genesisMintageBlock")
 	if err != nil {
 		return nil, err
 	}
@@ -851,7 +850,7 @@ func (l *LedgerApi) GenesisMintageBlock() (*types.StateBlock, error) {
 
 func (l *LedgerApi) GenesisMintageHash() (*types.Hash, error) {
 	var h types.Hash
-	err := l.client.Call(&h, "ledger_genesisMintageHash")
+	err := l.client.getClient().Call(&h, "ledger_genesisMintageHash")
 	if err != nil {
 		return nil, err
 	}
@@ -860,7 +859,7 @@ func (l *LedgerApi) GenesisMintageHash() (*types.Hash, error) {
 
 func (l *LedgerApi) GenesisBlock() (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_genesisBlock")
+	err := l.client.getClient().Call(&blk, "ledger_genesisBlock")
 	if err != nil {
 		return nil, err
 	}
@@ -869,7 +868,7 @@ func (l *LedgerApi) GenesisBlock() (*types.StateBlock, error) {
 
 func (l *LedgerApi) GenesisBlockHash() (*types.Hash, error) {
 	var h types.Hash
-	err := l.client.Call(&h, "ledger_genesisBlockHash")
+	err := l.client.getClient().Call(&h, "ledger_genesisBlockHash")
 	if err != nil {
 		return nil, err
 	}
@@ -878,7 +877,7 @@ func (l *LedgerApi) GenesisBlockHash() (*types.Hash, error) {
 
 func (l *LedgerApi) GasBlockHash() (*types.Hash, error) {
 	var h types.Hash
-	err := l.client.Call(&h, "ledger_gasBlockHash")
+	err := l.client.getClient().Call(&h, "ledger_gasBlockHash")
 	if err != nil {
 		return nil, err
 	}
@@ -887,7 +886,7 @@ func (l *LedgerApi) GasBlockHash() (*types.Hash, error) {
 
 func (l *LedgerApi) GasMintageBlock() (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_gasMintageBlock")
+	err := l.client.getClient().Call(&blk, "ledger_gasMintageBlock")
 	if err != nil {
 		return nil, err
 	}
@@ -896,7 +895,7 @@ func (l *LedgerApi) GasMintageBlock() (*types.StateBlock, error) {
 
 func (l *LedgerApi) GasBlock() (*types.StateBlock, error) {
 	var blk types.StateBlock
-	err := l.client.Call(&blk, "ledger_gasBlock")
+	err := l.client.getClient().Call(&blk, "ledger_gasBlock")
 	if err != nil {
 		return nil, err
 	}
@@ -905,7 +904,7 @@ func (l *LedgerApi) GasBlock() (*types.StateBlock, error) {
 
 func (l *LedgerApi) IsGenesisBlock() (*bool, error) {
 	var b bool
-	err := l.client.Call(&b, "ledger_isGenesisBlock")
+	err := l.client.getClient().Call(&b, "ledger_isGenesisBlock")
 	if err != nil {
 		return nil, err
 	}
@@ -914,7 +913,7 @@ func (l *LedgerApi) IsGenesisBlock() (*bool, error) {
 
 func (l *LedgerApi) IsGenesisToken() (*bool, error) {
 	var b bool
-	err := l.client.Call(&b, "ledger_isGenesisToken")
+	err := l.client.getClient().Call(&b, "ledger_isGenesisToken")
 	if err != nil {
 		return nil, err
 	}
@@ -923,7 +922,7 @@ func (l *LedgerApi) IsGenesisToken() (*bool, error) {
 
 func (l *LedgerApi) AllGenesisBlocks() ([]*types.StateBlock, error) {
 	var blks []*types.StateBlock
-	err := l.client.Call(&blks, "ledger_allGenesisBlocks")
+	err := l.client.getClient().Call(&blks, "ledger_allGenesisBlocks")
 	if err != nil {
 		return nil, err
 	}

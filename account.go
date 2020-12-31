@@ -3,23 +3,22 @@ package qlcchain
 import (
 	"encoding/hex"
 
-	rpc "github.com/qlcchain/jsonrpc2"
 	"github.com/qlcchain/qlc-go-sdk/pkg/types"
 )
 
 type AccountApi struct {
-	client *rpc.Client
+	client *QLCClient
 }
 
 // NewAccountAPI creates account module for client
-func NewAccountAPI(c *rpc.Client) *AccountApi {
+func NewAccountAPI(c *QLCClient) *AccountApi {
 	return &AccountApi{client: c}
 }
 
 // Create gets account by index from seed
 func (a *AccountApi) Create(seedStr string, index uint32) (map[string]string, error) {
 	var resp map[string]string
-	err := a.client.Call(&resp, "account_create", seedStr, index)
+	err := a.client.getClient().Call(&resp, "account_create", seedStr, index)
 	if err != nil {
 		return nil, err
 	}
