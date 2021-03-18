@@ -30,6 +30,7 @@ type QLCClient struct {
 	Privacy       *PrivacyApi
 	DoDBilling    *DoDBillingAPI
 	DoDSettlement *DoDSettlementAPI
+	QGasSwap      *QGasSwapApi
 	ctx           context.Context
 	cancel        context.CancelFunc
 	endpoint      string
@@ -79,6 +80,7 @@ func NewQLCClient(endpoint string) (*QLCClient, error) {
 	c.Privacy = NewPrivacyAPI(c)
 	c.DoDBilling = NewDoDBillingApi(c)
 	c.DoDSettlement = NewDoDSettlementAPI(c)
+	c.QGasSwap = NewQGasSwapAPI(c)
 
 	c.wsConnected()
 	return c, nil
