@@ -15,13 +15,13 @@ func NewQGasSwapAPI(c *QLCClient) *QGasSwapApi {
 	return &QGasSwapApi{client: c}
 }
 
-type QGasPledgeInfo struct {
+type QGasPledgeParam struct {
 	PledgeAddress types.Address
 	Amount        types.Balance
 	ToAddress     types.Address
 }
 
-func (q *QGasSwapApi) GetPledgeSendBlock(param *QGasPledgeInfo) (*types.StateBlock, error) {
+func (q *QGasSwapApi) GetPledgeSendBlock(param *QGasPledgeParam) (*types.StateBlock, error) {
 	var sb types.StateBlock
 	err := q.client.getClient().Call(&sb, "qgasswap_getPledgeSendBlock", param)
 	if err != nil {
@@ -39,13 +39,23 @@ func (q *QGasSwapApi) GetPledgeRewardBlock(sendHash types.Hash) (*types.StateBlo
 	return &sb, nil
 }
 
-type QGasWithdrawInfo struct {
+type QGasWithdrawParam struct {
 	WithdrawAddress types.Address
 	Amount          types.Balance
 	FromAddress     types.Address
+	LinkHash        types.Hash
 }
 
-func (q *QGasSwapApi) GetWithdrawSendBlock(param *QGasWithdrawInfo) (*types.StateBlock, error) {
+func (q *QGasSwapApi) ParseWithdrawParam(data []byte) (*QGasWithdrawParam, error) {
+	var r QGasWithdrawParam
+	err := q.client.getClient().Call(&r, "qgasswap_parseWithdrawParam", data)
+	if err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+func (q *QGasSwapApi) GetWithdrawSendBlock(param *QGasWithdrawParam) (*types.StateBlock, error) {
 	var sb types.StateBlock
 	err := q.client.getClient().Call(&sb, "qgasswap_getWithdrawSendBlock", param)
 	if err != nil {
