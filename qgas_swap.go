@@ -16,9 +16,9 @@ func NewQGasSwapAPI(c *QLCClient) *QGasSwapApi {
 }
 
 type QGasPledgeParam struct {
-	PledgeAddress types.Address
-	Amount        types.Balance
-	ToAddress     types.Address
+	FromAddress types.Address
+	Amount      types.Balance
+	ToAddress   types.Address
 }
 
 func (q *QGasSwapApi) GetPledgeSendBlock(param *QGasPledgeParam) (*types.StateBlock, error) {
@@ -40,10 +40,10 @@ func (q *QGasSwapApi) GetPledgeRewardBlock(sendHash types.Hash) (*types.StateBlo
 }
 
 type QGasWithdrawParam struct {
-	WithdrawAddress types.Address
-	Amount          types.Balance
-	FromAddress     types.Address
-	LinkHash        types.Hash
+	ToAddress   types.Address
+	Amount      types.Balance
+	FromAddress types.Address
+	LinkHash    types.Hash
 }
 
 func (q *QGasSwapApi) ParseWithdrawParam(data []byte) (*QGasWithdrawParam, error) {
