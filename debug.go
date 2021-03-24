@@ -21,7 +21,7 @@ func (l *DebugApi) BlockCacheCount() (map[string]uint64, error) {
 
 func (l *DebugApi) BlockLink(hash types.Hash) (map[string]types.Hash, error) {
 	var r map[string]types.Hash
-	err := l.client.getClient().Call(&r, "debug_blockLink")
+	err := l.client.getClient().Call(&r, "debug_blockLink", hash)
 	if err != nil {
 		return nil, err
 	}
