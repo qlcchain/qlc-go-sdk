@@ -276,3 +276,10 @@ func HybridHashData(data []byte) Hash {
 	res3 := X11HashData(res2.Bytes())
 	return res3
 }
+
+func ToHash(h Hash) *Hash {
+	if h.IsZero() {
+		return nil
+	}
+	return &h
+}
